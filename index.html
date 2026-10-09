@@ -1,569 +1,517 @@
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#080b18">
-  <title>StarCraft | سرور ماینکرفت</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StarCraft | Minecraft</title>
 
-  <style>
-    * {
-      box-sizing: border-box;
-    }
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-    body {
-      margin: 0;
-      font-family: Tahoma, Arial, sans-serif;
-      color: #f5f3ff;
-      background: #080b18;
-      line-height: 1.8;
-    }
-
-    header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 14px;
-      padding: 18px 6%;
-      background: #0d1023;
-      border-bottom: 1px solid #272244;
-    }
-
-    .logo {
-      color: #b58aff;
-      font-size: 25px;
-      font-weight: bold;
-    }
-
-    nav {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-
-    button, .button {
-      font-family: inherit;
-      cursor: pointer;
-      border: 1px solid #49346e;
-      border-radius: 10px;
-      padding: 9px 15px;
-      color: white;
-      background: #17152d;
-      text-decoration: none;
-      font-size: 14px;
-    }
-
-    button:hover, .button:hover {
-      background: #30204d;
-    }
-
-    .primary {
-      background: #793be0;
-      border-color: #9a65f4;
-    }
-
-    main {
-      width: min(1000px, 92%);
-      margin: 40px auto;
-    }
-
-    .hero {
-      text-align: center;
-      padding: 55px 18px;
-      border: 1px solid #30234b;
-      border-radius: 22px;
-      background: radial-gradient(
-        circle at top,
-        #251344,
-        #0d1023 70%
-      );
-    }
-
-    h1 {
-      font-size: clamp(34px, 7vw, 58px);
-      margin: 0 0 12px;
-      color: #c6a5ff;
-    }
-
-    h2 {
-      color: #c6a5ff;
-    }
-
-    .muted {
-      color: #b3b3cc;
-    }
-
-    .server {
-      direction: ltr;
-      display: inline-block;
-      padding: 8px 16px;
-      margin: 12px 0;
-      border: 1px solid #49346e;
-      border-radius: 10px;
-      background: #080b18;
-      font-weight: bold;
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(
-        auto-fit, minmax(220px, 1fr)
-      );
-      gap: 16px;
-      margin-top: 24px;
-    }
-
-    .card {
-      padding: 20px;
-      border: 1px solid #282544;
-      border-radius: 16px;
-      background: #101327;
-    }
-
-    .page {
-      display: none;
-    }
-
-    .page.active {
-      display: block;
-    }
-
-    .field {
-      display: block;
-      width: 100%;
-      margin: 12px 0;
-      padding: 12px;
-      color: white;
-      background: #080b18;
-      border: 1px solid #383252;
-      border-radius: 9px;
-      font: inherit;
-    }
-
-    .message {
-      color: #c6a5ff;
-      overflow-wrap: anywhere;
-    }
-
-    footer {
-      text-align: center;
-      padding: 24px;
-      color: #9293ae;
-      border-top: 1px solid #272244;
-      margin-top: 50px;
-    }
-
-    [hidden] {
-      display: none !important;
-    }
-  </style>
+<style>
+*{box-sizing:border-box}
+:root{--bg:#080b18;--panel:#11162a;--purple:#8b5cf6;--text:#f5f3ff;--muted:#a7acc5}
+body{margin:0;background:radial-gradient(ellipse at top,#1d1640 0,#080b18 55%);color:var(--text);font-family:Tahoma,Arial,sans-serif;min-height:100vh}
+header{display:flex;justify-content:space-between;align-items:center;padding:18px 7%;border-bottom:1px solid #ffffff12;gap:15px;flex-wrap:wrap}
+.logo{font-size:25px;font-weight:bold;color:#b69aff}
+nav{display:flex;gap:9px;flex-wrap:wrap}
+button,a{font-family:inherit;cursor:pointer}
+nav button,.btn{border:1px solid #ffffff18;border-radius:10px;padding:10px 15px;background:#ffffff08;color:white;text-decoration:none}
+nav button:hover,.btn:hover{border-color:var(--purple);background:#8b5cf622}
+.btn-primary{background:var(--purple);border-color:var(--purple)}
+main{max-width:1050px;margin:auto;padding:35px 20px}
+.page{display:none}
+.page.active{display:block}
+.hero{text-align:center;padding:70px 15px 65px;background:radial-gradient(ellipse at center,#45258066,transparent 70%);border-radius:24px}
+h1{font-size:clamp(32px,6vw,58px);margin:10px 0}
+h2{margin-top:0}
+p{line-height:2;color:var(--muted)}
+.purple{color:#b69aff}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px;margin-top:25px}
+.card{background:linear-gradient(145deg,#171d35,#101426);border:1px solid #ffffff12;border-radius:17px;padding:22px}
+.card h3{margin-top:0}
+input{width:100%;padding:13px;margin:7px 0 12px;background:#090d1c;color:white;border:1px solid #343752;border-radius:9px;outline:none}
+input:focus{border-color:var(--purple)}
+form{max-width:440px}
+.notice{padding:12px;background:#8b5cf61c;border-radius:10px;color:#d7c7ff;margin:12px 0}
+.hidden{display:none!important}
+#toast{position:fixed;bottom:20px;left:20px;right:20px;max-width:500px;margin:auto;padding:14px;background:#21183b;border:1px solid #8b5cf6;border-radius:12px;text-align:center;display:none;z-index:10}
+footer{text-align:center;padding:25px;color:#7f849f;border-top:1px solid #ffffff12;margin-top:35px}
+table{width:100%;border-collapse:collapse;margin-top:15px;font-size:13px}
+th,td{padding:10px;border-bottom:1px solid #ffffff18;text-align:right;overflow-wrap:anywhere}
+.owner-box{margin-top:22px;border:1px solid #8b5cf6;border-radius:14px;padding:18px;background:#8b5cf610}
+@media(max-width:600px){header{padding:15px}nav{width:100%}nav button{flex:1;padding:9px 6px;font-size:12px}.hero{padding:45px 10px}}
+</style>
 </head>
 
 <body>
-  <header>
-    <div class="logo">✦ StarCraft</div>
+<header>
+  <a class="logo" href="#home" style="text-decoration:none">✦ StarCraft</a>
+  <nav>
+    <button data-page="home">خانه</button>
+    <button data-page="about">درباره ما</button>
+    <button data-page="features">امکانات</button>
+    <button data-page="shop">فروشگاه</button>
+    <button data-page="account">پنل کاربری</button>
+  </nav>
+</header>
 
-    <nav>
-      <button data-page="home">خانه</button>
-      <button data-page="about">درباره ما</button>
-      <button data-page="shop">فروشگاه</button>
-      <button class="primary" data-page="account">
-        پنل کاربری
-      </button>
-    </nav>
-  </header>
+<main>
+  <section id="page-home" class="page active">
+    <div class="hero">
+      <div class="purple">به دنیای StarCraft خوش آمدی</div>
+      <h1>ماجراجویی از اینجا <span class="purple">شروع می‌شود</span></h1>
+      <p>به سرور ماینکرفت ما بپیوند و ماجراجویی خودت را آغاز کن.</p>
+      <button class="btn btn-primary" data-page="shop">مشاهده فروشگاه</button>
+      <button class="btn" id="copyServer">کپی آدرس سرور</button>
+      <p>آدرس سرور: <strong id="serverAddress">PLAY.STARCRAFT.RP</strong></p>
+    </div>
+    <div class="cards">
+      <div class="card"><h3>⚔️ رقابت</h3><p>با دوستانت بازی کن و مهارتت را نشان بده.</p></div>
+      <div class="card"><h3>💎 رتبه‌ها</h3><p>رتبه موردعلاقه‌ات را در فروشگاه ببین.</p></div>
+      <div class="card"><h3>🌌 جامعه</h3><p>به جامعه StarCraft بپیوند.</p></div>
+    </div>
+  </section>
 
-  <main>
-    <section id="page-home" class="page active">
-      <div class="hero">
-        <h1>StarCraft</h1>
-        <p>ماجراجویی خودت را در دنیای ماینکرفت شروع کن!</p>
+  <section id="page-about" class="page">
+    <div class="card">
+      <h2>درباره StarCraft</h2>
+      <p>StarCraft یک پروژه ماینکرفتی برای ساختن تجربه‌ای سرگرم‌کننده و جمع‌آوری بازیکنان است.</p>
+    </div>
+  </section>
 
-        <p>آدرس سرور:</p>
-        <div class="server" id="serverAddress">
-          PLAY.STARCRAFT.RP
-        </div>
-        <br>
-        <button class="primary" id="copyAddress">
-          کپی آدرس سرور
-        </button>
-        <p class="muted" id="toast" role="status"></p>
-      </div>
+  <section id="page-features" class="page">
+    <h2>امکانات سرور</h2>
+    <div class="cards">
+      <div class="card"><h3>🎮 گیم‌پلی</h3><p>تجربه‌ای سرگرم‌کننده در دنیای ماینکرفت.</p></div>
+      <div class="card"><h3>🏆 رتبه‌ها</h3><p>رتبه‌های مختلف در فروشگاه سایت.</p></div>
+      <div class="card"><h3>👥 بازیکنان</h3><p>با بازیکنان دیگر همراه شو.</p></div>
+    </div>
+  </section>
 
-      <div class="grid">
-        <div class="card">
-          <h2>🎮 تجربه بازی</h2>
-          <p class="muted">
-            وارد دنیای ماینکرفت شو و ماجراجویی کن.
-          </p>
-        </div>
-
-        <div class="card">
-          <h2>⭐ رنک‌ها</h2>
-          <p class="muted">
-            رنک موردنظرت را در فروشگاه بررسی کن.
-          </p>
-          <button data-page="shop">رفتن به فروشگاه</button>
-        </div>
-
-        <div class="card">
-          <h2>👤 حساب کاربری</h2>
-          <p class="muted">
-            از بخش پنل کاربری برای ورود یا ثبت‌نام استفاده کن.
-          </p>
-          <button data-page="account">پنل کاربری</button>
-        </div>
-      </div>
-    </section>
-
-    <section id="page-about" class="page">
+  <section id="page-shop" class="page">
+    <h2>فروشگاه StarCraft</h2>
+    <p>رتبه موردنظرت را انتخاب کن. برای فعال شدن خرید، لینک پرداخت هر رتبه را در تنظیمات کد وارد کن.</p>
+    <div class="cards">
       <div class="card">
-        <h2>درباره StarCraft</h2>
-        <p>
-          به وب‌سایت StarCraft خوش آمدی!
-          اینجا می‌توانی اطلاعات سرور و فروشگاه را ببینی.
-        </p>
+        <h3>⭐ VIP</h3><p>رتبه VIP</p>
+        <button class="btn btn-primary buy-rank" data-rank="VIP">مشاهده خرید</button>
       </div>
-    </section>
-
-    <section id="page-shop" class="page">
-      <h2>فروشگاه StarCraft</h2>
-      <p class="muted">
-        لینک خرید هنوز تنظیم نشده است؛ در حال حاضر پرداختی انجام نمی‌شود.
-      </p>
-
-      <div class="grid">
-        <div class="card">
-          <h2>VIP</h2>
-          <p>رنک VIP</p>
-          <button data-rank="VIP" class="buy-link">جزئیات خرید</button>
-        </div>
-
-        <div class="card">
-          <h2>MVP</h2>
-          <p>رنک MVP</p>
-          <button data-rank="MVP" class="buy-link">جزئیات خرید</button>
-        </div>
-
-        <div class="card">
-          <h2>SPONSER</h2>
-          <p>رنک SPONSER</p>
-          <button data-rank="SPONSER" class="buy-link">جزئیات خرید</button>
-        </div>
-
-        <div class="card">
-          <h2>STAR</h2>
-          <p>رنک STAR</p>
-          <button data-rank="STAR" class="buy-link">جزئیات خرید</button>
-        </div>
-      </div>
-    </section>
-
-    <section id="page-account" class="page">
       <div class="card">
-        <h2 id="accountTitle">پنل کاربری</h2>
-        <p class="muted" id="accountDescription">
-          برای ورود یا ثبت‌نام انتخاب کن.
-        </p>
+        <h3>💎 MVP</h3><p>رتبه MVP</p>
+        <button class="btn btn-primary buy-rank" data-rank="MVP">مشاهده خرید</button>
+      </div>
+      <div class="card">
+        <h3>🔥 SPONSER</h3><p>رتبه SPONSER</p>
+        <button class="btn btn-primary buy-rank" data-rank="SPONSER">مشاهده خرید</button>
+      </div>
+      <div class="card">
+        <h3>🌟 STAR</h3><p>رتبه STAR</p>
+        <button class="btn btn-primary buy-rank" data-rank="STAR">مشاهده خرید</button>
+      </div>
+    </div>
+  </section>
 
-        <button id="loginTab" class="primary">ورود</button>
-        <button id="registerTab">ثبت‌نام</button>
+  <section id="page-account" class="page">
+    <h2>پنل کاربری</h2>
+    <div class="card">
+      <div id="authForms">
+        <div style="display:flex;gap:10px;margin-bottom:18px">
+          <button class="btn btn-primary" id="loginTab">ورود</button>
+          <button class="btn" id="registerTab">ثبت‌نام</button>
+        </div>
 
         <form id="loginForm">
-          <input
-            class="field"
-            id="loginUsername"
-            type="email"
-            placeholder="ایمیل"
-            autocomplete="email"
-            required
-          >
-
-          <input
-            class="field"
-            id="loginPassword"
-            type="password"
-            placeholder="رمز عبور"
-            autocomplete="current-password"
-            required
-          >
-
-          <button class="primary" type="submit">ورود</button>
+          <h3>ورود به حساب</h3>
+          <label for="loginEmail">ایمیل</label>
+          <input id="loginEmail" type="email" autocomplete="email" required>
+          <label for="loginPassword">رمز عبور</label>
+          <input id="loginPassword" type="password" autocomplete="current-password" required>
+          <button class="btn btn-primary" type="submit">ورود</button>
         </form>
 
-        <form id="registerForm" hidden>
-          <input
-            class="field"
-            id="registerUsername"
-            type="text"
-            placeholder="نام کاربری"
-            minlength="3"
-            required
-          >
-
-          <input
-            class="field"
-            id="registerEmail"
-            type="email"
-            placeholder="ایمیل"
-            autocomplete="email"
-            required
-          >
-
-          <input
-            class="field"
-            id="registerPassword"
-            type="password"
-            placeholder="رمز عبور"
-            minlength="6"
-            autocomplete="new-password"
-            required
-          >
-
-          <input
-            class="field"
-            id="registerPasswordConfirm"
-            type="password"
-            placeholder="تکرار رمز عبور"
-            minlength="6"
-            autocomplete="new-password"
-            required
-          >
-
-          <button class="primary" type="submit">
-            ساخت حساب کاربری
-          </button>
+        <form id="registerForm" class="hidden">
+          <h3>ساخت حساب جدید</h3>
+          <label for="registerUsername">نام کاربری</label>
+          <input id="registerUsername" maxlength="24" autocomplete="username" required>
+          <label for="registerEmail">ایمیل</label>
+          <input id="registerEmail" type="email" autocomplete="email" required>
+          <label for="registerPassword">رمز عبور (حداقل ۸ کاراکتر)</label>
+          <input id="registerPassword" type="password" minlength="8" autocomplete="new-password" required>
+          <label for="registerPasswordConfirm">تکرار رمز عبور</label>
+          <input id="registerPasswordConfirm" type="password" minlength="8" autocomplete="new-password" required>
+          <button class="btn btn-primary" type="submit">ثبت‌نام</button>
         </form>
-
-        <div id="loggedInPanel" hidden>
-          <p>ایمیل حساب: <span id="loggedInEmail"></span></p>
-          <button id="logoutButton">خروج از حساب</button>
-        </div>
-
-        <p id="accountMessage" class="message" role="status"></p>
       </div>
-    </section>
-  </main>
 
-  <footer>
-    © <span id="year"></span> StarCraft
-  </footer>
+      <div id="accountMessage" class="notice hidden" role="status"></div>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+      <div id="loggedInPanel" class="hidden">
+        <h3>حساب شما</h3>
+        <p>ایمیل: <strong id="loggedInEmail"></strong></p>
+        <p>نام کاربری: <strong id="loggedInUsername">—</strong></p>
+        <button class="btn" id="logoutButton">خروج از حساب</button>
+      </div>
 
-  <script>
-    "use strict";
+      <div id="ownerPanel" class="owner-box hidden">
+        <h3>🛡️ پنل مالک StarCraft</h3>
+        <p>گزارش رویدادهای سایت</p>
+        <button class="btn btn-primary" id="refreshLogs">به‌روزرسانی گزارش‌ها</button>
+        <p id="ownerStatus" role="status">در انتظار بررسی دسترسی...</p>
+        <div style="overflow-x:auto">
+          <table>
+            <thead><tr><th>رویداد</th><th>نام کاربری</th><th>شناسه کاربر</th><th>زمان</th></tr></thead>
+            <tbody id="logsBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
 
-    (() => {
-      const $ = id => document.getElementById(id);
+<footer>© <span id="year"></span> StarCraft — Minecraft Community</footer>
+<div id="toast" role="status"></div>
 
-      const SUPABASE_URL =
-        "https://euvslrpmvevtiwhfdhio.supabase.co";
+<script>
+(() => {
+  "use strict";
 
-      const SUPABASE_KEY =
-        "sb_publishable_YvXvyId7Fmd30vyxyoCAMg_fZn-8gE9";
+  // تنظیمات سایت
+  const SITE_CONFIG = {
+    SERVER_ADDRESS: "PLAY.STARCRAFT.RP",
+    PAYMENTS: {
+      VIP: "",
+      MVP: "",
+      SPONSER: "",
+      STAR: ""
+    }
+  };
 
-      const SERVER_ADDRESS = "PLAY.STARCRAFT.RP";
+  // شناسه کاربری مالک در Supabase
+  const OWNER_UID = "c20a98ec-7495-4abf-80e0-9d86d5b649d0";
 
-      $("year").textContent = new Date().getFullYear();
+  const SUPABASE_URL = "https://euvslrpmvevtiwhfdhio.supabase.co";
+  const SUPABASE_KEY = "sb_publishable_YvXvyId7Fmd30vyxyoCAMg_fZn-8gE9";
 
-      $("copyAddress").addEventListener("click", async () => {
+  const $ = (selector) => document.querySelector(selector);
+  const $$ = (selector) => Array.from(document.querySelectorAll(selector));
+
+  let currentUser = null;
+  let supabase = null;
+  let toastTimer = null;
+
+  function showToast(message) {
+    const toast = $("#toast");
+    if (!toast) return;
+    toast.textContent = message;
+    toast.style.display = "block";
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => {
+      toast.style.display = "none";
+    }, 3000);
+  }
+
+  $("#year").textContent = new Date().getFullYear();
+  $("#serverAddress").textContent = SITE_CONFIG.SERVER_ADDRESS;
+
+  // پیمایش صفحات؛ با کلیک، آدرس صفحه نیز به‌روز می‌شود.
+  function showPage(page, updateHistory = true) {
+    const allowed = ["home", "about", "features", "shop", "account"];
+    if (!allowed.includes(page)) page = "home";
+
+    $$(".page").forEach(section => {
+      section.classList.toggle("active", section.id === "page-" + page);
+    });
+
+    $$("[data-page]").forEach(button => {
+      button.classList.toggle("active", button.dataset.page === page);
+      if (button.tagName === "BUTTON") {
+        button.setAttribute("aria-current",
+          button.dataset.page === page ? "page" : "false");
+      }
+    });
+
+    if (updateHistory && location.hash !== "#" + page) {
+      history.pushState({ page }, "", "#" + page);
+    }
+  }
+
+  $$("[data-page]").forEach(button => {
+    button.addEventListener("click", () => showPage(button.dataset.page));
+  });
+
+  window.addEventListener("popstate", () => {
+    showPage(location.hash.slice(1) || "home", false);
+  });
+
+  window.addEventListener("hashchange", () => {
+    showPage(location.hash.slice(1) || "home", false);
+  });
+
+  showPage(location.hash.slice(1) || "home", false);
+
+  $("#copyServer").addEventListener("click", async () => {
+    try {
+      await navigator.clipboard.writeText(SITE_CONFIG.SERVER_ADDRESS);
+      showToast("آدرس سرور کپی شد.");
+    } catch {
+      showToast("آدرس سرور: " + SITE_CONFIG.SERVER_ADDRESS);
+    }
+  });
+
+  $$(".buy-rank").forEach(button => {
+    button.addEventListener("click", () => {
+      const rank = button.dataset.rank;
+      const url = SITE_CONFIG.PAYMENTS[rank];
+      if (url) {
         try {
-          await navigator.clipboard.writeText(SERVER_ADDRESS);
-          $("toast").textContent = "آدرس سرور کپی شد!";
-        } catch {
-          $("toast").textContent =
-            "آدرس سرور: " + SERVER_ADDRESS;
-        }
-      });
-
-      const pages = ["home", "about", "shop", "account"];
-
-      function navigate(page) {
-        if (!pages.includes(page)) page = "home";
-
-        pages.forEach(name => {
-          $("page-" + name).classList.toggle(
-            "active", name === page
-          );
-        });
-
-        if (location.hash !== "#" + page) {
-          history.replaceState(null, "", "#" + page);
-        }
-
-        window.scrollTo({ top: 0, behavior: "smooth" });
-      }
-
-      document.querySelectorAll("[data-page]").forEach(button => {
-        button.addEventListener("click", () => {
-          navigate(button.dataset.page);
-        });
-      });
-
-      window.addEventListener("popstate", () => {
-        navigate(location.hash.slice(1) || "home");
-      });
-
-      document.querySelectorAll(".buy-link").forEach(button => {
-        button.addEventListener("click", () => {
-          $("toast").textContent =
-            "لینک خرید " + button.dataset.rank +
-            " هنوز تنظیم نشده است.";
-          navigate("shop");
-        });
-      });
-
-      $("loginTab").addEventListener("click", () => {
-        $("loginForm").hidden = false;
-        $("registerForm").hidden = true;
-        $("loginTab").classList.add("primary");
-        $("registerTab").classList.remove("primary");
-        $("accountTitle").textContent = "ورود به حساب";
-        $("accountMessage").textContent = "";
-      });
-
-      $("registerTab").addEventListener("click", () => {
-        $("loginForm").hidden = true;
-        $("registerForm").hidden = false;
-        $("registerTab").classList.add("primary");
-        $("loginTab").classList.remove("primary");
-        $("accountTitle").textContent = "ساخت حساب کاربری";
-        $("accountMessage").textContent = "";
-      });
-
-      let supabaseClient = null;
-
-      if (window.supabase &&
-          typeof window.supabase.createClient === "function") {
-        supabaseClient = window.supabase.createClient(
-          SUPABASE_URL, SUPABASE_KEY
-        );
-      }
-
-      function showLoggedInUser(user) {
-        $("loginForm").hidden = true;
-        $("registerForm").hidden = true;
-        $("loginTab").hidden = true;
-        $("registerTab").hidden = true;
-        $("loggedInPanel").hidden = false;
-        $("loggedInEmail").textContent = user.email || "";
-        $("accountTitle").textContent = "حساب کاربری تو";
-      }
-
-      function showLoggedOutUser() {
-        $("loggedInPanel").hidden = true;
-        $("loginTab").hidden = false;
-        $("registerTab").hidden = false;
-        $("loginForm").hidden = false;
-        $("registerForm").hidden = true;
-        $("accountTitle").textContent = "ورود به حساب";
-      }
-
-      $("registerForm").addEventListener("submit", async event => {
-        event.preventDefault();
-
-        if (!supabaseClient) {
-          $("accountMessage").textContent =
-            "اتصال حساب بارگذاری نشد. اینترنت را بررسی کن.";
-          return;
-        }
-
-        const username = $("registerUsername").value.trim();
-        const email = $("registerEmail").value.trim();
-        const password = $("registerPassword").value;
-        const confirm = $("registerPasswordConfirm").value;
-
-        if (username.length < 3) {
-          $("accountMessage").textContent =
-            "نام کاربری باید حداقل ۳ کاراکتر باشد.";
-          return;
-        }
-
-        if (password !== confirm) {
-          $("accountMessage").textContent =
-            "رمز عبور و تکرار آن یکسان نیستند.";
-          return;
-        }
-
-        $("accountMessage").textContent = "در حال ثبت‌نام...";
-
-        try {
-          const { data, error } =
-            await supabaseClient.auth.signUp({
-              email,
-              password,
-              options: { data: { username } }
-            });
-
-          if (error) throw error;
-
-          if (data.session && data.user) {
-            showLoggedInUser(data.user);
-            $("accountMessage").textContent = "ثبت‌نام موفق بود!";
-          } else {
-            $("accountMessage").textContent =
-              "درخواست ثبت‌نام انجام شد. ایمیلت را برای تأیید بررسی کن.";
+          const parsed = new URL(url);
+          if (parsed.protocol !== "https:") {
+            showToast("لینک پرداخت باید با https شروع شود.");
+            return;
           }
-        } catch (error) {
-          $("accountMessage").textContent =
-            "ثبت‌نام ناموفق بود: " + error.message;
-        }
-      });
-
-      $("loginForm").addEventListener("submit", async event => {
-        event.preventDefault();
-
-        if (!supabaseClient) {
-          $("accountMessage").textContent =
-            "اتصال حساب بارگذاری نشد. اینترنت را بررسی کن.";
-          return;
-        }
-
-        $("accountMessage").textContent = "در حال ورود...";
-
-        try {
-          const { data, error } =
-            await supabaseClient.auth.signInWithPassword({
-              email: $("loginUsername").value.trim(),
-              password: $("loginPassword").value
-            });
-
-          if (error) throw error;
-
-          showLoggedInUser(data.user);
-          $("accountMessage").textContent = "ورود موفق بود!";
+          window.open(parsed.href, "_blank", "noopener,noreferrer");
         } catch {
-          $("accountMessage").textContent =
-            "ورود ناموفق بود؛ ایمیل و رمز عبور را بررسی کن.";
+          showToast("لینک پرداخت معتبر نیست.");
         }
-      });
-
-      $("logoutButton").addEventListener("click", async () => {
-        if (!supabaseClient) return;
-
-        const { error } = await supabaseClient.auth.signOut();
-
-        if (error) {
-          $("accountMessage").textContent = "خروج ناموفق بود.";
-          return;
-        }
-
-        showLoggedOutUser();
-        $("accountMessage").textContent = "از حساب خارج شدی.";
-      });
-
-      if (supabaseClient) {
-        supabaseClient.auth.getSession().then(({ data }) => {
-          if (data.session?.user) {
-            showLoggedInUser(data.session.user);
-          }
-        });
+      } else {
+        showToast("لینک خرید این رتبه هنوز تنظیم نشده است.");
       }
+    });
+  });
 
-      navigate(location.hash.slice(1) || "home");
-    })();
-  </script>
+  function setMessage(message) {
+    const el = $("#accountMessage");
+    el.textContent = message;
+    el.classList.remove("hidden");
+  }
+
+  function clearMessage() {
+    const el = $("#accountMessage");
+    el.textContent = "";
+    el.classList.add("hidden");
+  }
+
+  function setAuthMode(mode) {
+    const isLogin = mode === "login";
+    $("#loginForm").classList.toggle("hidden", !isLogin);
+    $("#registerForm").classList.toggle("hidden", isLogin);
+    $("#loginTab").classList.toggle("btn-primary", isLogin);
+    $("#registerTab").classList.toggle("btn-primary", !isLogin);
+    clearMessage();
+  }
+
+  $("#loginTab").addEventListener("click", () => setAuthMode("login"));
+  $("#registerTab").addEventListener("click", () => setAuthMode("register"));
+
+  function setLoggedInUI(user) {
+    currentUser = user || null;
+    const signedIn = !!currentUser;
+
+    $("#authForms").classList.toggle("hidden", signedIn);
+    $("#loggedInPanel").classList.toggle("hidden", !signedIn);
+    $("#loggedInEmail").textContent = signedIn ? (currentUser.email || "—") : "";
+    $("#loggedInUsername").textContent =
+      signedIn ? (currentUser.user_metadata?.username || "—") : "";
+
+    // پنل مالک فقط برای UID تعیین‌شده نمایش داده می‌شود.
+    const isOwner = signedIn && currentUser.id === OWNER_UID;
+    $("#ownerPanel").classList.toggle("hidden", !isOwner);
+
+    if (isOwner) {
+      $("#ownerStatus").textContent = "دسترسی مالک شناسایی شد.";
+    }
+  }
+
+  // ثبت گزارش‌ها؛ خطای ثبت گزارش مانع کارکرد سایت نمی‌شود.
+  async function writeAuditLog(eventType, username = "") {
+    if (!supabase || !currentUser) return;
+
+    try {
+      const { error } = await supabase.from("site_audit_logs").insert({
+        user_id: currentUser.id,
+        event_type: eventType,
+        username: username || currentUser.user_metadata?.username || "",
+        details: { source: "client" }
+      });
+
+      if (error) console.warn("ثبت گزارش انجام نشد:", error.message);
+    } catch (error) {
+      console.warn("خطای ثبت گزارش:", error);
+    }
+  }
+
+  async function loadOwnerLogs() {
+    if (!currentUser || currentUser.id !== OWNER_UID) {
+      $("#ownerStatus").textContent = "دسترسی غیرمجاز.";
+      return;
+    }
+
+    if (!supabase) {
+      $("#ownerStatus").textContent = "اتصال Supabase برقرار نیست.";
+      return;
+    }
+
+    $("#ownerStatus").textContent = "در حال دریافت گزارش‌ها...";
+    $("#logsBody").replaceChildren();
+
+    const { data, error } = await supabase
+      .from("site_audit_logs")
+      .select("id,user_id,event_type,username,created_at")
+      .order("created_at", { ascending: false })
+      .limit(100);
+
+    if (error) {
+      $("#ownerStatus").textContent =
+        "خطا در دریافت گزارش‌ها؛ وجود جدول و مجوزهای دسترسی را بررسی کن.";
+      console.error(error);
+      return;
+    }
+
+    if (!data || data.length === 0) {
+      $("#ownerStatus").textContent = "هنوز گزارشی ثبت نشده است.";
+      return;
+    }
+
+    const fragment = document.createDocumentFragment();
+
+    data.forEach(log => {
+      const tr = document.createElement("tr");
+      [
+        log.event_type || "—",
+        log.username || "—",
+        log.user_id || "—",
+        log.created_at ? new Date(log.created_at).toLocaleString("fa-IR") : "—"
+      ].forEach(value => {
+        const td = document.createElement("td");
+        td.textContent = String(value);
+        tr.appendChild(td);
+      });
+      fragment.appendChild(tr);
+    });
+
+    $("#logsBody").appendChild(fragment);
+    $("#ownerStatus").textContent = "تعداد گزارش‌های دریافت‌شده: " + data.length;
+  }
+
+  $("#refreshLogs").addEventListener("click", loadOwnerLogs);
+
+  // اگر کتابخانه یا تنظیمات اتصال در دسترس نباشند،
+  // صفحه و بخش‌های غیرمرتبط همچنان کار می‌کنند.
+  if (!window.supabase || !SUPABASE_URL || !SUPABASE_KEY) {
+    setMessage("سرویس حساب کاربری آماده نیست. اتصال Supabase را بررسی کن.");
+    return;
+  }
+
+  supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  $("#registerForm").addEventListener("submit", async event => {
+    event.preventDefault();
+    clearMessage();
+
+    const username = $("#registerUsername").value.trim();
+    const email = $("#registerEmail").value.trim();
+    const password = $("#registerPassword").value;
+    const confirmation = $("#registerPasswordConfirm").value;
+
+    if (username.length < 3) {
+      setMessage("نام کاربری باید حداقل ۳ کاراکتر باشد.");
+      return;
+    }
+    if (password.length < 8) {
+      setMessage("رمز عبور باید حداقل ۸ کاراکتر باشد.");
+      return;
+    }
+    if (password !== confirmation) {
+      setMessage("رمز عبور و تکرار آن یکسان نیستند.");
+      return;
+    }
+
+    const submit = $("#registerForm button[type='submit']");
+    submit.disabled = true;
+
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: { username }
+        }
+      });
+
+      if (error) throw error;
+
+      if (data.user && data.session) {
+        currentUser = data.user;
+        setLoggedInUI(data.user);
+        await writeAuditLog("signup", username);
+        setMessage("ثبت‌نام موفق بود.");
+      } else {
+        setMessage("ثبت‌نام انجام شد. اگر تأیید ایمیل فعال است، ایمیلت را تأیید کن و سپس وارد شو.");
+      }
+    } catch (error) {
+      setMessage(error.message || "ثبت‌نام ناموفق بود.");
+    } finally {
+      submit.disabled = false;
+    }
+  });
+
+  $("#loginForm").addEventListener("submit", async event => {
+    event.preventDefault();
+    clearMessage();
+
+    const email = $("#loginEmail").value.trim();
+    const password = $("#loginPassword").value;
+    const submit = $("#loginForm button[type='submit']");
+    submit.disabled = true;
+
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
+
+      if (error) throw error;
+
+      setLoggedInUI(data.user);
+      await writeAuditLog("login");
+      setMessage("با موفقیت وارد شدی.");
+      if (data.user.id === OWNER_UID) await loadOwnerLogs();
+    } catch (error) {
+      setMessage(error.message || "ورود ناموفق بود.");
+    } finally {
+      submit.disabled = false;
+    }
+  });
+
+  $("#logoutButton").addEventListener("click", async () => {
+    clearMessage();
+
+    try {
+      await writeAuditLog("logout");
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      setLoggedInUI(null);
+      setAuthMode("login");
+      setMessage("از حساب خارج شدی.");
+    } catch (error) {
+      setMessage(error.message || "خروج ناموفق بود.");
+    }
+  });
+
+  // بازیابی نشست قبلی
+  supabase.auth.getSession().then(({ data, error }) => {
+    if (error) {
+      console.warn(error);
+      return;
+    }
+    setLoggedInUI(data.session?.user || null);
+    if (data.session?.user?.id === OWNER_UID) loadOwnerLogs();
+  });
+
+  supabase.auth.onAuthStateChange((_event, session) => {
+    setLoggedInUI(session?.user || null);
+  });
+})();
+</script>
 </body>
 </html>
