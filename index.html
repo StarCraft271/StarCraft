@@ -1,437 +1,616 @@
 
 <script>
-const SITE_CONFIG = {
-  SERVER_ADDRESS: "PLAY.STARCRAFT.RP",
-  PAYMENTS: { VIP: "", MVP: "", SPONSER: "", STAR: "" }
-};
-
-const OWNER_UID = "c20a98ec-7495-4abf-80e0-9d86d5b649d0";
-
-const SUPABASE_URL = "https://euvslrpmvevtiwhfdhio.supabase.co";
-const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_YvXvyId7Fmd30vyxyoCAMg_fZn-8gE9";
-
-const supabaseClient = window.supabase.createClient(
-  SUPABASE_URL,
-  SUPABASE_PUBLISHABLE_KEY
-);
-
-document.getElementById("serverAddress").textContent = SITE_CONFIG.SERVER_ADDRESS;
-document.getElementById("year").textContent = new Date().getFullYear();
-
-const toast = document.getElementById("toast");
-let toastTimer;
-
-function showToast(message) {
-  toast.textContent = message;
-  toast.classList.add("show");
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => toast.classList.remove("show"), 2600);
-}
-
-document.getElementById("copyAddress").addEventListener("click", async () => {
-  try {
-    await navigator.clipboard.writeText(SITE_CONFIG.SERVER_ADDRESS);
-    showToast("آدرس سرور کپی شد!");
-  } catch {
-    const area = document.createElement("textarea");
-    area.value = SITE_CONFIG.SERVER_ADDRESS;
-    area.style.position = "fixed";
-    area.style.opacity = "0";
-    document.body.appendChild(area);
-    area.select();
-    const ok = document.execCommand("copy");
-    area.remove();
-    showToast(ok ? "آدرس سرور کپی شد!" : "آدرس را دستی کپی کن.");
-  }
-});
-
-function navigate(page, updateHash = true) {
-  const valid = ["home", "about", "features", "shop", "account"].includes(page)
-    ? page : "home";
-
-  document.querySelectorAll(".hidden-page").forEach(el =>
-    el.classList.remove("active")
-  );
-
-  document.getElementById("page-" + valid).classList.add("active");
-
-  document.querySelectorAll(".nav-links a").forEach(el =>
-    el.classList.toggle("active", el.dataset.page === valid)
-  );
-
-  document.getElementById("navLinks").classList.remove("open");
-  document.getElementById("menuToggle").setAttribute("aria-expanded", "false");
-
-  if (updateHash) history.pushState({ page: valid }, "", "#" + valid);
-  window.scrollTo({ top: 0, behavior: "smooth" });
-}
-
-document.querySelectorAll("[data-page]").forEach(el => {
-  el.addEventListener("click", event => {
-    event.preventDefault();
-    navigate(el.dataset.page);
-  });
-});
-
-window.addEventListener("popstate", () =>
-  navigate(location.hash.slice(1) || "home", false)
-);
-
-document.getElementById("menuToggle").addEventListener("click", () => {
-  const links = document.getElementById("navLinks");
-  const open = links.classList.toggle("open");
-  document.getElementById("menuToggle").setAttribute("aria-expanded", String(open));
-});
-
-document.querySelectorAll(".buy-link").forEach(link => {
-  link.addEventListener("click", event => {
-    event.preventDefault();
-    const rank = link.dataset.rank;
-    const url = SITE_CONFIG.PAYMENTS[rank];
-
-    if (url) {
-      window.open(url, "_blank", "noopener,noreferrer");
-    } else {
-      showToast("لینک پرداخت " + rank + " هنوز تنظیم نشده است.");
-    }
-  });
-});
-
-// Account elements
-const loginForm = document.getElementById("loginForm");
-const registerForm = document.getElementById("registerForm");
-const loginTab = document.getElementById("loginTab");
-const registerTab = document.getElementById("registerTab");
-const accountMessage = document.getElementById("accountMessage");
-const loggedInPanel = document.getElementById("loggedInPanel");
-const loggedInEmail = document.getElementById("loggedInEmail");
-const logoutButton = document.getElementById("logoutButton");
-
-// Create the owner log panel
-const ownerPanel = document.createElement("section");
-ownerPanel.id = "ownerPanel";
-ownerPanel.hidden = true;
-ownerPanel.style.cssText =
-  "margin-top:25px;padding:16px;border:1px solid #9b5cff66;" +
-  "border-radius:15px;background:#090c20;text-align:right;";
-
-ownerPanel.innerHTML = `
-  <h3 style="margin-top:0;color:#c6a5ff">✦ پنل اختصاصی مالک</h3>
-  <p style="color:#a7accb;font-size:.85rem">
-    گزارش ثبت‌نام، ورود و خروج کاربران
-  </p>
-  <button id="refreshOwnerLogs" type="button"
-    class="btn btn-secondary" style="width:100%;margin-bottom:12px">
-    تازه‌سازی گزارش‌ها
-  </button>
-  <p id="ownerLogStatus" role="status"
-    style="font-size:.85rem;color:#c6a5ff"></p>
-  <div style="overflow-x:auto">
-    <table style="width:100%;border-collapse:collapse;font-size:.8rem">
-      <thead>
-        <tr>
-          <th style="padding:7px;border-bottom:1px solid #343858">رویداد</th>
-          <th style="padding:7px;border-bottom:1px solid #343858">کاربر</th>
-          <th style="padding:7px;border-bottom:1px solid #343858">زمان</th>
-        </tr>
-      </thead>
-      <tbody id="ownerLogsBody"></tbody>
-    </table>
-  </div>
-  <p style="color:#a7accb;font-size:.78rem">
-    خریدها تا زمان اتصال درگاه پرداخت در این گزارش ثبت نمی‌شوند.
-  </p>
-`;
-
-loggedInPanel.appendChild(ownerPanel);
-
-const ownerLogStatus = ownerPanel.querySelector("#ownerLogStatus");
-const ownerLogsBody = ownerPanel.querySelector("#ownerLogsBody");
-const refreshOwnerLogs = ownerPanel.querySelector("#refreshOwnerLogs");
-
-function showAccountMessage(message) {
-  accountMessage.textContent = message;
-}
-
-function showAccountForm(mode) {
-  const isLogin = mode === "login";
-
-  loginForm.hidden = !isLogin;
-  registerForm.hidden = isLogin;
-  loggedInPanel.hidden = true;
-  ownerPanel.hidden = true;
-  loginTab.hidden = false;
-  registerTab.hidden = false;
-
-  loginTab.className = isLogin ? "btn btn-primary" : "btn btn-secondary";
-  registerTab.className = isLogin ? "btn btn-secondary" : "btn btn-primary";
-
-  document.getElementById("accountTitle").textContent =
-    isLogin ? "ورود به حساب" : "ساخت حساب کاربری";
-
-  document.getElementById("accountDescription").textContent =
-    isLogin ? "با ایمیل و رمز عبورت وارد شو." :
-    "اطلاعات خودت را برای ثبت‌نام وارد کن.";
-
-  showAccountMessage("");
-}
-
-function showLoggedInUser(user) {
-  loginForm.hidden = true;
-  registerForm.hidden = true;
-  loggedInPanel.hidden = false;
-  loginTab.hidden = true;
-  registerTab.hidden = true;
-
-  document.getElementById("accountTitle").textContent = "حساب کاربری تو";
-  document.getElementById("accountDescription").textContent =
-    "به پنل کاربری StarCraft خوش آمدی.";
-
-  loggedInEmail.textContent = user.email || "";
-  ownerPanel.hidden = user.id !== OWNER_UID;
-  showAccountMessage("");
-
-  if (user.id === OWNER_UID) {
-    loadOwnerLogs();
-  }
-}
-
-function showLoggedOutUser() {
-  showAccountForm("login");
-}
-
-loginTab.addEventListener("click", () => showAccountForm("login"));
-registerTab.addEventListener("click", () => showAccountForm("register"));
-
-// Send login/logout events to the deployed Supabase Edge Function
-async function writeAuthLog(eventType) {
-  const { data: { session } } = await supabaseClient.auth.getSession();
-
-  if (!session) {
-    console.error("ثبت لاگ انجام نشد: نشست کاربر موجود نیست.");
-    return false;
-  }
-
-  const { error } = await supabaseClient.functions.invoke("write-auth-log", {
-    body: { event_type: eventType }
-  });
-
-  if (error) {
-    console.error("خطا در ثبت لاگ " + eventType + ":", error);
-    return false;
-  }
-
-  return true;
-}
-
-// Registration: the database trigger records new accounts
-registerForm.addEventListener("submit", async event => {
-  event.preventDefault();
-
-  const username = document.getElementById("registerUsername").value.trim();
-  const email = document.getElementById("registerEmail").value.trim();
-  const password = document.getElementById("registerPassword").value;
-  const confirm = document.getElementById("registerPasswordConfirm").value;
-
-  if (password !== confirm) {
-    showAccountMessage("رمز عبور و تکرار آن یکسان نیستند.");
-    return;
-  }
-
-  if (username.length < 3) {
-    showAccountMessage("نام کاربری باید حداقل ۳ کاراکتر باشد.");
-    return;
-  }
-
-  const button = registerForm.querySelector('button[type="submit"]');
-  button.disabled = true;
-  button.textContent = "در حال ثبت‌نام...";
-
-  try {
-    const { data, error } = await supabaseClient.auth.signUp({
-      email,
-      password,
-      options: {
-        data: { username },
-        emailRedirectTo: "https://starcraft271.github.io/StarCraft/"
-      }
-    });
-
-    if (error) throw error;
-
-    if (data.session && data.user) {
-      showLoggedInUser(data.user);
-      showAccountMessage("ثبت‌نام موفق بود!");
-    } else {
-      showAccountMessage(
-        "درخواست ثبت‌نام انجام شد. اگر تأیید ایمیل فعال است، ایمیلت را بررسی کن."
-      );
-    }
-  } catch (error) {
-    console.error("Signup error:", error);
-    showAccountMessage("خطا در ثبت‌نام: " + error.message);
-  } finally {
-    button.disabled = false;
-    button.textContent = "ساخت حساب کاربری";
-  }
-});
-
-// Login
-loginForm.addEventListener("submit", async event => {
-  event.preventDefault();
-
-  const email = document.getElementById("loginUsername").value.trim();
-  const password = document.getElementById("loginPassword").value;
-  const button = loginForm.querySelector('button[type="submit"]');
-
-  button.disabled = true;
-  button.textContent = "در حال ورود...";
-
-  try {
-    const { data, error } = await supabaseClient.auth.signInWithPassword({
-      email,
-      password
-    });
-
-    if (error) throw error;
-
-    showLoggedInUser(data.user);
-
-    const logged = await writeAuthLog("login");
-    showAccountMessage(
-      logged ? "با موفقیت وارد شدی و لاگ ثبت شد." :
-      "ورود موفق بود، اما ثبت لاگ ناموفق شد."
-    );
-  } catch (error) {
-    console.error("Login error:", error);
-    showAccountMessage("ورود ناموفق بود؛ ایمیل و رمز عبورت را بررسی کن.");
-  } finally {
-    button.disabled = false;
-    button.textContent = "ورود به حساب";
-  }
-});
-
-// Logout: log the event while the user's session is still valid
-logoutButton.addEventListener("click", async () => {
-  logoutButton.disabled = true;
-  logoutButton.textContent = "در حال خروج...";
-
-  try {
-    const logged = await writeAuthLog("logout");
-    if (!logged) {
-      console.warn("خروج انجام می‌شود، اما ممکن است لاگ خروج ثبت نشود.");
-    }
-
-    const { error } = await supabaseClient.auth.signOut();
-    if (error) throw error;
-
-    showLoggedOutUser();
-    showAccountMessage(
-      logged ? "از حساب خارج شدی." :
-      "از حساب خارج شدی؛ ثبت لاگ خروج ناموفق بود."
-    );
-  } catch (error) {
-    console.error("Logout error:", error);
-    showAccountMessage("خروج ناموفق بود؛ دوباره تلاش کن.");
-  } finally {
-    logoutButton.disabled = false;
-    logoutButton.textContent = "خروج از حساب";
-  }
-});
-
-// Owner-only log viewer. Database RLS must also enforce owner access.
-async function loadOwnerLogs() {
-  const { data: { session } } = await supabaseClient.auth.getSession();
-
-  if (!session || session.user.id !== OWNER_UID) {
-    ownerPanel.hidden = true;
-    return;
-  }
-
-  ownerLogStatus.textContent = "در حال دریافت گزارش‌ها...";
-  ownerLogsBody.replaceChildren();
-
-  const { data, error } = await supabaseClient
-    .from("site_audit_logs")
-    .select("id, user_id, event_type, username, created_at")
-    .order("created_at", { ascending: false })
-    .limit(100);
-
-  if (error) {
-    console.error("Owner logs error:", error);
-    ownerLogStatus.textContent =
-      "دریافت گزارش‌ها ناموفق بود. دسترسی RLS و تنظیمات جدول را بررسی کن.";
-    return;
-  }
-
-  if (!data || data.length === 0) {
-    ownerLogStatus.textContent = "هنوز گزارشی ثبت نشده است.";
-    return;
-  }
-
-  const labels = {
-    signup: "ثبت‌نام",
-    login: "ورود",
-    logout: "خروج"
+"use strict";
+
+(() => {
+  const SITE_CONFIG = {
+    SERVER_ADDRESS: "PLAY.STARCRAFT.RP",
+    PAYMENTS: { VIP: "", MVP: "", SPONSER: "", STAR: "" }
   };
 
-  for (const log of data) {
-    const row = document.createElement("tr");
+  const OWNER_UID = "c20a98ec-7495-4abf-80e0-9d86d5b649d0";
+  const SUPABASE_URL = "https://euvslrpmvevtiwhfdhio.supabase.co";
+  const SUPABASE_PUBLISHABLE_KEY =
+    "sb_publishable_YvXvyId7Fmd30vyxyoCAMg_fZn-8gE9";
 
-    const eventCell = document.createElement("td");
-    eventCell.textContent = labels[log.event_type] || log.event_type;
+  const $ = (selector) => document.getElementById(selector);
 
-    const userCell = document.createElement("td");
-    userCell.textContent = log.username || log.user_id || "نامشخص";
+  // Optional HTML elements must not crash the entire site.
+  const serverAddress = $("serverAddress");
+  const year = $("year");
+  const toast = $("toast");
 
-    const timeCell = document.createElement("td");
-    const date = new Date(log.created_at);
-    timeCell.textContent = Number.isNaN(date.getTime())
-      ? "نامشخص"
-      : date.toLocaleString("fa-IR");
-
-    for (const cell of [eventCell, userCell, timeCell]) {
-      cell.style.cssText =
-        "padding:8px;border-bottom:1px solid #252a49;vertical-align:top;";
-      row.appendChild(cell);
-    }
-
-    ownerLogsBody.appendChild(row);
+  if (serverAddress) {
+    serverAddress.textContent = SITE_CONFIG.SERVER_ADDRESS;
   }
 
-  ownerLogStatus.textContent = `${data.length} گزارش آخر`;
-}
+  if (year) {
+    year.textContent = new Date().getFullYear();
+  }
 
-refreshOwnerLogs.addEventListener("click", loadOwnerLogs);
+  let toastTimer;
 
-// Restore session
-(async () => {
-  const { data, error } = await supabaseClient.auth.getSession();
+  function showToast(message) {
+    if (!toast) {
+      console.info(message);
+      return;
+    }
 
-  if (error) {
-    showAccountMessage("بررسی وضعیت حساب ناموفق بود.");
+    toast.textContent = message;
+    toast.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => {
+      toast.classList.remove("show");
+    }, 2600);
+  }
+
+  // Copy server address.
+  $("copyAddress")?.addEventListener("click", async () => {
+    try {
+      await navigator.clipboard.writeText(SITE_CONFIG.SERVER_ADDRESS);
+      showToast("آدرس سرور کپی شد!");
+    } catch {
+      const area = document.createElement("textarea");
+      area.value = SITE_CONFIG.SERVER_ADDRESS;
+      area.style.position = "fixed";
+      area.style.opacity = "0";
+      document.body.appendChild(area);
+      area.select();
+
+      let copied = false;
+
+      try {
+        copied = document.execCommand("copy");
+      } catch {
+        copied = false;
+      }
+
+      area.remove();
+      showToast(
+        copied ? "آدرس سرور کپی شد!" : "آدرس را دستی کپی کن."
+      );
+    }
+  });
+
+  // Page navigation.
+  function navigate(page, updateHash = true) {
+    const allowedPages = [
+      "home", "about", "features", "shop", "account"
+    ];
+
+    const valid = allowedPages.includes(page) ? page : "home";
+    const target = $("page-" + valid);
+
+    if (!target) {
+      console.error("صفحه پیدا نشد:", "page-" + valid);
+      return;
+    }
+
+    document.querySelectorAll(".hidden-page").forEach((element) => {
+      element.classList.remove("active");
+    });
+
+    target.classList.add("active");
+
+    document.querySelectorAll(".nav-links a").forEach((element) => {
+      element.classList.toggle(
+        "active",
+        element.dataset.page === valid
+      );
+    });
+
+    $("navLinks")?.classList.remove("open");
+    $("menuToggle")?.setAttribute("aria-expanded", "false");
+
+    if (updateHash) {
+      history.pushState({ page: valid }, "", "#" + valid);
+    }
+
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  document.querySelectorAll("[data-page]").forEach((element) => {
+    element.addEventListener("click", (event) => {
+      event.preventDefault();
+      navigate(element.dataset.page);
+    });
+  });
+
+  window.addEventListener("popstate", () => {
+    navigate(location.hash.slice(1) || "home", false);
+  });
+
+  $("menuToggle")?.addEventListener("click", () => {
+    const links = $("navLinks");
+    if (!links) return;
+
+    const isOpen = links.classList.toggle("open");
+    $("menuToggle")?.setAttribute(
+      "aria-expanded",
+      String(isOpen)
+    );
+  });
+
+  // Rank buttons.
+  document.querySelectorAll(".buy-link").forEach((link) => {
+    link.addEventListener("click", (event) => {
+      event.preventDefault();
+
+      const rank = link.dataset.rank;
+      const url = SITE_CONFIG.PAYMENTS[rank];
+
+      if (url) {
+        window.open(url, "_blank", "noopener,noreferrer");
+      } else {
+        showToast("لینک پرداخت " + rank + " هنوز تنظیم نشده است.");
+      }
+    });
+  });
+
+  // Restore the initial page.
+  const initialPage = location.hash.slice(1);
+
+  if (initialPage) {
+    navigate(initialPage, false);
+  } else {
+    navigate("home", false);
+  }
+
+  // Account HTML elements.
+  const loginForm = $("loginForm");
+  const registerForm = $("registerForm");
+  const loginTab = $("loginTab");
+  const registerTab = $("registerTab");
+  const accountMessage = $("accountMessage");
+  const loggedInPanel = $("loggedInPanel");
+  const loggedInEmail = $("loggedInEmail");
+  const logoutButton = $("logoutButton");
+
+  function showAccountMessage(message) {
+    if (accountMessage) {
+      accountMessage.textContent = message;
+    }
+  }
+
+  // Do not break the public website if account HTML is absent.
+  if (
+    !loginForm ||
+    !registerForm ||
+    !loginTab ||
+    !registerTab ||
+    !loggedInPanel ||
+    !loggedInEmail ||
+    !logoutButton
+  ) {
+    console.warn(
+      "بخشی از عناصر حساب کاربری در HTML پیدا نشد."
+    );
     return;
   }
 
-  if (data.session?.user) {
-    showLoggedInUser(data.session.user);
-  } else {
-    showLoggedOutUser();
+  // Initialize Supabase without taking down the public pages.
+  if (
+    !window.supabase ||
+    typeof window.supabase.createClient !== "function"
+  ) {
+    console.error(
+      "کتابخانه Supabase بارگذاری نشده است. ترتیب تگ‌های script را بررسی کن."
+    );
+    showAccountMessage(
+      "اتصال حساب فعلاً در دسترس نیست. لطفاً بعداً دوباره تلاش کن."
+    );
+    return;
   }
+
+  const supabaseClient = window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_PUBLISHABLE_KEY
+  );
+
+  // Owner logs panel.
+  const ownerPanel = document.createElement("section");
+  ownerPanel.id = "ownerPanel";
+  ownerPanel.hidden = true;
+  ownerPanel.style.cssText =
+    "margin-top:25px;padding:16px;border:1px solid #9b5cff66;" +
+    "border-radius:15px;background:#090c20;text-align:right;";
+
+  ownerPanel.innerHTML = `
+    <h3 style="margin-top:0;color:#c6a5ff">✦ پنل اختصاصی مالک</h3>
+    <p style="color:#a7accb;font-size:.85rem">
+      گزارش ثبت‌نام، ورود و خروج کاربران
+    </p>
+    <button id="refreshOwnerLogs" type="button"
+      class="btn btn-secondary" style="width:100%;margin-bottom:12px">
+      تازه‌سازی گزارش‌ها
+    </button>
+    <p id="ownerLogStatus" role="status"
+      style="font-size:.85rem;color:#c6a5ff"></p>
+    <div style="overflow-x:auto">
+      <table style="width:100%;border-collapse:collapse;font-size:.8rem">
+        <thead>
+          <tr>
+            <th style="padding:7px;border-bottom:1px solid #343858">رویداد</th>
+            <th style="padding:7px;border-bottom:1px solid #343858">کاربر</th>
+            <th style="padding:7px;border-bottom:1px solid #343858">زمان</th>
+          </tr>
+        </thead>
+        <tbody id="ownerLogsBody"></tbody>
+      </table>
+    </div>
+    <p style="color:#a7accb;font-size:.78rem">
+      ثبت گزارش ورود و خروج از طریق دسترسی مستقیم مرورگر ممکن است
+      به سیاست INSERT جدول نیاز داشته باشد.
+    </p>
+  `;
+
+  loggedInPanel.appendChild(ownerPanel);
+
+  const ownerLogStatus = $("ownerLogStatus");
+  const ownerLogsBody = $("ownerLogsBody");
+  const refreshOwnerLogs = $("refreshOwnerLogs");
+
+  function showAccountForm(mode) {
+    const isLogin = mode === "login";
+
+    loginForm.hidden = !isLogin;
+    registerForm.hidden = isLogin;
+    loggedInPanel.hidden = true;
+    ownerPanel.hidden = true;
+    loginTab.hidden = false;
+    registerTab.hidden = false;
+
+    loginTab.className = isLogin
+      ? "btn btn-primary"
+      : "btn btn-secondary";
+
+    registerTab.className = isLogin
+      ? "btn btn-secondary"
+      : "btn btn-primary";
+
+    if ($("accountTitle")) {
+      $("accountTitle").textContent = isLogin
+        ? "ورود به حساب"
+        : "ساخت حساب کاربری";
+    }
+
+    if ($("accountDescription")) {
+      $("accountDescription").textContent = isLogin
+        ? "با ایمیل و رمز عبورت وارد شو."
+        : "اطلاعات خودت را برای ثبت‌نام وارد کن.";
+    }
+
+    showAccountMessage("");
+  }
+
+  function showLoggedInUser(user) {
+    loginForm.hidden = true;
+    registerForm.hidden = true;
+    loggedInPanel.hidden = false;
+    loginTab.hidden = true;
+    registerTab.hidden = true;
+
+    if ($("accountTitle")) {
+      $("accountTitle").textContent = "حساب کاربری تو";
+    }
+
+    if ($("accountDescription")) {
+      $("accountDescription").textContent =
+        "به پنل کاربری StarCraft خوش آمدی.";
+    }
+
+    loggedInEmail.textContent = user.email || "";
+    ownerPanel.hidden = user.id !== OWNER_UID;
+    showAccountMessage("");
+
+    if (user.id === OWNER_UID) {
+      loadOwnerLogs();
+    }
+  }
+
+  function showLoggedOutUser() {
+    showAccountForm("login");
+  }
+
+  loginTab.addEventListener("click", () => {
+    showAccountForm("login");
+  });
+
+  registerTab.addEventListener("click", () => {
+    showAccountForm("register");
+  });
+
+  // Optional client-side logging.
+  // This works only if the table's RLS policies permit it.
+  // For trustworthy audit logs, use a secured server-side function.
+  async function writeAuthLog(eventType) {
+    try {
+      const {
+        data: { session },
+        error: sessionError
+      } = await supabaseClient.auth.getSession();
+
+      if (sessionError || !session) return false;
+
+      const { error } = await supabaseClient
+        .from("site_audit_logs")
+        .insert({
+          user_id: session.user.id,
+          event_type: eventType,
+          username:
+            session.user.user_metadata?.username ??
+            session.user.email ??
+            null,
+          details: { source: "client" }
+        });
+
+      if (error) {
+        console.warn("ثبت گزارش انجام نشد:", error.message);
+        return false;
+      }
+
+      return true;
+    } catch (error) {
+      console.warn("خطا در ثبت گزارش:", error);
+      return false;
+    }
+  }
+
+  // Registration.
+  registerForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    const username = $("registerUsername")?.value.trim() || "";
+    const email = $("registerEmail")?.value.trim() || "";
+    const password = $("registerPassword")?.value || "";
+    const confirm = $("registerPasswordConfirm")?.value || "";
+
+    if (password !== confirm) {
+      showAccountMessage("رمز عبور و تکرار آن یکسان نیستند.");
+      return;
+    }
+
+    if (username.length < 3) {
+      showAccountMessage("نام کاربری باید حداقل ۳ کاراکتر باشد.");
+      return;
+    }
+
+    const button = registerForm.querySelector(
+      'button[type="submit"]'
+    );
+
+    if (button) {
+      button.disabled = true;
+      button.textContent = "در حال ثبت‌نام...";
+    }
+
+    try {
+      const { data, error } = await supabaseClient.auth.signUp({
+        email,
+        password,
+        options: {
+          data: { username },
+          emailRedirectTo:
+            "https://starcraft271.github.io/StarCraft/"
+        }
+      });
+
+      if (error) throw error;
+
+      if (data.session && data.user) {
+        showLoggedInUser(data.user);
+        showAccountMessage("ثبت‌نام موفق بود!");
+      } else {
+        showAccountMessage(
+          "درخواست ثبت‌نام انجام شد. اگر تأیید ایمیل فعال است، ایمیلت را بررسی کن."
+        );
+      }
+    } catch (error) {
+      console.error("Signup error:", error);
+      showAccountMessage(
+        "خطا در ثبت‌نام: " +
+        (error.message || "خطای ناشناخته")
+      );
+    } finally {
+      if (button) {
+        button.disabled = false;
+        button.textContent = "ساخت حساب کاربری";
+      }
+    }
+  });
+
+  // Login.
+  loginForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    const email = $("loginUsername")?.value.trim() || "";
+    const password = $("loginPassword")?.value || "";
+    const button = loginForm.querySelector(
+      'button[type="submit"]'
+    );
+
+    if (button) {
+      button.disabled = true;
+      button.textContent = "در حال ورود...";
+    }
+
+    try {
+      const { data, error } =
+        await supabaseClient.auth.signInWithPassword({
+          email,
+          password
+        });
+
+      if (error) throw error;
+
+      showLoggedInUser(data.user);
+
+      const logged = await writeAuthLog("login");
+
+      showAccountMessage(
+        logged
+          ? "با موفقیت وارد شدی و گزارش ثبت شد."
+          : "ورود موفق بود؛ ثبت گزارش در حال حاضر در دسترس نیست."
+      );
+    } catch (error) {
+      console.error("Login error:", error);
+      showAccountMessage(
+        "ورود ناموفق بود؛ ایمیل و رمز عبورت را بررسی کن."
+      );
+    } finally {
+      if (button) {
+        button.disabled = false;
+        button.textContent = "ورود به حساب";
+      }
+    }
+  });
+
+  // Logout.
+  logoutButton.addEventListener("click", async () => {
+    logoutButton.disabled = true;
+    logoutButton.textContent = "در حال خروج...";
+
+    try {
+      const logged = await writeAuthLog("logout");
+
+      const { error } = await supabaseClient.auth.signOut();
+
+      if (error) throw error;
+
+      showLoggedOutUser();
+
+      showAccountMessage(
+        logged
+          ? "از حساب خارج شدی."
+          : "از حساب خارج شدی؛ گزارش خروج ثبت نشد."
+      );
+    } catch (error) {
+      console.error("Logout error:", error);
+      showAccountMessage(
+        "خروج ناموفق بود؛ دوباره تلاش کن."
+      );
+    } finally {
+      logoutButton.disabled = false;
+      logoutButton.textContent = "خروج از حساب";
+    }
+  });
+
+  // Owner-only report display.
+  async function loadOwnerLogs() {
+    try {
+      const {
+        data: { session },
+        error: sessionError
+      } = await supabaseClient.auth.getSession();
+
+      if (
+        sessionError ||
+        !session ||
+        session.user.id !== OWNER_UID
+      ) {
+        ownerPanel.hidden = true;
+        return;
+      }
+
+      ownerLogStatus.textContent = "در حال دریافت گزارش‌ها...";
+      ownerLogsBody.replaceChildren();
+
+      const { data, error } = await supabaseClient
+        .from("site_audit_logs")
+        .select("id, user_id, event_type, username, created_at")
+        .order("created_at", { ascending: false })
+        .limit(100);
+
+      if (error) {
+        console.error("Owner logs error:", error);
+        ownerLogStatus.textContent =
+          "دریافت گزارش‌ها ناموفق بود. تنظیمات دسترسی جدول را بررسی کن.";
+        return;
+      }
+
+      if (!data || data.length === 0) {
+        ownerLogStatus.textContent = "هنوز گزارشی ثبت نشده است.";
+        return;
+      }
+
+      const labels = {
+        signup: "ثبت‌نام",
+        login: "ورود",
+        logout: "خروج"
+      };
+
+      for (const log of data) {
+        const row = document.createElement("tr");
+
+        const eventCell = document.createElement("td");
+        eventCell.textContent =
+          labels[log.event_type] || log.event_type || "نامشخص";
+
+        const userCell = document.createElement("td");
+        userCell.textContent =
+          log.username || log.user_id || "نامشخص";
+
+        const timeCell = document.createElement("td");
+        const date = new Date(log.created_at);
+
+        timeCell.textContent = Number.isNaN(date.getTime())
+          ? "نامشخص"
+          : date.toLocaleString("fa-IR");
+
+        for (const cell of [eventCell, userCell, timeCell]) {
+          cell.style.cssText =
+            "padding:8px;border-bottom:1px solid #252a49;vertical-align:top;";
+          row.appendChild(cell);
+        }
+
+        ownerLogsBody.appendChild(row);
+      }
+
+      ownerLogStatus.textContent =
+        `${data.length} گزارش آخر`;
+    } catch (error) {
+      console.error("Owner logs error:", error);
+      ownerLogStatus.textContent =
+        "خطا در دریافت گزارش‌ها. اتصال اینترنت را بررسی کن.";
+    }
+  }
+
+  refreshOwnerLogs?.addEventListener("click", loadOwnerLogs);
+
+  // Restore existing session.
+  (async () => {
+    try {
+      const {
+        data: { session },
+        error
+      } = await supabaseClient.auth.getSession();
+
+      if (error) {
+        showAccountMessage("بررسی وضعیت حساب ناموفق بود.");
+        return;
+      }
+
+      if (session?.user) {
+        showLoggedInUser(session.user);
+      } else {
+        showLoggedOutUser();
+      }
+    } catch (error) {
+      console.error("Session restore error:", error);
+      showAccountMessage(
+        "بررسی حساب فعلاً ممکن نیست. صفحه را دوباره بارگذاری کن."
+      );
+    }
+  })();
+
+  supabaseClient.auth.onAuthStateChange((_event, session) => {
+    if (session?.user) {
+      showLoggedInUser(session.user);
+    } else {
+      showLoggedOutUser();
+    }
+  });
 })();
-
-supabaseClient.auth.onAuthStateChange((event, session) => {
-  if (session?.user) {
-    showLoggedInUser(session.user);
-  } else {
-    showLoggedOutUser();
-  }
-});
-
-const initial = location.hash.slice(1);
-if (["home", "about", "features", "shop", "account"].includes(initial)) {
-  navigate(initial, false);
-}
 </script>
 </body>
 </html>
