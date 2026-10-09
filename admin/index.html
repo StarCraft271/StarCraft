@@ -2,300 +2,234 @@
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>پنل مدیریت StarCraft</title>
-  <style>
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      background: #0b1020;
-      color: #eef2ff;
-      font-family: Tahoma, Arial, sans-serif;
-    }
-    header {
-      padding: 22px 16px;
-      background: #111a30;
-      border-bottom: 1px solid #263452;
-    }
-    header h1 { margin: 0 0 8px; color: #8b9cff; }
-    header p { margin: 0; color: #aab6d3; font-size: 13px; }
-    main { max-width: 1100px; margin: auto; padding: 20px 14px; }
-    .card {
-      background: #111a30;
-      border: 1px solid #263452;
-      border-radius: 14px;
-      padding: 18px;
-      margin-bottom: 16px;
-    }
-    h2 { font-size: 18px; margin-top: 0; }
-    input, button {
-      width: 100%;
-      padding: 12px;
-      border-radius: 9px;
-      font: inherit;
-      margin-top: 10px;
-    }
-    input {
-      color: white;
-      background: #0b1020;
-      border: 1px solid #344363;
-    }
-    button {
-      cursor: pointer;
-      color: white;
-      background: #5865f2;
-      border: 0;
-      font-weight: bold;
-    }
-    button.secondary { background: #263452; }
-    button:disabled { opacity: .6; cursor: wait; }
-    .muted { color: #aab6d3; font-size: 13px; }
-    .message { margin-top: 12px; white-space: pre-wrap; font-size: 13px; }
-    .success { color: #69e6a6; }
-    .error { color: #ff8585; }
-    .toolbar {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-bottom: 14px;
-    }
-    .toolbar input, .toolbar button { margin: 0; min-width: 0; }
-    .table-wrap { overflow-x: auto; }
-    table { border-collapse: collapse; width: 100%; min-width: 760px; }
-    th, td {
-      padding: 13px 10px;
-      text-align: right;
-      border-bottom: 1px solid #263452;
-      font-size: 13px;
-    }
-    th { color: #aab6d3; }
-    .hidden { display: none !important; }
-    @media (max-width: 480px) {
-      .toolbar { grid-template-columns: 1fr; }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>پنل مدیریت StarCraft</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#0b1020;color:#eef2ff;font-family:Tahoma,Arial,sans-serif}
+header{padding:22px 16px;background:#111a30;border-bottom:1px solid #263452}
+header h1{margin:0 0 8px;color:#8b9cff}
+header p{margin:0;color:#aab6d3;font-size:13px}
+main{max-width:1100px;margin:auto;padding:20px 14px}
+.card{background:#111a30;border:1px solid #263452;border-radius:14px;padding:18px;margin-bottom:16px}
+h2{font-size:18px;margin-top:0}
+input,button{width:100%;padding:12px;border-radius:9px;font:inherit;margin-top:10px}
+input{color:white;background:#0b1020;border:1px solid #344363}
+button{cursor:pointer;color:white;background:#5865f2;border:0;font-weight:bold}
+button.secondary{background:#263452}
+button:disabled{opacity:.6}
+.muted{color:#aab6d3;font-size:13px}
+.message{margin-top:12px;white-space:pre-wrap;font-size:13px;overflow-wrap:anywhere}
+.success{color:#69e6a6}.error{color:#ff8585}
+.toolbar{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.toolbar input,.toolbar button{margin:0;min-width:0}
+.table-wrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;min-width:760px}
+th,td{padding:13px 10px;text-align:right;border-bottom:1px solid #263452;font-size:13px}
+th{color:#aab6d3}
+.hidden{display:none!important}
+@media(max-width:480px){.toolbar{grid-template-columns:1fr}}
+</style>
 </head>
 <body>
-  <header>
-    <h1>⭐ StarCraft</h1>
-    <p>پنل مدیریت فروشگاه رنک ماینکرفت</p>
-  </header>
+<header>
+<h1>⭐ StarCraft</h1>
+<p>پنل مدیریت فروشگاه رنک ماینکرفت</p>
+</header>
+<main>
+<section class="card" id="loginPanel">
+<h2>ورود مدیر</h2>
+<p class="muted">با حساب مدیر Supabase وارد شو.</p>
+<form id="loginForm">
+<input id="email" type="email" placeholder="ایمیل مدیر" autocomplete="username" required>
+<input id="password" type="password" placeholder="رمز عبور" autocomplete="current-password" required>
+<button id="loginButton" type="submit">ورود به پنل</button>
+</form>
+<div id="loginMessage" class="message" role="status"></div>
+</section>
 
-  <main>
-    <section class="card" id="loginPanel">
-      <h2>ورود مدیر</h2>
-      <p class="muted">با حساب مدیر Supabase وارد شو.</p>
-      <form id="loginForm">
-        <input id="email" type="email" placeholder="ایمیل مدیر"
-          autocomplete="username" required>
-        <input id="password" type="password" placeholder="رمز عبور"
-          autocomplete="current-password" required>
-        <button id="loginButton" type="submit">ورود به پنل</button>
-      </form>
-      <div id="loginMessage" class="message" role="status"></div>
-    </section>
+<section id="ordersPanel" class="hidden">
+<div class="card">
+<h2>سفارش‌های رنک</h2>
+<p class="muted">فهرست سفارش‌های ثبت‌شده در Supabase</p>
+<div class="toolbar">
+<input id="search" type="search" placeholder="جست‌وجوی شماره سفارش یا بازیکن">
+<button id="refreshButton" type="button">تازه‌سازی</button>
+</div>
+<div id="ordersMessage" class="message" role="status"></div>
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th>شماره سفارش</th><th>بازیکن</th><th>رنک</th>
+<th>قیمت</th><th>وضعیت</th><th>تاریخ</th>
+</tr></thead>
+<tbody id="ordersBody"></tbody>
+</table>
+</div>
+</div>
+<button id="logoutButton" class="secondary" type="button">خروج از حساب</button>
+</section>
+</main>
 
-    <section id="ordersPanel" class="hidden">
-      <div class="card">
-        <h2>سفارش‌های رنک</h2>
-        <p class="muted">فهرست سفارش‌های ثبت‌شده در Supabase</p>
-        <div class="toolbar">
-          <input id="search" type="search"
-            placeholder="جست‌وجوی شماره سفارش یا بازیکن">
-          <button id="refreshButton" type="button">تازه‌سازی</button>
-        </div>
-        <div id="ordersMessage" class="message" role="status"></div>
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>شماره سفارش</th>
-                <th>بازیکن</th>
-                <th>رنک</th>
-                <th>قیمت</th>
-                <th>وضعیت</th>
-                <th>تاریخ</th>
-              </tr>
-            </thead>
-            <tbody id="ordersBody"></tbody>
-          </table>
-        </div>
-      </div>
-      <button id="logoutButton" class="secondary" type="button">خروج</button>
-    </section>
-  </main>
+<script type="module">
+import { createClient } from
+'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 
-  <script type="module">
-    import { createClient } from
-      'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+const SUPABASE_URL = 'https://euvslrpmvevtiwhfdhio.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_YvXvyId7Fmd30vyxyoCAMg_fZn-8gE9';
 
-    // آدرس پروژه را از Supabase کپی کن و اینجا قرار بده
-    const SUPABASE_URL = 'YOUR_SUPABASE_PROJECT_URL';
+const loginPanel = document.getElementById('loginPanel');
+const ordersPanel = document.getElementById('ordersPanel');
+const loginForm = document.getElementById('loginForm');
+const loginButton = document.getElementById('loginButton');
+const loginMessage = document.getElementById('loginMessage');
+const ordersMessage = document.getElementById('ordersMessage');
+const ordersBody = document.getElementById('ordersBody');
+const searchInput = document.getElementById('search');
 
-    // کلید عمومی پروژه
-    const SUPABASE_KEY =
-      'sb_publishable_YvXvyId7Fmd30vyxyoCAMg_fZn-8gE9';
+function showMessage(el,text,type=''){
+  el.textContent=text;
+  el.className='message '+type;
+}
 
-    const loginPanel = document.getElementById('loginPanel');
-    const ordersPanel = document.getElementById('ordersPanel');
-    const loginForm = document.getElementById('loginForm');
-    const loginButton = document.getElementById('loginButton');
-    const loginMessage = document.getElementById('loginMessage');
-    const ordersMessage = document.getElementById('ordersMessage');
-    const ordersBody = document.getElementById('ordersBody');
-    const searchInput = document.getElementById('search');
+const sb=createClient(SUPABASE_URL,SUPABASE_KEY);
 
-    function showMessage(element, text, type = '') {
-      element.textContent = text;
-      element.className = 'message ' + type;
-    }
+function showLogin(){
+  ordersPanel.classList.add('hidden');
+  loginPanel.classList.remove('hidden');
+}
 
-    if (SUPABASE_URL.includes('YOUR_')) {
+async function checkAdmin(){
+  const {data:{user},error:authError}=await sb.auth.getUser();
+
+  if(authError||!user){
+    showLogin();
+    return;
+  }
+
+  const {data:admin,error}=await sb
+    .from('sc_admins')
+    .select('user_id')
+    .eq('user_id',user.id)
+    .maybeSingle();
+
+  if(error||!admin){
+    await sb.auth.signOut();
+    showLogin();
+    showMessage(loginMessage,
+      'این حساب مدیر نیست یا بررسی دسترسی ناموفق بود.','error');
+    return;
+  }
+
+  loginPanel.classList.add('hidden');
+  ordersPanel.classList.remove('hidden');
+  await loadOrders();
+}
+
+loginForm.addEventListener('submit',async event=>{
+  event.preventDefault();
+  loginButton.disabled=true;
+  showMessage(loginMessage,'در حال ورود...');
+
+  try{
+    const {error}=await sb.auth.signInWithPassword({
+      email:document.getElementById('email').value.trim(),
+      password:document.getElementById('password').value
+    });
+
+    if(error){
       showMessage(loginMessage,
-        'آدرس پروژه Supabase هنوز وارد نشده است.', 'error');
-      loginButton.disabled = true;
-    } else {
-      initialize();
+        'ورود ناموفق بود؛ ایمیل، رمز و تنظیمات Supabase را بررسی کن.','error');
+      return;
     }
 
-    async function initialize() {
-      const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
+    await checkAdmin();
+  }catch(error){
+    showMessage(loginMessage,'خطای اتصال: '+error.message,'error');
+  }finally{
+    loginButton.disabled=false;
+  }
+});
 
-      function showLogin() {
-        ordersPanel.classList.add('hidden');
-        loginPanel.classList.remove('hidden');
-      }
+async function loadOrders(){
+  showMessage(ordersMessage,'در حال دریافت سفارش‌ها...');
+  ordersBody.replaceChildren();
 
-      async function checkAdmin() {
-        const { data: authData, error: authError } =
-          await sb.auth.getUser();
+  try{
+    const {data,error}=await sb
+      .from('sc_orders')
+      .select('order_number,player_name,rank_name,price,status,created_at')
+      .order('created_at',{ascending:false})
+      .limit(200);
 
-        if (authError || !authData.user) {
-          showLogin();
-          return;
-        }
-
-        const { data: admin, error } = await sb
-          .from('sc_admins')
-          .select('user_id')
-          .eq('user_id', authData.user.id)
-          .maybeSingle();
-
-        if (error || !admin) {
-          await sb.auth.signOut();
-          showLogin();
-          showMessage(loginMessage,
-            'این حساب مدیر نیست یا دسترسی بررسی نشد.', 'error');
-          return;
-        }
-
-        loginPanel.classList.add('hidden');
-        ordersPanel.classList.remove('hidden');
-        await loadOrders();
-      }
-
-      loginForm.addEventListener('submit', async event => {
-        event.preventDefault();
-        loginButton.disabled = true;
-        showMessage(loginMessage, 'در حال ورود...');
-
-        const { error } = await sb.auth.signInWithPassword({
-          email: document.getElementById('email').value.trim(),
-          password: document.getElementById('password').value
-        });
-
-        loginButton.disabled = false;
-
-        if (error) {
-          showMessage(loginMessage,
-            'ورود ناموفق بود؛ ایمیل و رمز را بررسی کن.', 'error');
-          return;
-        }
-
-        await checkAdmin();
-      });
-
-      async function loadOrders() {
-        showMessage(ordersMessage, 'در حال دریافت سفارش‌ها...');
-        ordersBody.replaceChildren();
-
-        const { data, error } = await sb
-          .from('sc_orders')
-          .select('order_number,player_name,rank_name,price,status,created_at')
-          .order('created_at', { ascending: false })
-          .limit(200);
-
-        if (error) {
-          showMessage(ordersMessage,
-            'خطا در دریافت سفارش‌ها: ' + error.message, 'error');
-          return;
-        }
-
-        const query = searchInput.value.trim().toLowerCase();
-        const orders = (data || []).filter(order =>
-          String(order.order_number).toLowerCase().includes(query) ||
-          String(order.player_name).toLowerCase().includes(query)
-        );
-
-        if (!orders.length) {
-          showMessage(ordersMessage,
-            data?.length
-              ? 'سفارشی مطابق جست‌وجو پیدا نشد.'
-              : 'هنوز سفارشی ثبت نشده است.');
-          return;
-        }
-
-        showMessage(ordersMessage,
-          'تعداد سفارش‌ها: ' + orders.length, 'success');
-
-        const labels = {
-          pending: 'در انتظار پرداخت',
-          paid: 'پرداخت شده',
-          delivered: 'تحویل شده',
-          cancelled: 'لغو شده'
-        };
-
-        for (const order of orders) {
-          const tr = document.createElement('tr');
-          const values = [
-            order.order_number,
-            order.player_name,
-            order.rank_name,
-            Number(order.price).toLocaleString('fa-IR'),
-            labels[order.status] || order.status || 'نامشخص',
-            order.created_at
-              ? new Date(order.created_at).toLocaleString('fa-IR')
-              : '—'
-          ];
-
-          for (const value of values) {
-            const td = document.createElement('td');
-            td.textContent = value ?? '—';
-            tr.appendChild(td);
-          }
-          ordersBody.appendChild(tr);
-        }
-      }
-
-      document.getElementById('refreshButton')
-        .addEventListener('click', loadOrders);
-
-      searchInput.addEventListener('input', loadOrders);
-
-      document.getElementById('logoutButton')
-        .addEventListener('click', async () => {
-          await sb.auth.signOut();
-          showLogin();
-          showMessage(loginMessage, 'از حساب خارج شدی.');
-        });
-
-      await checkAdmin();
-
-      sb.auth.onAuthStateChange((event, session) => {
-        if (event === 'SIGNED_OUT' || !session) showLogin();
-      });
+    if(error){
+      showMessage(ordersMessage,'خطا در دریافت سفارش‌ها: '+error.message,'error');
+      return;
     }
-  </script>
+
+    const query=searchInput.value.trim().toLowerCase();
+    const orders=(data||[]).filter(order=>
+      String(order.order_number).toLowerCase().includes(query)||
+      String(order.player_name).toLowerCase().includes(query)
+    );
+
+    if(!orders.length){
+      showMessage(ordersMessage,
+        data?.length?'سفارشی مطابق جست‌وجو پیدا نشد.':'هنوز سفارشی ثبت نشده است.');
+      return;
+    }
+
+    showMessage(ordersMessage,'تعداد سفارش‌ها: '+orders.length,'success');
+
+    const labels={
+      pending:'در انتظار پرداخت',
+      paid:'پرداخت شده',
+      delivered:'تحویل شده',
+      cancelled:'لغو شده'
+    };
+
+    for(const order of orders){
+      const tr=document.createElement('tr');
+      const values=[
+        order.order_number,
+        order.player_name,
+        order.rank_name,
+        Number(order.price).toLocaleString('fa-IR'),
+        labels[order.status]||order.status||'نامشخص',
+        order.created_at?new Date(order.created_at).toLocaleString('fa-IR'):'—'
+      ];
+
+      for(const value of values){
+        const td=document.createElement('td');
+        td.textContent=value??'—';
+        tr.appendChild(td);
+      }
+      ordersBody.appendChild(tr);
+    }
+  }catch(error){
+    showMessage(ordersMessage,'خطای اتصال: '+error.message,'error');
+  }
+}
+
+document.getElementById('refreshButton')
+  .addEventListener('click',loadOrders);
+searchInput.addEventListener('input',loadOrders);
+
+document.getElementById('logoutButton')
+  .addEventListener('click',async()=>{
+    await sb.auth.signOut();
+    showLogin();
+    showMessage(loginMessage,'از حساب خارج شدی.');
+  });
+
+sb.auth.onAuthStateChange((event,session)=>{
+  if(event==='SIGNED_OUT'||!session)showLogin();
+});
+
+checkAdmin().catch(error=>{
+  showMessage(loginMessage,'خطای اتصال: '+error.message,'error');
+});
+</script>
 </body>
 </html>
