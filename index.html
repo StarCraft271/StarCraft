@@ -1,517 +1,343 @@
-<!DOCTYPE html>
+
+<!doctype html>
 <html lang="fa" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>StarCraft | Minecraft</title>
-
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#090b20">
+<meta name="description" content="StarCraft — سرور ماینکرفت رول‌پلی با حال‌وهوای کهکشانی">
+<title>StarCraft | دنیایی فراتر از Minecraft</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
 <style>
-*{box-sizing:border-box}
-:root{--bg:#080b18;--panel:#11162a;--purple:#8b5cf6;--text:#f5f3ff;--muted:#a7acc5}
-body{margin:0;background:radial-gradient(ellipse at top,#1d1640 0,#080b18 55%);color:var(--text);font-family:Tahoma,Arial,sans-serif;min-height:100vh}
-header{display:flex;justify-content:space-between;align-items:center;padding:18px 7%;border-bottom:1px solid #ffffff12;gap:15px;flex-wrap:wrap}
-.logo{font-size:25px;font-weight:bold;color:#b69aff}
-nav{display:flex;gap:9px;flex-wrap:wrap}
-button,a{font-family:inherit;cursor:pointer}
-nav button,.btn{border:1px solid #ffffff18;border-radius:10px;padding:10px 15px;background:#ffffff08;color:white;text-decoration:none}
-nav button:hover,.btn:hover{border-color:var(--purple);background:#8b5cf622}
-.btn-primary{background:var(--purple);border-color:var(--purple)}
-main{max-width:1050px;margin:auto;padding:35px 20px}
-.page{display:none}
-.page.active{display:block}
-.hero{text-align:center;padding:70px 15px 65px;background:radial-gradient(ellipse at center,#45258066,transparent 70%);border-radius:24px}
-h1{font-size:clamp(32px,6vw,58px);margin:10px 0}
-h2{margin-top:0}
-p{line-height:2;color:var(--muted)}
-.purple{color:#b69aff}
-.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px;margin-top:25px}
-.card{background:linear-gradient(145deg,#171d35,#101426);border:1px solid #ffffff12;border-radius:17px;padding:22px}
-.card h3{margin-top:0}
-input{width:100%;padding:13px;margin:7px 0 12px;background:#090d1c;color:white;border:1px solid #343752;border-radius:9px;outline:none}
-input:focus{border-color:var(--purple)}
-form{max-width:440px}
-.notice{padding:12px;background:#8b5cf61c;border-radius:10px;color:#d7c7ff;margin:12px 0}
-.hidden{display:none!important}
-#toast{position:fixed;bottom:20px;left:20px;right:20px;max-width:500px;margin:auto;padding:14px;background:#21183b;border:1px solid #8b5cf6;border-radius:12px;text-align:center;display:none;z-index:10}
-footer{text-align:center;padding:25px;color:#7f849f;border-top:1px solid #ffffff12;margin-top:35px}
-table{width:100%;border-collapse:collapse;margin-top:15px;font-size:13px}
-th,td{padding:10px;border-bottom:1px solid #ffffff18;text-align:right;overflow-wrap:anywhere}
-.owner-box{margin-top:22px;border:1px solid #8b5cf6;border-radius:14px;padding:18px;background:#8b5cf610}
-@media(max-width:600px){header{padding:15px}nav{width:100%}nav button{flex:1;padding:9px 6px;font-size:12px}.hero{padding:45px 10px}}
+:root{--bg:#070916;--panel:#10142b;--panel2:#151a36;--text:#f4f5ff;--muted:#a7accb;--purple:#9b5cff;--purple2:#6c43df;--blue:#39c7ff;--line:rgba(174,174,255,.15);--radius:22px;--max:1160px}
+*{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:86px}body{margin:0;background:var(--bg);color:var(--text);font-family:"Vazirmatn",Tahoma,sans-serif;line-height:1.8;overflow-x:hidden}a{color:inherit;text-decoration:none}button{font:inherit;cursor:pointer}.stars,.stars:before,.stars:after{position:fixed;inset:0;pointer-events:none;content:"";z-index:-2;background-image:radial-gradient(1px 1px at 8% 18%,#fff 95%,transparent),radial-gradient(2px 2px at 70% 26%,#9fdcff 95%,transparent),radial-gradient(1px 1px at 43% 72%,#fff 95%,transparent),radial-gradient(1px 1px at 91% 81%,#c4a4ff 95%,transparent),radial-gradient(1px 1px at 24% 88%,#fff 95%,transparent);background-size:310px 280px;opacity:.5;animation:twinkle 7s ease-in-out infinite alternate}.stars:before{inset:0;background-position:110px 90px;background-size:390px 350px;opacity:.4;animation-duration:11s}.stars:after{background:radial-gradient(ellipse at 80% 15%,rgba(93,47,177,.18),transparent 35%),radial-gradient(ellipse at 15% 55%,rgba(0,151,255,.12),transparent 38%);opacity:1;animation:none}@keyframes twinkle{from{opacity:.28}to{opacity:.65}}.container{width:min(var(--max),calc(100% - 40px));margin:auto}.nav-wrap{position:sticky;top:0;z-index:20;background:rgba(7,9,22,.78);backdrop-filter:blur(18px);border-bottom:1px solid var(--line)}nav{height:76px;display:flex;align-items:center;justify-content:space-between;gap:20px}.brand{display:flex;align-items:center;gap:10px;font-weight:900;letter-spacing:1px;font-size:1.3rem}.brand-mark{width:38px;height:38px;border-radius:13px;display:grid;place-items:center;background:linear-gradient(135deg,var(--purple),#3c8dff);box-shadow:0 0 25px #8a55ff55;font-size:1.1rem}.nav-links{display:flex;align-items:center;gap:28px;color:var(--muted);font-size:.94rem}.nav-links a{transition:.2s}.nav-links a:hover,.nav-links a.active{color:#fff}.nav-links .shop-link{padding:9px 18px;border-radius:12px;background:linear-gradient(120deg,var(--purple2),#5942b7);color:white;box-shadow:0 7px 24px #7547d633}.nav-links .account-link{padding:9px 18px;border-radius:12px;background:linear-gradient(120deg,#168bc4,#6252db);color:white;box-shadow:0 7px 24px #168bc433;white-space:nowrap}.nav-links .account-link:hover{filter:brightness(1.15)}
+.menu-toggle{display:none;background:transparent;color:white;border:1px solid var(--line);border-radius:10px;padding:6px 11px}.hero{min-height:680px;display:grid;grid-template-columns:1.05fr .95fr;align-items:center;gap:30px;padding:76px 0 86px;position:relative}.eyebrow{display:inline-flex;align-items:center;gap:9px;color:#c8b3ff;background:#9b5cff16;border:1px solid #9b5cff42;border-radius:999px;padding:7px 14px;font-size:.85rem}.pulse{width:7px;height:7px;border-radius:50%;background:#67e6ff;box-shadow:0 0 13px #67e6ff}.hero h1{font-size:clamp(2.7rem,6vw,5.1rem);line-height:1.2;margin:20px 0 12px;font-weight:900;letter-spacing:-2px}.gradient-text{background:linear-gradient(110deg,#fff 10%,#c7a7ff 47%,#52d7ff 90%);color:transparent;background-clip:text;-webkit-background-clip:text}.hero p{color:var(--muted);max-width:570px;font-size:1.06rem;margin:0 0 28px}.actions{display:flex;gap:12px;flex-wrap:wrap}.btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;padding:12px 21px;border-radius:13px;border:1px solid transparent;font-weight:700;transition:transform .22s,box-shadow .22s,background .22s}.btn:hover{transform:translateY(-3px)}.btn:disabled{opacity:.6;cursor:wait;transform:none}.btn-primary{background:linear-gradient(120deg,#9b5cff,#5d57e8);color:#fff;box-shadow:0 10px 30px #774bdf38}.btn-secondary{border-color:var(--line);background:#ffffff08;color:#eee}.server-box{margin-top:32px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}.server-label{font-size:.82rem;color:var(--muted)}.server-address{direction:ltr;unicode-bidi:isolate;font-weight:700;font-size:1rem;color:#e9e4ff}.copy-btn{background:#202442;border:1px solid #3b416b;color:#d9d8ff;border-radius:10px;padding:7px 12px;font-size:.83rem}.hero-art{min-height:440px;display:grid;place-items:center;position:relative}.orbit{width:min(430px,90vw);aspect-ratio:1;border-radius:50%;border:1px solid #9d7aff30;display:grid;place-items:center;position:relative;background:radial-gradient(circle,#37216e44 0,transparent 66%);animation:float 7s ease-in-out infinite}.orbit:before,.orbit:after{content:"";position:absolute;border:1px solid #8d77ff42;border-radius:50%;inset:10%;transform:rotate(-30deg) scaleY(.35)}.orbit:after{inset:3%;transform:rotate(38deg) scaleY(.48);border-color:#36c9ff35}.planet{width:57%;aspect-ratio:1;border-radius:50%;position:relative;overflow:hidden;background:radial-gradient(circle at 30% 25%,#d2c1ff 0,#9875ed 12%,#4d3da2 34%,#171b58 66%,#060a24 78%);box-shadow:inset -25px -22px 40px #030514,0 0 55px #8763ff88,0 0 115px #6d4ae733}.planet:before{content:"";position:absolute;inset:-10%;background:repeating-linear-gradient(165deg,transparent 0 19px,#a7a0ff27 21px 27px,transparent 31px 48px);border-radius:50%;transform:rotate(-20deg)}.planet:after{content:"";position:absolute;width:30%;height:130%;left:25%;top:-10%;background:linear-gradient(90deg,transparent,#ffffff15,transparent);transform:rotate(35deg);filter:blur(9px)}.satellite{position:absolute;width:13px;height:13px;border-radius:50%;background:#72e3ff;box-shadow:0 0 24px #72e3ff;top:18%;right:12%}.float-card{position:absolute;bottom:12%;right:-1%;padding:12px 17px;border:1px solid var(--line);border-radius:16px;background:#11152be8;backdrop-filter:blur(10px);box-shadow:0 18px 50px #0004;font-size:.88rem}.float-card strong{display:block;color:#bda0ff;font-size:1.1rem}.section{padding:82px 0}.section-head{text-align:center;max-width:680px;margin:0 auto 38px}.kicker{color:#a98aff;font-weight:700;font-size:.88rem}.section h2{font-size:clamp(1.9rem,4vw,2.7rem);margin:8px 0 10px;line-height:1.35}.section-head p{color:var(--muted);margin:0}.feature-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}.feature-card,.rank-card,.about-panel{border:1px solid var(--line);background:linear-gradient(145deg,#141832c9,#0d1025e8);border-radius:var(--radius);padding:25px;transition:transform .25s,border-color .25s,box-shadow .25s}.feature-card:hover,.rank-card:hover{transform:translateY(-6px);border-color:#9b5cff88;box-shadow:0 20px 55px #0003}.feature-icon{width:48px;height:48px;border-radius:15px;display:grid;place-items:center;font-size:1.35rem;background:linear-gradient(135deg,#8c55ff2d,#29c9ff20);border:1px solid #9b5cff40;margin-bottom:17px}.feature-card h3,.rank-card h3{margin:0 0 7px;font-size:1.15rem}.feature-card p,.rank-card p{margin:0;color:var(--muted);font-size:.92rem}.about-grid{display:grid;grid-template-columns:1fr 1fr;gap:22px;align-items:stretch}.about-panel h3{font-size:1.3rem;margin:0 0 10px}.about-panel p{color:var(--muted);margin:0 0 13px}.stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:24px}.stat{background:#ffffff06;border:1px solid var(--line);border-radius:14px;padding:14px;text-align:center}.stat strong{display:block;font-size:1.35rem;color:#c6a5ff}.stat span{font-size:.78rem;color:var(--muted)}.rank-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;align-items:stretch}.rank-card{position:relative;padding:24px 20px;display:flex;flex-direction:column;min-height:330px}.rank-card.featured{border-color:#9b5cff88;background:linear-gradient(160deg,#39226066,#11142ce8 60%)}.rank-tag{position:absolute;top:13px;left:13px;background:#9b5cff24;color:#d7c1ff;border-radius:8px;padding:4px 8px;font-size:.72rem}.rank-symbol{font-size:1.6rem;margin-bottom:10px}.rank-card .price{font-size:1.7rem;font-weight:900;margin:17px 0 12px;white-space:nowrap}.price small{font-size:.77rem;color:var(--muted);font-weight:500}.rank-card ul{list-style:none;margin:0 0 20px;padding:0;color:#c5c8e1;font-size:.85rem}.rank-card li{margin:6px 0}.rank-card li:before{content:"✦";color:#9f7cff;margin-left:8px}.rank-card .btn{margin-top:auto;width:100%;padding:10px 12px;font-size:.9rem}.notice{color:var(--muted);font-size:.83rem;text-align:center;margin-top:20px}.cta{border:1px solid #8b70ff35;border-radius:28px;padding:38px;background:radial-gradient(ellipse at 80% 10%,#754bdb28,transparent 50%),linear-gradient(130deg,#151832,#0c1024);display:flex;align-items:center;justify-content:space-between;gap:20px}.cta p{color:var(--muted);margin:5px 0 0}.cta h2{margin:0}.footer{border-top:1px solid var(--line);padding:28px 0;color:var(--muted);font-size:.86rem}.footer-inner{display:flex;justify-content:space-between;gap:15px;flex-wrap:wrap}.toast{position:fixed;bottom:22px;left:22px;background:#171d39;border:1px solid #5c4b9c;color:white;border-radius:12px;padding:11px 16px;opacity:0;transform:translateY(12px);transition:.25s;z-index:40;pointer-events:none}.toast.show{opacity:1;transform:translateY(0)}.hidden-page{display:none}.hidden-page.active{display:block}.subhero{padding:75px 0 35px;text-align:center}.subhero p{color:var(--muted);max-width:650px;margin:0 auto}.page-content{padding:25px 0 85px}
+.account-card{max-width:480px;margin:0 auto;border:1px solid #9b5cff55;border-radius:var(--radius);padding:28px;background:linear-gradient(145deg,#141832e8,#0d1025);box-shadow:0 20px 55px #0003}.account-card h2{font-size:1.65rem;margin:0 0 8px;text-align:center}.account-description{text-align:center;color:var(--muted);margin:0 0 24px}.account-tabs{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:22px}.account-tabs .btn{width:100%}.account-form label{display:block;font-size:.9rem;margin:13px 0 6px}.account-form input{display:block;width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:#090c20;color:var(--text);font:inherit;outline:none}.account-form input:focus{border-color:var(--purple);box-shadow:0 0 0 3px #9b5cff20}.account-form input::placeholder{color:#777f9f}.account-form .btn{width:100%;margin-top:20px}.account-form[hidden],#loggedInPanel[hidden]{display:none}.account-message{font-size:.85rem;text-align:center;color:#c6a5ff;min-height:25px;margin-top:15px}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;scroll-behavior:auto!important;transition:none!important}}
+@media(max-width:900px){.hero{grid-template-columns:1fr;padding-top:55px;text-align:center}.hero p{margin-left:auto;margin-right:auto}.actions,.server-box{justify-content:center}.hero-art{min-height:340px;grid-row:1}.orbit{width:320px}.feature-grid{grid-template-columns:repeat(2,1fr)}.rank-grid{grid-template-columns:repeat(2,1fr)}.about-grid{grid-template-columns:1fr}.hero h1{letter-spacing:-1px}}
+@media(max-width:620px){.container{width:min(100% - 28px,var(--max))}nav{height:68px}.menu-toggle{display:block}.nav-links{display:none;position:absolute;top:68px;right:0;left:0;padding:18px 22px 22px;background:#0b0e22;border-bottom:1px solid var(--line);flex-direction:column;align-items:stretch;gap:12px}.nav-links.open{display:flex}.nav-links a{padding:8px 4px}.nav-links .shop-link,.nav-links .account-link{text-align:center}.hero{padding:34px 0 55px;gap:0}.hero-art{min-height:285px}.orbit{width:260px}.float-card{right:0;bottom:6%;font-size:.78rem}.hero h1{font-size:2.65rem}.hero p{font-size:.96rem}.section{padding:60px 0}.feature-grid,.rank-grid{grid-template-columns:1fr}.rank-card{min-height:0}.stat-row{grid-template-columns:1fr 1fr 1fr}.cta{padding:25px;flex-direction:column;text-align:center;align-items:stretch}.cta .btn{width:100%}.server-box{gap:10px}.server-address{font-size:.92rem}}
 </style>
 </head>
-
 <body>
-<header>
-  <a class="logo" href="#home" style="text-decoration:none">✦ StarCraft</a>
-  <nav>
-    <button data-page="home">خانه</button>
-    <button data-page="about">درباره ما</button>
-    <button data-page="features">امکانات</button>
-    <button data-page="shop">فروشگاه</button>
-    <button data-page="account">پنل کاربری</button>
-  </nav>
-</header>
-
+<div class="stars" aria-hidden="true"></div>
+<div class="nav-wrap"><nav class="container">
+<a class="brand" href="#home" data-page="home" aria-label="StarCraft صفحه اصلی"><span class="brand-mark">✦</span><span>STAR<span class="gradient-text">CRAFT</span></span></a>
+<button class="menu-toggle" id="menuToggle" aria-label="باز کردن منو" aria-expanded="false">☰</button>
+<div class="nav-links" id="navLinks">
+<a href="#home" data-page="home" class="active">صفحه اصلی</a><a href="#about" data-page="about">درباره ما</a><a href="#features" data-page="features">ویژگی‌ها</a><a href="#shop" data-page="shop" class="shop-link">✦ فروشگاه</a>
+<a href="#account" data-page="account" class="account-link">👤 پنل کاربری</a>
+</div></nav></div>
 <main>
-  <section id="page-home" class="page active">
-    <div class="hero">
-      <div class="purple">به دنیای StarCraft خوش آمدی</div>
-      <h1>ماجراجویی از اینجا <span class="purple">شروع می‌شود</span></h1>
-      <p>به سرور ماینکرفت ما بپیوند و ماجراجویی خودت را آغاز کن.</p>
-      <button class="btn btn-primary" data-page="shop">مشاهده فروشگاه</button>
-      <button class="btn" id="copyServer">کپی آدرس سرور</button>
-      <p>آدرس سرور: <strong id="serverAddress">PLAY.STARCRAFT.RP</strong></p>
-    </div>
-    <div class="cards">
-      <div class="card"><h3>⚔️ رقابت</h3><p>با دوستانت بازی کن و مهارتت را نشان بده.</p></div>
-      <div class="card"><h3>💎 رتبه‌ها</h3><p>رتبه موردعلاقه‌ات را در فروشگاه ببین.</p></div>
-      <div class="card"><h3>🌌 جامعه</h3><p>به جامعه StarCraft بپیوند.</p></div>
-    </div>
-  </section>
-
-  <section id="page-about" class="page">
-    <div class="card">
-      <h2>درباره StarCraft</h2>
-      <p>StarCraft یک پروژه ماینکرفتی برای ساختن تجربه‌ای سرگرم‌کننده و جمع‌آوری بازیکنان است.</p>
-    </div>
-  </section>
-
-  <section id="page-features" class="page">
-    <h2>امکانات سرور</h2>
-    <div class="cards">
-      <div class="card"><h3>🎮 گیم‌پلی</h3><p>تجربه‌ای سرگرم‌کننده در دنیای ماینکرفت.</p></div>
-      <div class="card"><h3>🏆 رتبه‌ها</h3><p>رتبه‌های مختلف در فروشگاه سایت.</p></div>
-      <div class="card"><h3>👥 بازیکنان</h3><p>با بازیکنان دیگر همراه شو.</p></div>
-    </div>
-  </section>
-
-  <section id="page-shop" class="page">
-    <h2>فروشگاه StarCraft</h2>
-    <p>رتبه موردنظرت را انتخاب کن. برای فعال شدن خرید، لینک پرداخت هر رتبه را در تنظیمات کد وارد کن.</p>
-    <div class="cards">
-      <div class="card">
-        <h3>⭐ VIP</h3><p>رتبه VIP</p>
-        <button class="btn btn-primary buy-rank" data-rank="VIP">مشاهده خرید</button>
+<section id="page-home" class="hidden-page active">
+<div class="container hero" id="home">
+<div class="hero-copy"><span class="eyebrow"><span class="pulse"></span> ماجراجویی تازه در دنیای Minecraft</span>
+<h1>به دنیای <span class="gradient-text">StarCraft</span><br>خوش اومدی</h1>
+<p>جایی که داستانت رو خودت می‌سازی؛ وارد دنیای رول‌پلی شو، با دوستات تجربه‌های تازه بساز و جایگاهت رو در کهکشان پیدا کن.</p>
+<div class="actions"><a class="btn btn-primary" href="#shop" data-page="shop">مشاهده فروشگاه <span>←</span></a><a class="btn btn-secondary" href="#features" data-page="features">کشف ویژگی‌ها</a></div>
+<div class="server-box"><div><div class="server-label">آدرس سرور</div><div class="server-address" id="serverAddress">PLAY.STARCRAFT.RP</div></div><button class="copy-btn" id="copyAddress">▣ کپی آدرس</button></div>
+</div>
+<div class="hero-art" aria-label="تصویر گرافیکی سیاره‌ای در فضا"><div class="orbit"><div class="planet"></div><span class="satellite"></span></div><div class="float-card">✦ دنیایی برای ساختن داستانت<strong>STARCRAFT RP</strong></div></div>
+</div>
+<section class="section" id="home-features"><div class="container"><div class="section-head"><span class="kicker">چرا StarCraft؟</span><h2>فراتر از یک سرور معمولی</h2><p>هر ورود، شروع یک داستان جدیده. مسیر خودت رو انتخاب کن و در دنیای StarCraft پیشرفت کن.</p></div>
+<div class="feature-grid">
+<article class="feature-card"><div class="feature-icon">🌌</div><h3>دنیای رول‌پلی</h3><p>در یک فضای داستان‌محور نقش خودت رو پیدا کن و بخشی از دنیای سرور باش.</p></article>
+<article class="feature-card"><div class="feature-icon">🏙️</div><h3>شهر زنده</h3><p>با بازیکن‌های دیگه تعامل داشته باش، کسب‌وکار بساز و تجربه‌های تازه رقم بزن.</p></article>
+<article class="feature-card"><div class="feature-icon">🚀</div><h3>پیشرفت و ماجراجویی</h3><p>هدف‌های جدید دنبال کن و با فعالیتت در سرور پیشرفت کن.</p></article>
+</div></div></section>
+<section class="section" style="padding-top:15px"><div class="container"><div class="cta"><div><h2>آماده‌ای وارد کهکشان بشی؟</h2><p>رنک مناسب خودت رو در فروشگاه پیدا کن.</p></div><a href="#shop" data-page="shop" class="btn btn-primary">رفتن به فروشگاه ←</a></div></div></section>
+</section>
+<section id="page-about" class="hidden-page"><div class="subhero container"><span class="kicker">درباره StarCraft</span><h1>داستان تو، دنیای تو</h1><p>StarCraft یک پروژه سرور ماینکرفت با تمرکز بر تجربه رول‌پلی، تعامل بازیکن‌ها و ساختن یک جامعه دوستانه است.</p></div><div class="page-content container"><div class="about-grid"><div class="about-panel"><h3>ما چه چیزی می‌سازیم؟</h3><p>هدف ما ساختن فضاییه که بازیکن‌ها فقط وارد بازی نشن؛ بلکه شخصیت بسازن، داستان خلق کنن و در کنار بقیه دنیایی پویا شکل بدن.</p><p>این بخش رو می‌تونی با تاریخچه واقعی سرور، قوانین، تیم مدیریت و برنامه‌های آینده جایگزین کنی.</p></div><div class="about-panel"><h3>به جمع ما بپیوند</h3><p>برای شروع، اخبار و راهنمای ورود سرور رو از کانال‌های رسمی دنبال کن. لینک‌های شبکه‌های اجتماعی رو در تنظیمات پایین فایل اضافه کن.</p><div class="actions"><a href="#features" data-page="features" class="btn btn-secondary">دیدن ویژگی‌ها</a><a href="#shop" data-page="shop" class="btn btn-primary">فروشگاه</a></div></div></div></div></section>
+<section id="page-features" class="hidden-page"><div class="subhero container"><span class="kicker">امکانات سرور</span><h1>ویژگی‌هایی برای تجربه بهتر</h1><p>این کارت‌ها نمونه هستند؛ عنوان، آیکون و توضیحات رو از داخل فایل index.html به‌راحتی تغییر بده.</p></div><div class="page-content container"><div class="feature-grid">
+<article class="feature-card"><div class="feature-icon">🎭</div><h3>رول‌پلی داستان‌محور</h3><p>شخصیت بساز، نقش خودت رو بازی کن و در داستان‌های مشترک شرکت کن.</p></article>
+<article class="feature-card"><div class="feature-icon">🧭</div><h3>شهر و مکان‌های متنوع</h3><p>در نقاط مختلف شهر بگرد و محیط رو کشف کن.</p></article>
+<article class="feature-card"><div class="feature-icon">💼</div><h3>اقتصاد و کسب‌وکار</h3><p>فعالیت کن، درآمد به دست بیار و مسیر شغلی خودت رو بساز.</p></article>
+<article class="feature-card"><div class="feature-icon">🚘</div><h3>وسایل نقلیه</h3><p>در شهر حرکت کن و از سیستم حمل‌ونقل سرور لذت ببر.</p></article>
+<article class="feature-card"><div class="feature-icon">🛡️</div><h3>مدیریت و پشتیبانی</h3><p>برای تجربه‌ای منظم‌تر، قوانین و راهنماهای سرور رو دنبال کن.</p></article>
+<article class="feature-card"><div class="feature-icon">✨</div><h3>به‌روزرسانی‌های آینده</h3><p>این قسمت رو با قابلیت‌های قطعی و فعال سرور خودت به‌روزرسانی کن.</p></article>
+</div></div></section>
+<section id="page-shop" class="hidden-page"><div class="subhero container"><span class="kicker">فروشگاه StarCraft</span><h1>رنک خودت رو انتخاب کن</h1><p>با انتخاب رنک، از امکانات ویژه آن استفاده کن. قبل از فعال‌کردن فروش، توضیحات و مزایای هر رنک رو کامل کن.</p></div><div class="page-content container"><div class="rank-grid">
+<article class="rank-card"><div class="rank-symbol">✦</div><h3>VIP</h3><p>شروعی ویژه برای ماجراجویی تو</p><div class="price">۵۰٬۰۰۰ <small>تومان</small></div><ul><li>نشان VIP</li><li>امکانات پایه رنک</li><li>قابل ویرایش</li></ul><a class="btn btn-secondary buy-link" data-rank="VIP" href="#">خرید VIP</a></article>
+<article class="rank-card featured"><span class="rank-tag">محبوب</span><div class="rank-symbol">✧</div><h3>MVP</h3><p>یک قدم جلوتر در کهکشان</p><div class="price">۱۰۰٬۰۰۰ <small>تومان</small></div><ul><li>نشان MVP</li><li>امکانات بیشتر</li><li>قابل ویرایش</li></ul><a class="btn btn-primary buy-link" data-rank="MVP" href="#">خرید MVP</a></article>
+<article class="rank-card"><div class="rank-symbol">◈</div><h3>SPONSER</h3><p>حمایت از رشد StarCraft</p><div class="price">۲۰۰٬۰۰۰ <small>تومان</small></div><ul><li>نشان SPONSER</li><li>امکانات حامی</li><li>قابل ویرایش</li></ul><a class="btn btn-secondary buy-link" data-rank="SPONSER" href="#">خرید SPONSER</a></article>
+<article class="rank-card"><div class="rank-symbol">✹</div><h3>STAR</h3><p>جایگاه خاص در دنیای ما</p><div class="price">۳۵۰٬۰۰۰ <small>تومان</small></div><ul><li>نشان STAR</li><li>امکانات ویژه</li><li>قابل ویرایش</li></ul><a class="btn btn-secondary buy-link" data-rank="STAR" href="#">خرید STAR</a></article>
+</div><p class="notice">درگاه پرداخت هنوز متصل نشده است. برای فعال‌کردن خرید، لینک واقعی هر رنک را در بخش تنظیمات پایین فایل قرار بده.</p></div></section>
+<section id="page-account" class="hidden-page">
+  <div class="subhero container">
+    <span class="kicker">حساب کاربری</span>
+    <h1>پنل کاربری <span class="gradient-text">StarCraft</span></h1>
+    <p>وارد حساب خودت شو یا یک حساب جدید بساز.</p>
+  </div>
+  <div class="page-content container">
+    <div class="account-card">
+      <h2 id="accountTitle">ورود به حساب</h2>
+      <p class="account-description" id="accountDescription">به پنل کاربری StarCraft خوش آمدی.</p>
+      <div class="account-tabs">
+        <button class="btn btn-primary" type="button" id="loginTab">ورود</button>
+        <button class="btn btn-secondary" type="button" id="registerTab">ثبت‌نام</button>
       </div>
-      <div class="card">
-        <h3>💎 MVP</h3><p>رتبه MVP</p>
-        <button class="btn btn-primary buy-rank" data-rank="MVP">مشاهده خرید</button>
+      <form class="account-form" id="loginForm">
+        <label for="loginUsername">ایمیل</label>
+        <input id="loginUsername" name="email" type="email" placeholder="ایمیل ثبت‌نام‌شده" autocomplete="email" required>
+        <label for="loginPassword">رمز عبور</label>
+        <input id="loginPassword" name="password" type="password" placeholder="رمز عبور" autocomplete="current-password" required>
+        <button class="btn btn-primary" type="submit">ورود به حساب</button>
+      </form>
+      <form class="account-form" id="registerForm" hidden>
+        <label for="registerUsername">نام کاربری</label>
+        <input id="registerUsername" name="username" type="text" minlength="3" maxlength="24" placeholder="نام کاربری دلخواه" autocomplete="username" required>
+        <label for="registerEmail">ایمیل</label>
+        <input id="registerEmail" name="email" type="email" placeholder="ایمیل معتبر" autocomplete="email" required>
+        <label for="registerPassword">رمز عبور</label>
+        <input id="registerPassword" name="password" type="password" minlength="8" placeholder="حداقل ۸ کاراکتر" autocomplete="new-password" required>
+        <label for="registerPasswordConfirm">تکرار رمز عبور</label>
+        <input id="registerPasswordConfirm" name="passwordConfirm" type="password" minlength="8" placeholder="رمز عبور را دوباره وارد کن" autocomplete="new-password" required>
+        <button class="btn btn-primary" type="submit">ساخت حساب کاربری</button>
+      </form>
+      <div id="loggedInPanel" hidden>
+        <h3 style="text-align:center">خوش آمدی! 🚀</h3>
+        <p style="text-align:center;color:#a7accb">حساب تو با موفقیت وارد شده است.</p>
+        <p id="loggedInEmail" style="text-align:center;direction:ltr;overflow-wrap:anywhere"></p>
+        <button class="btn btn-secondary" id="logoutButton" type="button" style="width:100%">خروج از حساب</button>
       </div>
-      <div class="card">
-        <h3>🔥 SPONSER</h3><p>رتبه SPONSER</p>
-        <button class="btn btn-primary buy-rank" data-rank="SPONSER">مشاهده خرید</button>
-      </div>
-      <div class="card">
-        <h3>🌟 STAR</h3><p>رتبه STAR</p>
-        <button class="btn btn-primary buy-rank" data-rank="STAR">مشاهده خرید</button>
-      </div>
-    </div>
-  </section>
-
-  <section id="page-account" class="page">
-    <h2>پنل کاربری</h2>
-    <div class="card">
-      <div id="authForms">
-        <div style="display:flex;gap:10px;margin-bottom:18px">
-          <button class="btn btn-primary" id="loginTab">ورود</button>
-          <button class="btn" id="registerTab">ثبت‌نام</button>
-        </div>
-
-        <form id="loginForm">
-          <h3>ورود به حساب</h3>
-          <label for="loginEmail">ایمیل</label>
-          <input id="loginEmail" type="email" autocomplete="email" required>
-          <label for="loginPassword">رمز عبور</label>
-          <input id="loginPassword" type="password" autocomplete="current-password" required>
-          <button class="btn btn-primary" type="submit">ورود</button>
-        </form>
-
-        <form id="registerForm" class="hidden">
-          <h3>ساخت حساب جدید</h3>
-          <label for="registerUsername">نام کاربری</label>
-          <input id="registerUsername" maxlength="24" autocomplete="username" required>
-          <label for="registerEmail">ایمیل</label>
-          <input id="registerEmail" type="email" autocomplete="email" required>
-          <label for="registerPassword">رمز عبور (حداقل ۸ کاراکتر)</label>
-          <input id="registerPassword" type="password" minlength="8" autocomplete="new-password" required>
-          <label for="registerPasswordConfirm">تکرار رمز عبور</label>
-          <input id="registerPasswordConfirm" type="password" minlength="8" autocomplete="new-password" required>
-          <button class="btn btn-primary" type="submit">ثبت‌نام</button>
-        </form>
-      </div>
-
-      <div id="accountMessage" class="notice hidden" role="status"></div>
-
-      <div id="loggedInPanel" class="hidden">
-        <h3>حساب شما</h3>
-        <p>ایمیل: <strong id="loggedInEmail"></strong></p>
-        <p>نام کاربری: <strong id="loggedInUsername">—</strong></p>
-        <button class="btn" id="logoutButton">خروج از حساب</button>
-      </div>
-
-      <div id="ownerPanel" class="owner-box hidden">
-        <h3>🛡️ پنل مالک StarCraft</h3>
-        <p>گزارش رویدادهای سایت</p>
-        <button class="btn btn-primary" id="refreshLogs">به‌روزرسانی گزارش‌ها</button>
-        <p id="ownerStatus" role="status">در انتظار بررسی دسترسی...</p>
-        <div style="overflow-x:auto">
-          <table>
-            <thead><tr><th>رویداد</th><th>نام کاربری</th><th>شناسه کاربر</th><th>زمان</th></tr></thead>
-            <tbody id="logsBody"></tbody>
-          </table>
-        </div>
+      <p class="account-message" id="accountMessage" aria-live="polite"></p>
+      <div style="text-align:center">
+        <a class="btn btn-secondary" href="#home" data-page="home">← بازگشت به صفحه اصلی</a>
       </div>
     </div>
-  </section>
+  </div>
+</section>
 </main>
-
-<footer>© <span id="year"></span> StarCraft — Minecraft Community</footer>
-<div id="toast" role="status"></div>
-
+<footer class="footer"><div class="container footer-inner"><span>© <span id="year"></span> StarCraft RP — تمامی حقوق محفوظ است.</span><span>ساخته‌شده برای جامعه StarCraft ✦</span></div></footer>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 <script>
-(() => {
-  "use strict";
+const SITE_CONFIG = {
+  SERVER_ADDRESS: "PLAY.STARCRAFT.RP",
+  PAYMENTS: { VIP: "", MVP: "", SPONSER: "", STAR: "" }
+};
 
-  // تنظیمات سایت
-  const SITE_CONFIG = {
-    SERVER_ADDRESS: "PLAY.STARCRAFT.RP",
-    PAYMENTS: {
-      VIP: "",
-      MVP: "",
-      SPONSER: "",
-      STAR: ""
-    }
-  };
+document.getElementById("serverAddress").textContent = SITE_CONFIG.SERVER_ADDRESS;
+document.getElementById("year").textContent = new Date().getFullYear();
 
-  // شناسه کاربری مالک در Supabase
-  const OWNER_UID = "c20a98ec-7495-4abf-80e0-9d86d5b649d0";
+const toast = document.getElementById("toast");
+let toastTimer;
+function showToast(message) {
+  toast.textContent = message;
+  toast.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toast.classList.remove("show"), 2600);
+}
 
-  const SUPABASE_URL = "https://euvslrpmvevtiwhfdhio.supabase.co";
-  const SUPABASE_KEY = "sb_publishable_YvXvyId7Fmd30vyxyoCAMg_fZn-8gE9";
-
-  const $ = (selector) => document.querySelector(selector);
-  const $$ = (selector) => Array.from(document.querySelectorAll(selector));
-
-  let currentUser = null;
-  let supabase = null;
-  let toastTimer = null;
-
-  function showToast(message) {
-    const toast = $("#toast");
-    if (!toast) return;
-    toast.textContent = message;
-    toast.style.display = "block";
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => {
-      toast.style.display = "none";
-    }, 3000);
+document.getElementById("copyAddress").addEventListener("click", async () => {
+  try {
+    await navigator.clipboard.writeText(SITE_CONFIG.SERVER_ADDRESS);
+    showToast("آدرس سرور کپی شد!");
+  } catch (error) {
+    const area = document.createElement("textarea");
+    area.value = SITE_CONFIG.SERVER_ADDRESS;
+    area.style.position = "fixed";
+    area.style.opacity = "0";
+    document.body.appendChild(area);
+    area.select();
+    const ok = document.execCommand("copy");
+    area.remove();
+    showToast(ok ? "آدرس سرور کپی شد!" : "کپی خودکار ممکن نشد؛ آدرس را دستی کپی کن.");
   }
+});
 
-  $("#year").textContent = new Date().getFullYear();
-  $("#serverAddress").textContent = SITE_CONFIG.SERVER_ADDRESS;
+function navigate(page, updateHash = true) {
+  const valid = ["home", "about", "features", "shop", "account"].includes(page) ? page : "home";
+  document.querySelectorAll(".hidden-page").forEach(el => el.classList.remove("active"));
+  document.getElementById("page-" + valid).classList.add("active");
+  document.querySelectorAll(".nav-links a").forEach(el => el.classList.toggle("active", el.dataset.page === valid));
+  document.getElementById("navLinks").classList.remove("open");
+  document.getElementById("menuToggle").setAttribute("aria-expanded", "false");
+  if (updateHash) history.pushState({ page: valid }, "", "#" + valid);
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
 
-  // پیمایش صفحات؛ با کلیک، آدرس صفحه نیز به‌روز می‌شود.
-  function showPage(page, updateHistory = true) {
-    const allowed = ["home", "about", "features", "shop", "account"];
-    if (!allowed.includes(page)) page = "home";
-
-    $$(".page").forEach(section => {
-      section.classList.toggle("active", section.id === "page-" + page);
-    });
-
-    $$("[data-page]").forEach(button => {
-      button.classList.toggle("active", button.dataset.page === page);
-      if (button.tagName === "BUTTON") {
-        button.setAttribute("aria-current",
-          button.dataset.page === page ? "page" : "false");
-      }
-    });
-
-    if (updateHistory && location.hash !== "#" + page) {
-      history.pushState({ page }, "", "#" + page);
-    }
-  }
-
-  $$("[data-page]").forEach(button => {
-    button.addEventListener("click", () => showPage(button.dataset.page));
+document.querySelectorAll("[data-page]").forEach(el => {
+  el.addEventListener("click", event => {
+    event.preventDefault();
+    navigate(el.dataset.page);
   });
+});
+window.addEventListener("popstate", () => navigate(location.hash.slice(1) || "home", false));
 
-  window.addEventListener("popstate", () => {
-    showPage(location.hash.slice(1) || "home", false);
+document.getElementById("menuToggle").addEventListener("click", () => {
+  const links = document.getElementById("navLinks");
+  const open = links.classList.toggle("open");
+  document.getElementById("menuToggle").setAttribute("aria-expanded", String(open));
+});
+
+document.querySelectorAll(".buy-link").forEach(link => {
+  link.addEventListener("click", event => {
+    event.preventDefault();
+    const rank = link.dataset.rank;
+    const url = SITE_CONFIG.PAYMENTS[rank];
+    if (url) window.open(url, "_blank", "noopener,noreferrer");
+    else showToast("لینک پرداخت " + rank + " هنوز تنظیم نشده است.");
   });
+});
 
-  window.addEventListener("hashchange", () => {
-    showPage(location.hash.slice(1) || "home", false);
-  });
+// Supabase project connection
+const SUPABASE_URL = "https://euvslrpmvevtiwhfdhio.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_YvXvyId7Fmd30vyxyoCAMg_fZn-8gE9";
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
 
-  showPage(location.hash.slice(1) || "home", false);
+const loginForm = document.getElementById("loginForm");
+const registerForm = document.getElementById("registerForm");
+const loginTab = document.getElementById("loginTab");
+const registerTab = document.getElementById("registerTab");
+const accountMessage = document.getElementById("accountMessage");
+const loggedInPanel = document.getElementById("loggedInPanel");
+const loggedInEmail = document.getElementById("loggedInEmail");
+const logoutButton = document.getElementById("logoutButton");
 
-  $("#copyServer").addEventListener("click", async () => {
-    try {
-      await navigator.clipboard.writeText(SITE_CONFIG.SERVER_ADDRESS);
-      showToast("آدرس سرور کپی شد.");
-    } catch {
-      showToast("آدرس سرور: " + SITE_CONFIG.SERVER_ADDRESS);
-    }
-  });
+function showAccountMessage(message) {
+  accountMessage.textContent = message;
+}
 
-  $$(".buy-rank").forEach(button => {
-    button.addEventListener("click", () => {
-      const rank = button.dataset.rank;
-      const url = SITE_CONFIG.PAYMENTS[rank];
-      if (url) {
-        try {
-          const parsed = new URL(url);
-          if (parsed.protocol !== "https:") {
-            showToast("لینک پرداخت باید با https شروع شود.");
-            return;
-          }
-          window.open(parsed.href, "_blank", "noopener,noreferrer");
-        } catch {
-          showToast("لینک پرداخت معتبر نیست.");
-        }
-      } else {
-        showToast("لینک خرید این رتبه هنوز تنظیم نشده است.");
-      }
-    });
-  });
+function showAccountForm(mode) {
+  const isLogin = mode === "login";
+  loginForm.hidden = !isLogin;
+  registerForm.hidden = isLogin;
+  loggedInPanel.hidden = true;
+  loginTab.hidden = false;
+  registerTab.hidden = false;
 
-  function setMessage(message) {
-    const el = $("#accountMessage");
-    el.textContent = message;
-    el.classList.remove("hidden");
+  loginTab.className = isLogin ? "btn btn-primary" : "btn btn-secondary";
+  registerTab.className = isLogin ? "btn btn-secondary" : "btn btn-primary";
+
+  document.getElementById("accountTitle").textContent = isLogin ? "ورود به حساب" : "ساخت حساب کاربری";
+  document.getElementById("accountDescription").textContent = isLogin
+    ? "با ایمیل و رمز عبورت وارد شو."
+    : "اطلاعات خودت را برای ثبت‌نام وارد کن.";
+  showAccountMessage("");
+}
+
+function showLoggedInUser(user) {
+  loginForm.hidden = true;
+  registerForm.hidden = true;
+  loggedInPanel.hidden = false;
+  loginTab.hidden = true;
+  registerTab.hidden = true;
+  document.getElementById("accountTitle").textContent = "حساب کاربری تو";
+  document.getElementById("accountDescription").textContent = "به پنل کاربری StarCraft خوش آمدی.";
+  loggedInEmail.textContent = user.email || "";
+  showAccountMessage("");
+}
+
+function showLoggedOutUser() {
+  showAccountForm("login");
+}
+
+loginTab.addEventListener("click", () => showAccountForm("login"));
+registerTab.addEventListener("click", () => showAccountForm("register"));
+
+registerForm.addEventListener("submit", async event => {
+  event.preventDefault();
+
+  const username = document.getElementById("registerUsername").value.trim();
+  const email = document.getElementById("registerEmail").value.trim();
+  const password = document.getElementById("registerPassword").value;
+  const confirm = document.getElementById("registerPasswordConfirm").value;
+
+  if (password !== confirm) {
+    showAccountMessage("رمز عبور و تکرار آن یکسان نیستند.");
+    return;
   }
-
-  function clearMessage() {
-    const el = $("#accountMessage");
-    el.textContent = "";
-    el.classList.add("hidden");
-  }
-
-  function setAuthMode(mode) {
-    const isLogin = mode === "login";
-    $("#loginForm").classList.toggle("hidden", !isLogin);
-    $("#registerForm").classList.toggle("hidden", isLogin);
-    $("#loginTab").classList.toggle("btn-primary", isLogin);
-    $("#registerTab").classList.toggle("btn-primary", !isLogin);
-    clearMessage();
-  }
-
-  $("#loginTab").addEventListener("click", () => setAuthMode("login"));
-  $("#registerTab").addEventListener("click", () => setAuthMode("register"));
-
-  function setLoggedInUI(user) {
-    currentUser = user || null;
-    const signedIn = !!currentUser;
-
-    $("#authForms").classList.toggle("hidden", signedIn);
-    $("#loggedInPanel").classList.toggle("hidden", !signedIn);
-    $("#loggedInEmail").textContent = signedIn ? (currentUser.email || "—") : "";
-    $("#loggedInUsername").textContent =
-      signedIn ? (currentUser.user_metadata?.username || "—") : "";
-
-    // پنل مالک فقط برای UID تعیین‌شده نمایش داده می‌شود.
-    const isOwner = signedIn && currentUser.id === OWNER_UID;
-    $("#ownerPanel").classList.toggle("hidden", !isOwner);
-
-    if (isOwner) {
-      $("#ownerStatus").textContent = "دسترسی مالک شناسایی شد.";
-    }
-  }
-
-  // ثبت گزارش‌ها؛ خطای ثبت گزارش مانع کارکرد سایت نمی‌شود.
-  async function writeAuditLog(eventType, username = "") {
-    if (!supabase || !currentUser) return;
-
-    try {
-      const { error } = await supabase.from("site_audit_logs").insert({
-        user_id: currentUser.id,
-        event_type: eventType,
-        username: username || currentUser.user_metadata?.username || "",
-        details: { source: "client" }
-      });
-
-      if (error) console.warn("ثبت گزارش انجام نشد:", error.message);
-    } catch (error) {
-      console.warn("خطای ثبت گزارش:", error);
-    }
-  }
-
-  async function loadOwnerLogs() {
-    if (!currentUser || currentUser.id !== OWNER_UID) {
-      $("#ownerStatus").textContent = "دسترسی غیرمجاز.";
-      return;
-    }
-
-    if (!supabase) {
-      $("#ownerStatus").textContent = "اتصال Supabase برقرار نیست.";
-      return;
-    }
-
-    $("#ownerStatus").textContent = "در حال دریافت گزارش‌ها...";
-    $("#logsBody").replaceChildren();
-
-    const { data, error } = await supabase
-      .from("site_audit_logs")
-      .select("id,user_id,event_type,username,created_at")
-      .order("created_at", { ascending: false })
-      .limit(100);
-
-    if (error) {
-      $("#ownerStatus").textContent =
-        "خطا در دریافت گزارش‌ها؛ وجود جدول و مجوزهای دسترسی را بررسی کن.";
-      console.error(error);
-      return;
-    }
-
-    if (!data || data.length === 0) {
-      $("#ownerStatus").textContent = "هنوز گزارشی ثبت نشده است.";
-      return;
-    }
-
-    const fragment = document.createDocumentFragment();
-
-    data.forEach(log => {
-      const tr = document.createElement("tr");
-      [
-        log.event_type || "—",
-        log.username || "—",
-        log.user_id || "—",
-        log.created_at ? new Date(log.created_at).toLocaleString("fa-IR") : "—"
-      ].forEach(value => {
-        const td = document.createElement("td");
-        td.textContent = String(value);
-        tr.appendChild(td);
-      });
-      fragment.appendChild(tr);
-    });
-
-    $("#logsBody").appendChild(fragment);
-    $("#ownerStatus").textContent = "تعداد گزارش‌های دریافت‌شده: " + data.length;
-  }
-
-  $("#refreshLogs").addEventListener("click", loadOwnerLogs);
-
-  // اگر کتابخانه یا تنظیمات اتصال در دسترس نباشند،
-  // صفحه و بخش‌های غیرمرتبط همچنان کار می‌کنند.
-  if (!window.supabase || !SUPABASE_URL || !SUPABASE_KEY) {
-    setMessage("سرویس حساب کاربری آماده نیست. اتصال Supabase را بررسی کن.");
+  if (username.length < 3) {
+    showAccountMessage("نام کاربری باید حداقل ۳ کاراکتر باشد.");
     return;
   }
 
-  supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  const button = registerForm.querySelector('button[type="submit"]');
+  button.disabled = true;
+  button.textContent = "در حال ثبت‌نام...";
 
-  $("#registerForm").addEventListener("submit", async event => {
-    event.preventDefault();
-    clearMessage();
-
-    const username = $("#registerUsername").value.trim();
-    const email = $("#registerEmail").value.trim();
-    const password = $("#registerPassword").value;
-    const confirmation = $("#registerPasswordConfirm").value;
-
-    if (username.length < 3) {
-      setMessage("نام کاربری باید حداقل ۳ کاراکتر باشد.");
-      return;
-    }
-    if (password.length < 8) {
-      setMessage("رمز عبور باید حداقل ۸ کاراکتر باشد.");
-      return;
-    }
-    if (password !== confirmation) {
-      setMessage("رمز عبور و تکرار آن یکسان نیستند.");
-      return;
-    }
-
-    const submit = $("#registerForm button[type='submit']");
-    submit.disabled = true;
-
-    try {
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: { username }
-        }
-      });
-
-      if (error) throw error;
-
-      if (data.user && data.session) {
-        currentUser = data.user;
-        setLoggedInUI(data.user);
-        await writeAuditLog("signup", username);
-        setMessage("ثبت‌نام موفق بود.");
-      } else {
-        setMessage("ثبت‌نام انجام شد. اگر تأیید ایمیل فعال است، ایمیلت را تأیید کن و سپس وارد شو.");
+  try {
+    const { data, error } = await supabaseClient.auth.signUp({
+      email,
+      password,
+      options: {
+        data: { username },
+        emailRedirectTo: "https://starcraft271.github.io/StarCraft/"
       }
-    } catch (error) {
-      setMessage(error.message || "ثبت‌نام ناموفق بود.");
-    } finally {
-      submit.disabled = false;
+    });
+    if (error) throw error;
+
+    if (data.session && data.user) {
+      showLoggedInUser(data.user);
+      showAccountMessage("ثبت‌نام موفق بود!");
+    } else {
+      showAccountMessage("ثبت‌نام انجام شد؛ ایمیلت را باز کن و لینک تأیید را بزن.");
     }
-  });
+  } catch (error) {
+    showAccountMessage("خطا در ثبت‌نام: " + error.message);
+  } finally {
+    button.disabled = false;
+    button.textContent = "ساخت حساب کاربری";
+  }
+});
 
-  $("#loginForm").addEventListener("submit", async event => {
-    event.preventDefault();
-    clearMessage();
+loginForm.addEventListener("submit", async event => {
+  event.preventDefault();
 
-    const email = $("#loginEmail").value.trim();
-    const password = $("#loginPassword").value;
-    const submit = $("#loginForm button[type='submit']");
-    submit.disabled = true;
+  const email = document.getElementById("loginUsername").value.trim();
+  const password = document.getElementById("loginPassword").value;
+  const button = loginForm.querySelector('button[type="submit"]');
+  button.disabled = true;
+  button.textContent = "در حال ورود...";
 
-    try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password
-      });
+  try {
+    const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+    if (error) throw error;
+    showLoggedInUser(data.user);
+    showAccountMessage("با موفقیت وارد شدی!");
+  } catch (error) {
+    showAccountMessage("ورود ناموفق بود؛ ایمیل و رمز عبورت را بررسی کن.");
+  } finally {
+    button.disabled = false;
+    button.textContent = "ورود به حساب";
+  }
+});
 
-      if (error) throw error;
+logoutButton.addEventListener("click", async () => {
+  logoutButton.disabled = true;
+  try {
+    const { error } = await supabaseClient.auth.signOut();
+    if (error) throw error;
+    showLoggedOutUser();
+    showAccountMessage("از حساب خارج شدی.");
+  } catch (error) {
+    showAccountMessage("خروج ناموفق بود؛ دوباره تلاش کن.");
+  } finally {
+    logoutButton.disabled = false;
+  }
+});
 
-      setLoggedInUI(data.user);
-      await writeAuditLog("login");
-      setMessage("با موفقیت وارد شدی.");
-      if (data.user.id === OWNER_UID) await loadOwnerLogs();
-    } catch (error) {
-      setMessage(error.message || "ورود ناموفق بود.");
-    } finally {
-      submit.disabled = false;
-    }
-  });
-
-  $("#logoutButton").addEventListener("click", async () => {
-    clearMessage();
-
-    try {
-      await writeAuditLog("logout");
-      const { error } = await supabase.auth.signOut();
-      if (error) throw error;
-      setLoggedInUI(null);
-      setAuthMode("login");
-      setMessage("از حساب خارج شدی.");
-    } catch (error) {
-      setMessage(error.message || "خروج ناموفق بود.");
-    }
-  });
-
-  // بازیابی نشست قبلی
-  supabase.auth.getSession().then(({ data, error }) => {
-    if (error) {
-      console.warn(error);
-      return;
-    }
-    setLoggedInUI(data.session?.user || null);
-    if (data.session?.user?.id === OWNER_UID) loadOwnerLogs();
-  });
-
-  supabase.auth.onAuthStateChange((_event, session) => {
-    setLoggedInUI(session?.user || null);
-  });
+// Restore the saved session when the site opens
+(async () => {
+  const { data, error } = await supabaseClient.auth.getSession();
+  if (error) {
+    showAccountMessage("بررسی وضعیت حساب ناموفق بود.");
+    return;
+  }
+  if (data.session?.user) showLoggedInUser(data.session.user);
 })();
+
+supabaseClient.auth.onAuthStateChange((event, session) => {
+  if (session?.user) showLoggedInUser(session.user);
+  else showLoggedOutUser();
+});
+
+const initial = location.hash.slice(1);
+if (["home", "about", "features", "shop", "account"].includes(initial)) {
+  navigate(initial, false);
+}
 </script>
 </body>
 </html>
