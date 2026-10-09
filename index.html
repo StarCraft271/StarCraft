@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>StarCraft | فروشگاه ماینکرفت</title>
+<style>
+body{margin:0;font-family:Tahoma,Arial;background:#10131c;color:white;text-align:center}
+header{background:#191f2e;padding:25px 10px;border-bottom:2px solid #8055ff}
+h1{color:#b39aff}
+.container{padding:25px 12px}
+.ranks{display:flex;flex-wrap:wrap;justify-content:center;gap:15px}
+.card{background:#20283a;border:1px solid #424d68;border-radius:14px;padding:20px;width:230px;max-width:80%}
+.price{color:#65e6a1;font-size:21px}
+button{background:#8055ff;color:white;border:0;border-radius:8px;padding:12px 18px;font-size:16px}
+footer{padding:25px;color:#aab2c5}
+</style>
+</head>
+<body>
+<header><h1>⭐ StarCraft ⭐</h1><p>فروشگاه رنک و آیتم ماینکرفت</p></header>
+<main class="container">
+<h2>رنک‌های فروشگاه</h2>
+<div class="ranks">
+<div class="card"><h3>🥉 VIP</h3><p>شروع ماجراجویی توی سرور!</p><p class="price">۵۰ هزار تومان</p><button onclick="order('VIP')">انتخاب رنک</button></div>
+<div class="card"><h3>🥈 MVP</h3><p>برای بازیکن‌های حرفه‌ای‌تر!</p><p class="price">۱۰۰ هزار تومان</p><button onclick="order('MVP')">انتخاب رنک</button></div>
+<div class="card"><h3>🥇 LEGEND</h3><p>رنک ویژه StarCraft!</p><p class="price">۲۰۰ هزار تومان</p><button onclick="order('LEGEND')">انتخاب رنک</button></div>
+</div>
+<p id="message"></p>
+<p>برای خرید، راه ارتباطی فروشگاه باید اضافه شود.</p>
+</main>
+<footer>© StarCraft Minecraft Store</footer>
+<script>
+function order(rank){document.getElementById('message').textContent='رنک انتخاب‌شده: '+rank+' — برای تکمیل سفارش باید راه ارتباطی فروشگاه اضافه شود.'}
+</script>
+</body>
+</html>
