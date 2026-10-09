@@ -1,36 +1,157 @@
+
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>StarCraft | فروشگاه ماینکرفت</title>
+
 <style>
-body{margin:0;font-family:Tahoma,Arial;background:#10131c;color:white;text-align:center}
-header{background:#191f2e;padding:25px 10px;border-bottom:2px solid #8055ff}
-h1{color:#b39aff}
-.container{padding:25px 12px}
+*{box-sizing:border-box}
+body{
+ margin:0;font-family:Tahoma,Arial;
+ color:white;text-align:center;
+ background:#08051b;
+ background-image:
+ radial-gradient(circle at 20% 20%,#54218b66 0,transparent 35%),
+ radial-gradient(circle at 80% 70%,#172e8c66 0,transparent 35%),
+ linear-gradient(135deg,#08051b,#15102e,#050817);
+ min-height:100vh;
+}
+header{
+ padding:25px 10px;
+ background:#09051dcc;
+ border-bottom:2px solid #9b65ff;
+ box-shadow:0 0 25px #804cff55;
+}
+.logo{
+ display:block;width:min(420px,90%);
+ max-height:240px;object-fit:contain;
+ margin:0 auto 15px;
+ filter:drop-shadow(0 0 18px #9c54ff);
+}
+h1{color:#d2b6ff;text-shadow:0 0 15px #8c43ff}
+h2{color:#d9c6ff}
+.container{padding:25px 12px;max-width:1100px;margin:auto}
 .ranks{display:flex;flex-wrap:wrap;justify-content:center;gap:15px}
-.card{background:#20283a;border:1px solid #424d68;border-radius:14px;padding:20px;width:230px;max-width:80%}
+.card,.panel{
+ background:#17132be8;
+ border:1px solid #8055ff;
+ border-radius:14px;padding:20px;
+ width:230px;max-width:90%;
+ box-shadow:0 0 18px #804cff22;
+}
+.card h3{color:#d6baff}
+.card p{line-height:1.8}
 .price{color:#65e6a1;font-size:21px}
-button{background:#8055ff;color:white;border:0;border-radius:8px;padding:12px 18px;font-size:16px}
+button{
+ background:linear-gradient(135deg,#8055ff,#426bff);
+ color:white;border:1px solid #bca1ff;
+ border-radius:8px;padding:12px 18px;
+ font-size:15px;cursor:pointer;margin:4px;
+}
+button:hover{filter:brightness(1.2)}
+#message,#accountMessage{color:#cbb5ff;line-height:1.8}
+.panel{width:min(500px,95%);margin:35px auto}
+input{
+ width:90%;padding:12px;margin:7px;
+ border-radius:8px;border:1px solid #8055ff;
+ background:#0b0920;color:white;font-size:15px;
+}
 footer{padding:25px;color:#aab2c5}
 </style>
 </head>
+
 <body>
-<header><h1>⭐ StarCraft ⭐</h1><p>فروشگاه رنک و آیتم ماینکرفت</p></header>
+<header>
+ <img class="logo" src="starcraft-logo.jpg" alt="لوگوی StarCraft">
+ <h1>⭐ STAR CRAFT ⭐</h1>
+ <p>فروشگاه کهکشانی رنک و آیتم ماینکرفت</p>
+</header>
+
 <main class="container">
-<h2>رنک‌های فروشگاه</h2>
-<div class="ranks">
-<div class="card"><h3>🥉 VIP</h3><p>شروع ماجراجویی توی سرور!</p><p class="price">۵۰ هزار تومان</p><button onclick="order('VIP')">انتخاب رنک</button></div>
-<div class="card"><h3>🥈 MVP</h3><p>برای بازیکن‌های حرفه‌ای‌تر!</p><p class="price">۱۰۰ هزار تومان</p><button onclick="order('MVP')">انتخاب رنک</button></div>
-<div class="card"><h3>🥇 LEGEND</h3><p>رنک ویژه StarCraft!</p><p class="price">۲۰۰ هزار تومان</p><button onclick="order('LEGEND')">انتخاب رنک</button></div>
-</div>
-<p id="message"></p>
-<p>برای خرید، راه ارتباطی فروشگاه باید اضافه شود.</p>
+ <h2>🚀 رنک‌های فروشگاه</h2>
+
+ <div class="ranks">
+  <div class="card">
+   <h3>🥉 VIP</h3>
+   <p>شروع ماجراجویی توی سرور!</p>
+   <p class="price">۵۰ هزار تومان</p>
+   <button onclick="order('VIP')">انتخاب رنک</button>
+  </div>
+
+  <div class="card">
+   <h3>🥈 MVP</h3>
+   <p>برای بازیکن‌های حرفه‌ای‌تر!</p>
+   <p class="price">۱۰۰ هزار تومان</p>
+   <button onclick="order('MVP')">انتخاب رنک</button>
+  </div>
+
+  <div class="card">
+   <h3>🥇 LEGEND</h3>
+   <p>رنک ویژه StarCraft!</p>
+   <p class="price">۲۰۰ هزار تومان</p>
+   <button onclick="order('LEGEND')">انتخاب رنک</button>
+  </div>
+ </div>
+
+ <p id="message"></p>
+ <p>برای خرید، راه ارتباطی فروشگاه باید اضافه شود.</p>
+
+ <section class="panel">
+  <h2>👤 پنل کاربری</h2>
+  <p>به دنیای StarCraft خوش آمدی!</p>
+
+  <input id="username" type="text"
+   placeholder="نام کاربری ماینکرفت">
+
+  <input id="email" type="email"
+   placeholder="ایمیل (اختیاری)">
+
+  <button onclick="login()">ورود</button>
+  <button onclick="register()">ثبت‌نام</button>
+  <button onclick="myOrders()">سفارش‌های من</button>
+
+  <p id="accountMessage"></p>
+ </section>
 </main>
-<footer>© StarCraft Minecraft Store</footer>
+
+<footer>© StarCraft Minecraft Store 🌌</footer>
+
 <script>
-function order(rank){document.getElementById('message').textContent='رنک انتخاب‌شده: '+rank+' — برای تکمیل سفارش باید راه ارتباطی فروشگاه اضافه شود.'}
+function order(rank){
+ document.getElementById('message').textContent=
+ 'رنک انتخاب‌شده: '+rank+
+ ' — برای تکمیل خرید باید راه ارتباطی فروشگاه اضافه شود.';
+}
+
+function login(){
+ const user=document.getElementById('username').value.trim();
+ if(!user){
+  document.getElementById('accountMessage').textContent=
+  'لطفاً نام کاربری را وارد کن.';
+  return;
+ }
+ document.getElementById('accountMessage').textContent=
+ 'سلام '+user+'! ورود واقعی هنوز راه‌اندازی نشده است.';
+}
+
+function register(){
+ const user=document.getElementById('username').value.trim();
+ if(!user){
+  document.getElementById('accountMessage').textContent=
+  'برای شروع، نام کاربری ماینکرفت را وارد کن.';
+  return;
+ }
+ document.getElementById('accountMessage').textContent=
+ 'درخواست ثبت‌نام برای '+user+
+ ' آماده است؛ برای ثبت واقعی باید سیستم حساب کاربری متصل شود.';
+}
+
+function myOrders(){
+ document.getElementById('accountMessage').textContent=
+ 'نمایش سفارش‌ها پس از اتصال پایگاه داده فعال می‌شود.';
+}
 </script>
 </body>
 </html>
