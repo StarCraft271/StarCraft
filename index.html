@@ -2,238 +2,493 @@
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>StarCraft | فروشگاه ماینکرفت</title>
-  <meta name="description" content="فروشگاه رنک و امکانات سرور ماینکرفت StarCraft">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#08091b">
+<title>StarCraft | دنیایی فراتر از Minecraft</title>
 
-  <style>
-    * {
-      box-sizing: border-box;
-    }
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap');
 
-    body {
-      margin: 0;
-      min-height: 100vh;
-      font-family: Tahoma, Arial, sans-serif;
-      color: #fff;
-      background:
-        radial-gradient(ellipse at top, #25265b 0%, transparent 55%),
-        linear-gradient(145deg, #080b18, #11152d 55%, #080b18);
-    }
+:root {
+  --bg:#08091b;
+  --panel:rgba(20,23,51,.78);
+  --purple:#a78bfa;
+  --blue:#67e8f9;
+  --white:#f4f3ff;
+  --muted:#b6bad5;
+  --border:rgba(167,139,250,.22);
+}
 
-    header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 15px;
-      padding: 18px 6%;
-      background: rgba(10, 14, 32, .88);
-      border-bottom: 1px solid rgba(140, 120, 255, .25);
-    }
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;scroll-padding-top:90px}
+body{
+  font-family:'Vazirmatn',Tahoma,sans-serif;
+  background:var(--bg);color:var(--white);
+  overflow-x:hidden;line-height:1.9;
+}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit;cursor:pointer}
+button,a{-webkit-tap-highlight-color:transparent}
+.container{width:min(1120px,92%);margin:auto}
+section{padding:95px 0;position:relative}
+.section-head{text-align:center;margin-bottom:42px}
+.eyebrow{color:var(--blue);font-size:13px;letter-spacing:1px}
+.section-head h2{font-size:clamp(26px,5vw,40px);margin:8px 0}
+.section-head p{color:var(--muted);max-width:650px;margin:auto;font-size:14px}
+.gradient{
+  background:linear-gradient(100deg,#67e8f9,#a78bfa,#f0abfc);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
 
-    .logo {
-      font-size: 25px;
-      font-weight: bold;
-      color: #a99aff;
-      text-decoration: none;
-    }
+/* پس‌زمینه کهکشانی */
+.space-bg{position:fixed;inset:0;z-index:-3;overflow:hidden;pointer-events:none;
+background:radial-gradient(ellipse at 15% 20%,#251452 0,transparent 40%),
+radial-gradient(ellipse at 85% 70%,#102c58 0,transparent 38%),#08091b}
+.stars,.stars2{position:absolute;inset:-100%;
+background-image:
+radial-gradient(2px 2px at 40px 60px,#fff,transparent),
+radial-gradient(1px 1px at 100px 150px,#b8c8ff,transparent),
+radial-gradient(2px 2px at 200px 80px,#fff,transparent),
+radial-gradient(1px 1px at 300px 250px,#fff,transparent),
+radial-gradient(2px 2px at 400px 180px,#c4b5fd,transparent),
+radial-gradient(1px 1px at 500px 70px,#fff,transparent);
+background-size:550px 330px;animation:starsMove 100s linear infinite}
+.stars2{opacity:.45;transform:scale(1.5);animation-duration:150s}
+@keyframes starsMove{from{transform:translateY(0)}to{transform:translateY(330px)}}
+.planet{
+ position:absolute;width:310px;height:310px;border-radius:50%;
+ top:22%;left:-180px;
+ background:radial-gradient(circle at 35% 30%,#8b5cf6,#312e81 45%,#10122f 72%);
+ box-shadow:0 0 90px #7c3aed35,inset -35px -20px 55px #050515;
+ opacity:.45
+}
+.nebula{position:absolute;width:500px;height:500px;border-radius:50%;
+filter:blur(90px);opacity:.13;background:#7c3aed;right:-250px;top:45%}
 
-    nav {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
+header{
+ position:sticky;top:0;z-index:20;
+ background:rgba(8,9,27,.82);backdrop-filter:blur(18px);
+ border-bottom:1px solid var(--border)
+}
+.nav{min-height:76px;display:flex;align-items:center;justify-content:space-between;gap:20px}
+.logo{font-weight:900;font-size:23px;letter-spacing:1px;white-space:nowrap}
+.logo span{color:var(--blue)}
+.nav-links{display:flex;align-items:center;gap:24px;font-size:13px;color:#d8d9ed}
+.nav-links a:hover{color:var(--blue)}
+.nav-actions{display:flex;align-items:center;gap:9px}
+.btn{
+ display:inline-flex;align-items:center;justify-content:center;gap:8px;
+ padding:11px 19px;border-radius:12px;border:1px solid var(--border);
+ background:rgba(255,255,255,.04);color:var(--white);
+ font-size:13px;font-weight:700;transition:.25s
+}
+.btn:hover{transform:translateY(-2px);border-color:var(--blue)}
+.btn-primary{border:0;background:linear-gradient(110deg,#7c3aed,#4f46e5);box-shadow:0 7px 28px #6d28d933}
+.btn-admin{border-color:#67e8f955;color:#a5f3fc}
+.menu-toggle{display:none;background:none;border:1px solid var(--border);color:white;border-radius:10px;padding:8px 12px;font-size:22px}
 
-    .nav-button {
-      display: inline-block;
-      padding: 11px 17px;
-      border: 1px solid #6254cb;
-      border-radius: 9px;
-      background: linear-gradient(135deg, #8055ff, #426bff);
-      color: #fff;
-      text-decoration: none;
-      font-size: 14px;
-      font-family: inherit;
-      transition: transform .2s, filter .2s;
-    }
+.hero{min-height:650px;display:flex;align-items:center;padding:85px 0 100px}
+.hero-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:45px;align-items:center}
+.pill{display:inline-block;border:1px solid var(--border);background:#a78bfa12;border-radius:50px;padding:6px 14px;font-size:12px;color:#d8b4fe;margin-bottom:18px}
+.hero h1{font-size:clamp(34px,5vw,57px);line-height:1.45;margin-bottom:10px;font-weight:900}
+.hero h2{font-size:clamp(21px,3vw,30px);margin-bottom:15px}
+.hero p{color:var(--muted);font-size:15px;max-width:600px}
+.hero-buttons{display:flex;flex-wrap:wrap;gap:12px;margin-top:27px}
+.server-box{margin-top:30px;padding:13px 16px;border:1px solid var(--border);border-radius:15px;background:#ffffff08;display:flex;align-items:center;justify-content:space-between;gap:10px;max-width:430px}
+.server-label{font-size:11px;color:var(--muted)}
+.server-address{direction:ltr;font-size:14px;font-weight:800;letter-spacing:1px;color:var(--blue)}
+.copy-btn{border:0;background:#a78bfa20;color:#e9d5ff;border-radius:9px;padding:8px 12px;font-size:12px}
+.hero-art{min-height:380px;display:flex;align-items:center;justify-content:center;position:relative}
+.orbit{width:min(330px,75vw);aspect-ratio:1;border-radius:50%;border:1px solid #a78bfa55;position:relative;display:flex;align-items:center;justify-content:center;box-shadow:0 0 80px #7c3aed17,inset 0 0 60px #7c3aed12;animation:float 6s ease-in-out infinite}
+.orbit:before,.orbit:after{content:"";position:absolute;border:1px solid #67e8f955;border-radius:50%;inset:24px;transform:rotateX(65deg) rotate(-25deg)}
+.orbit:after{inset:-20px;transform:rotateX(68deg) rotate(35deg);border-color:#c4b5fd66}
+.core{width:150px;height:150px;border-radius:50%;display:grid;place-items:center;font-size:75px;background:radial-gradient(circle at 35% 30%,#c4b5fd,#6d28d9 45%,#11102d 78%);box-shadow:0 0 60px #8b5cf6aa,inset -15px -12px 30px #08091b}
+.float-tag{position:absolute;background:#151633dd;border:1px solid var(--border);padding:10px 14px;border-radius:12px;font-size:12px;backdrop-filter:blur(10px)}
+.tag-one{top:40px;right:-8px}.tag-two{bottom:48px;left:-5px}
+@keyframes float{50%{transform:translateY(-12px)}}
 
-    .nav-button:hover {
-      transform: translateY(-2px);
-      filter: brightness(1.15);
-    }
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.card{background:linear-gradient(145deg,#ffffff09,#ffffff03);border:1px solid var(--border);border-radius:20px;padding:25px;transition:.3s}
+.card:hover{transform:translateY(-5px);border-color:#a78bfa88;box-shadow:0 12px 40px #0002}
+.card-icon{font-size:32px;margin-bottom:12px}
+.card h3{font-size:18px;margin-bottom:8px}
+.card p{font-size:13px;color:var(--muted)}
+.cta{padding:48px 25px;text-align:center;border-radius:24px;border:1px solid var(--border);
+background:radial-gradient(ellipse at top,#7c3aed35,transparent 70%),#ffffff05}
+.cta h2{font-size:clamp(25px,4vw,36px);margin-bottom:8px}
+.cta p{color:var(--muted);margin-bottom:22px}
 
-    .admin-button {
-      background: linear-gradient(135deg, #303958, #202b49);
-      border-color: #6678b9;
-    }
+.about-grid{display:grid;grid-template-columns:1fr 1fr;gap:35px;align-items:center}
+.about-panel{border:1px solid var(--border);border-radius:22px;padding:28px;background:#ffffff06}
+.about-panel p{color:var(--muted);font-size:14px;margin:10px 0 18px}
+.about-panel h3{margin-top:20px}
 
-    .hero {
-      max-width: 950px;
-      margin: 0 auto;
-      padding: 95px 20px 65px;
-      text-align: center;
-    }
+.features-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:17px}
+.feature-card{padding:22px;border-radius:18px;background:#ffffff05;border:1px solid var(--border)}
+.feature-card h3{font-size:16px;margin:10px 0 5px}
+.feature-card p{font-size:13px;color:var(--muted)}
 
-    .tag {
-      display: inline-block;
-      padding: 8px 14px;
-      border: 1px solid #494b91;
-      border-radius: 30px;
-      color: #c4bcff;
-      background: #191a3c;
-      font-size: 13px;
-    }
+.ranks{display:grid;grid-template-columns:repeat(4,1fr);gap:15px;align-items:stretch}
+.rank{position:relative;display:flex;flex-direction:column;padding:24px 19px;border:1px solid var(--border);border-radius:20px;background:linear-gradient(160deg,#ffffff0b,#ffffff03)}
+.rank.popular{border-color:#a78bfa;background:linear-gradient(160deg,#7c3aed24,#ffffff04)}
+.popular-label{position:absolute;top:-13px;right:50%;transform:translateX(50%);white-space:nowrap;background:#8b5cf6;border-radius:20px;padding:3px 14px;font-size:11px}
+.rank-symbol{font-size:32px;color:#c4b5fd}
+.rank h3{font-size:22px;margin:4px 0}
+.rank .desc{font-size:12px;color:var(--muted);min-height:48px}
+.price{font-size:23px;font-weight:900;margin:18px 0}
+.rank ul{list-style:none;color:#d8d9ed;font-size:12px;flex:1}
+.rank li{margin:8px 0}
+.rank li:before{content:"✓ ";color:var(--blue)}
+.rank .btn{margin-top:20px;width:100%}
+.notice{font-size:12px;text-align:center;color:#fcd34d;margin-top:25px}
 
-    h1 {
-      margin: 22px 0 15px;
-      font-size: clamp(38px, 8vw, 65px);
-      line-height: 1.3;
-      background: linear-gradient(90deg, #a995ff, #69b9ff);
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-    }
+footer{border-top:1px solid var(--border);padding:27px 0;color:var(--muted);font-size:12px}
+.footer-inner{display:flex;align-items:center;justify-content:space-between;gap:15px;flex-wrap:wrap}
+.toast{position:fixed;bottom:20px;left:50%;transform:translate(-50%,20px);opacity:0;pointer-events:none;background:#171936;border:1px solid var(--border);border-radius:12px;padding:12px 18px;font-size:13px;z-index:50;transition:.3s;max-width:90%;text-align:center}
+.toast.show{opacity:1;transform:translate(-50%,0)}
 
-    .description {
-      max-width: 650px;
-      margin: 0 auto;
-      color: #b7c1df;
-      font-size: 16px;
-      line-height: 2.1;
-    }
-
-    .hero-actions {
-      display: flex;
-      justify-content: center;
-      gap: 12px;
-      flex-wrap: wrap;
-      margin-top: 30px;
-    }
-
-    .hero-actions .nav-button {
-      padding: 14px 24px;
-      font-size: 15px;
-    }
-
-    .features {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-      gap: 18px;
-      max-width: 1000px;
-      margin: 0 auto;
-      padding: 15px 20px 65px;
-    }
-
-    .feature {
-      padding: 25px 20px;
-      border: 1px solid #30385f;
-      border-radius: 16px;
-      background: rgba(19, 25, 53, .8);
-      text-align: center;
-    }
-
-    .feature-icon {
-      font-size: 32px;
-    }
-
-    .feature h2 {
-      font-size: 17px;
-      margin: 14px 0 10px;
-    }
-
-    .feature p {
-      margin: 0;
-      color: #aab6d3;
-      font-size: 13px;
-      line-height: 2;
-    }
-
-    footer {
-      padding: 25px 15px;
-      text-align: center;
-      color: #8894b5;
-      border-top: 1px solid #242c4a;
-      font-size: 12px;
-    }
-
-    @media (max-width: 520px) {
-      header {
-        padding: 15px;
-      }
-
-      .logo {
-        font-size: 22px;
-      }
-
-      .nav-button {
-        padding: 10px 12px;
-        font-size: 12px;
-      }
-
-      .hero {
-        padding-top: 65px;
-      }
-    }
-  </style>
+@media(max-width:900px){
+ .nav-links{gap:12px;font-size:12px}
+ .nav-actions .btn{padding:9px 11px;font-size:11px}
+ .hero-grid{gap:15px}
+ .ranks{grid-template-columns:repeat(2,1fr);gap:22px}
+ .features-grid{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:700px){
+ .nav{min-height:68px;flex-wrap:wrap;padding:10px 0}
+ .menu-toggle{display:block}
+ .nav-links{display:none;order:3;width:100%;flex-direction:column;align-items:stretch;gap:0;padding:7px 0 12px}
+ .nav-links.open{display:flex}
+ .nav-links a{padding:11px 8px;border-bottom:1px solid #ffffff0c}
+ .nav-actions{margin-right:auto}
+ .nav-actions .btn{padding:8px 10px;font-size:11px}
+ .logo{font-size:20px}
+ section{padding:70px 0}
+ .hero{padding:65px 0 75px;min-height:auto}
+ .hero-grid{grid-template-columns:1fr}
+ .hero-art{min-height:300px;grid-row:1}
+ .orbit{width:245px}
+ .core{width:115px;height:115px;font-size:57px}
+ .tag-one{right:0}.tag-two{left:0}
+ .hero h1{font-size:34px}
+ .hero p{font-size:14px}
+ .cards{grid-template-columns:1fr}
+ .about-grid{grid-template-columns:1fr}
+ .features-grid{grid-template-columns:1fr}
+ .server-box{flex-wrap:wrap}
+ .server-address{font-size:12px}
+ .footer-inner{justify-content:center;text-align:center}
+}
+@media(max-width:390px){
+ .nav-actions .btn{font-size:10px;padding:7px}
+ .logo{font-size:17px}
+ .ranks{grid-template-columns:1fr}
+ .hero-buttons .btn{width:100%}
+}
+</style>
 </head>
 
 <body>
-  <header>
-    <a class="logo" href="/StarCraft/">⭐ StarCraft</a>
+<div class="space-bg">
+  <div class="stars"></div>
+  <div class="stars2"></div>
+  <div class="planet"></div>
+  <div class="nebula"></div>
+</div>
 
-    <nav>
-      <a class="nav-button" href="#features">امکانات</a>
-      <a class="nav-button" href="/StarCraft/shop/">فروشگاه</a>
-      <a class="nav-button admin-button" href="/StarCraft/admin/">
-        ⚙️ پنل مدیریت
-      </a>
+<header>
+  <div class="container nav">
+    <a class="logo" href="#home">✦STAR<span>CRAFT</span></a>
+
+    <button class="menu-toggle" id="menuToggle" aria-label="باز کردن منو">☰</button>
+
+    <nav class="nav-links" id="navLinks">
+      <a href="#home">صفحه اصلی</a>
+      <a href="#about">درباره ما</a>
+      <a href="#features">ویژگی‌ها</a>
+      <a href="#store">✦ فروشگاه</a>
     </nav>
-  </header>
 
-  <main>
-    <section class="hero">
-      <span class="tag">دنیای ماینکرفت تو، قوانین تو</span>
+    <div class="nav-actions">
+      <a class="btn" href="account/">👤 پنل کاربری</a>
+      <a class="btn btn-admin" href="admin/">⚙️ پنل مدیریت</a>
+    </div>
+  </div>
+</header>
 
-      <h1>به StarCraft خوش آمدی</h1>
+<main>
+<section class="hero" id="home">
+  <div class="container hero-grid">
+    <div>
+      <div class="pill">✦ دنیایی برای ساختن داستانت</div>
+      <h1>ماجراجویی تازه در دنیای <span class="gradient">Minecraft</span></h1>
+      <h2># به دنیای <span class="gradient">StarCraft</span> خوش اومدی</h2>
+      <p>جایی که داستانت رو خودت می‌سازی؛ وارد دنیای رول‌پلی شو، با دوستات تجربه‌های تازه بساز و جایگاهت رو در کهکشان پیدا کن.</p>
 
-      <p class="description">
-        به دنیای StarCraft وارد شو، ماجراجویی کن و با امکانات و رنک‌های
-        مختلف تجربه‌ای متفاوت از ماینکرفت داشته باش.
-      </p>
-
-      <div class="hero-actions">
-        <a class="nav-button" href="/StarCraft/shop/">
-          🛒 ورود به فروشگاه
-        </a>
+      <div class="hero-buttons">
+        <a class="btn btn-primary" href="#store">مشاهده فروشگاه ←</a>
+        <a class="btn" href="#features">کشف ویژگی‌ها</a>
       </div>
-    </section>
 
-    <section class="features" id="features">
-      <article class="feature">
-        <div class="feature-icon">🏆</div>
-        <h2>رنک‌های ویژه</h2>
-        <p>رنک‌های مختلف برای تجربه بهتر در سرور ماینکرفت.</p>
+      <div class="server-box">
+        <div>
+          <div class="server-label">آدرس سرور Minecraft Java</div>
+          <div class="server-address" id="serverAddress">PLAY.STARCRAFT.RP</div>
+        </div>
+        <button class="copy-btn" id="copyAddress">▣ کپی آدرس</button>
+      </div>
+    </div>
+
+    <div class="hero-art">
+      <div class="orbit">
+        <div class="core">✦</div>
+        <div class="float-tag tag-one">🌌 دنیای بی‌پایان</div>
+        <div class="float-tag tag-two">🚀 ماجراجویی شروع می‌شه</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <div class="section-head">
+      <div class="eyebrow">WHY STARCRAFT?</div>
+      <h2>چرا <span class="gradient">StarCraft؟</span></h2>
+      <p>هر ورود، شروع یک داستان جدیده. مسیر خودت رو انتخاب کن و در دنیای StarCraft پیشرفت کن.</p>
+      <h3 style="margin-top:12px;font-size:21px">فراتر از یک سرور معمولی</h3>
+    </div>
+
+    <div class="cards">
+      <article class="card">
+        <div class="card-icon">🌌</div>
+        <h3>دنیای رول‌پلی</h3>
+        <p>شخصیت خودت رو بساز، تصمیم بگیر و داستان مخصوص خودت رو در دنیای بازی شکل بده.</p>
+      </article>
+      <article class="card">
+        <div class="card-icon">🏙️</div>
+        <h3>شهر زنده</h3>
+        <p>با بازیکن‌های دیگه تعامل داشته باش و در یک دنیای اجتماعی تجربه‌های تازه بساز.</p>
+      </article>
+      <article class="card">
+        <div class="card-icon">🚀</div>
+        <h3>پیشرفت و ماجراجویی</h3>
+        <p>هدف‌های جدید پیدا کن، مهارت‌هات رو گسترش بده و مسیر خودت رو انتخاب کن.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <div class="cta">
+      <div class="eyebrow">YOUR STORY STARTS HERE</div>
+      <h2>آماده‌ای وارد <span class="gradient">کهکشان</span> بشی؟</h2>
+      <p>رنک مناسب خودت رو در فروشگاه پیدا کن.</p>
+      <a class="btn btn-primary" href="#store">رفتن به فروشگاه ←</a>
+    </div>
+  </div>
+</section>
+
+<section id="about">
+  <div class="container">
+    <div class="section-head">
+      <div class="eyebrow">ABOUT US</div>
+      <h2>درباره <span class="gradient">StarCraft</span></h2>
+      <p>داستان تو، دنیای تو</p>
+    </div>
+
+    <div class="about-grid">
+      <div class="about-panel">
+        <div class="card-icon">🌠</div>
+        <h2># داستان تو، دنیای تو</h2>
+        <p>StarCraft یک پروژه سرور ماینکرفت با تمرکز بر تجربه رول‌پلی، تعامل بازیکن‌ها و ساختن یک جامعه دوستانه است.</p>
+        <h3>ما چه چیزی می‌سازیم؟</h3>
+        <p>هدف ما ساختن فضاییه که بازیکن‌ها فقط وارد بازی نشن؛ بلکه شخصیت بسازن، داستان خلق کنن و در کنار بقیه دنیایی پویا شکل بدن.</p>
+        <p>این بخش رو می‌تونی با تاریخچه واقعی سرور، قوانین، تیم مدیریت و برنامه‌های آینده جایگزین کنی.</p>
+      </div>
+
+      <div class="about-panel">
+        <div class="card-icon">🤝</div>
+        <h3>به جمع ما بپیوند</h3>
+        <p>برای شروع، اخبار و راهنمای ورود سرور رو از کانال‌های رسمی دنبال کن. لینک‌های شبکه‌های اجتماعی رو در تنظیمات پایین فایل اضافه کن.</p>
+        <div class="hero-buttons">
+          <a class="btn" href="#features">دیدن ویژگی‌ها</a>
+          <a class="btn btn-primary" href="#store">فروشگاه</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="features">
+  <div class="container">
+    <div class="section-head">
+      <div class="eyebrow">SERVER FEATURES</div>
+      <h2>امکانات <span class="gradient">سرور</span></h2>
+      <p>ویژگی‌هایی برای تجربه بهتر</p>
+      <p style="margin-top:10px">این کارت‌ها نمونه هستند؛ عنوان، آیکون و توضیحات رو از داخل فایل index.html به‌راحتی تغییر بده.</p>
+    </div>
+
+    <div class="features-grid">
+      <article class="feature-card">
+        <div class="card-icon">🎭</div>
+        <h3>رول‌پلی داستان‌محور</h3>
+        <p>شخصیت بساز، نقش خودت رو بازی کن و در داستان‌های مشترک شرکت کن.</p>
+      </article>
+      <article class="feature-card">
+        <div class="card-icon">🧭</div>
+        <h3>شهر و مکان‌های متنوع</h3>
+        <p>در نقاط مختلف شهر بگرد و محیط رو کشف کن.</p>
+      </article>
+      <article class="feature-card">
+        <div class="card-icon">💼</div>
+        <h3>اقتصاد و کسب‌وکار</h3>
+        <p>فعالیت کن، درآمد به دست بیار و مسیر شغلی خودت رو بساز.</p>
+      </article>
+      <article class="feature-card">
+        <div class="card-icon">🚘</div>
+        <h3>وسایل نقلیه</h3>
+        <p>در شهر حرکت کن و از سیستم حمل‌ونقل سرور لذت ببر.</p>
+      </article>
+      <article class="feature-card">
+        <div class="card-icon">🛡️</div>
+        <h3>مدیریت و پشتیبانی</h3>
+        <p>برای تجربه‌ای منظم‌تر، قوانین و راهنماهای سرور رو دنبال کن.</p>
+      </article>
+      <article class="feature-card">
+        <div class="card-icon">✨</div>
+        <h3>به‌روزرسانی‌های آینده</h3>
+        <p>این قسمت رو با قابلیت‌های قطعی و فعال سرور خودت به‌روزرسانی کن.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section id="store">
+  <div class="container">
+    <div class="section-head">
+      <div class="eyebrow">STARCRAFT STORE</div>
+      <h2>فروشگاه <span class="gradient">StarCraft</span></h2>
+      <p>رنک خودت رو انتخاب کن</p>
+      <p style="margin-top:10px">با انتخاب رنک، از امکانات ویژه آن استفاده کن. قبل از فعال‌کردن فروش، توضیحات و مزایای هر رنک رو کامل کن.</p>
+    </div>
+
+    <div class="ranks">
+      <article class="rank">
+        <div class="rank-symbol">✦</div>
+        <h3>VIP</h3>
+        <p class="desc">شروعی ویژه برای ماجراجویی تو</p>
+        <div class="price">۵۰٬۰۰۰ <small style="font-size:12px">تومان</small></div>
+        <ul>
+          <li>نشان VIP</li>
+          <li>امکانات پایه رنک</li>
+          <li>قابل ویرایش</li>
+        </ul>
+        <button class="btn" data-rank="VIP">خرید VIP</button>
       </article>
 
-      <article class="feature">
-        <div class="feature-icon">🛒</div>
-        <h2>فروشگاه StarCraft</h2>
-        <p>بخش فروشگاه برای مشاهده و انتخاب امکانات سرور.</p>
+      <article class="rank popular">
+        <div class="popular-label">محبوب</div>
+        <div class="rank-symbol">✧</div>
+        <h3>MVP</h3>
+        <p class="desc">یک قدم جلوتر در کهکشان</p>
+        <div class="price">۱۰۰٬۰۰۰ <small style="font-size:12px">تومان</small></div>
+        <ul>
+          <li>نشان MVP</li>
+          <li>امکانات بیشتر</li>
+          <li>قابل ویرایش</li>
+        </ul>
+        <button class="btn btn-primary" data-rank="MVP">خرید MVP</button>
       </article>
 
-      <article class="feature">
-        <div class="feature-icon">⚙️</div>
-        <h2>مدیریت سفارش‌ها</h2>
-        <p>ورود مدیر برای مشاهده سفارش‌های ثبت‌شده.</p>
+      <article class="rank">
+        <div class="rank-symbol">◈</div>
+        <h3>SPONSER</h3>
+        <p class="desc">حمایت از رشد StarCraft</p>
+        <div class="price">۲۰۰٬۰۰۰ <small style="font-size:12px">تومان</small></div>
+        <ul>
+          <li>نشان SPONSER</li>
+          <li>امکانات حامی</li>
+          <li>قابل ویرایش</li>
+        </ul>
+        <button class="btn" data-rank="SPONSER">خرید SPONSER</button>
       </article>
-    </section>
-  </main>
 
-  <footer>
-    © StarCraft — تمام حقوق محفوظ است.
-  </footer>
+      <article class="rank">
+        <div class="rank-symbol">✹</div>
+        <h3>STAR</h3>
+        <p class="desc">جایگاه خاص در دنیای ما</p>
+        <div class="price">۳۵۰٬۰۰۰ <small style="font-size:12px">تومان</small></div>
+        <ul>
+          <li>نشان STAR</li>
+          <li>امکانات ویژه</li>
+          <li>قابل ویرایش</li>
+        </ul>
+        <button class="btn" data-rank="STAR">خرید STAR</button>
+      </article>
+    </div>
+
+    <p class="notice">⚠️ درگاه پرداخت هنوز متصل نشده است. دکمه‌های خرید فعلاً نمایشی هستند.</p>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="container footer-inner">
+    <div>© StarCraft RP — تمامی حقوق محفوظ است.</div>
+    <div>ساخته‌شده برای جامعه StarCraft ✦</div>
+  </div>
+</footer>
+
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+const menuToggle = document.getElementById('menuToggle');
+const navLinks = document.getElementById('navLinks');
+const toast = document.getElementById('toast');
+let toastTimer;
+
+function showToast(message) {
+  toast.textContent = message;
+  toast.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toast.classList.remove('show'), 3000);
+}
+
+menuToggle.addEventListener('click', () => {
+  navLinks.classList.toggle('open');
+  menuToggle.textContent = navLinks.classList.contains('open') ? '✕' : '☰';
+});
+
+navLinks.querySelectorAll('a').forEach(link => {
+  link.addEventListener('click', () => {
+    navLinks.classList.remove('open');
+    menuToggle.textContent = '☰';
+  });
+});
+
+document.getElementById('copyAddress').addEventListener('click', async () => {
+  const address = document.getElementById('serverAddress').textContent.trim();
+  try {
+    await navigator.clipboard.writeText(address);
+    showToast('آدرس سرور کپی شد: ' + address);
+  } catch (error) {
+    const input = document.createElement('textarea');
+    input.value = address;
+    document.body.appendChild(input);
+    input.select();
+    const copied = document.execCommand('copy');
+    input.remove();
+    showToast(copied ? 'آدرس سرور کپی شد!' : 'آدرس سرور: ' + address);
+  }
+});
+
+document.querySelectorAll('[data-rank]').forEach(button => {
+  button.addEventListener('click', () => {
+    showToast('خرید ' + button.dataset.rank + ' هنوز فعال نیست؛ ابتدا درگاه پرداخت را متصل کن.');
+  });
+});
+</script>
 </body>
 </html>
