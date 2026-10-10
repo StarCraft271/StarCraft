@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
@@ -22,15 +21,12 @@ section{padding:85px 0}
 .section-head h2{font-size:clamp(27px,5vw,40px);margin:8px 0}
 .section-head p{color:var(--muted);font-size:14px;max-width:680px;margin:auto}
 .eyebrow{color:var(--blue);font-size:12px;letter-spacing:1px}
-
-/* Galaxy background */
 .space-bg{position:fixed;inset:0;z-index:-3;overflow:hidden;pointer-events:none;background:radial-gradient(ellipse at 15% 20%,#251452,transparent 40%),radial-gradient(ellipse at 85% 70%,#102c58,transparent 38%),#08091b}
 .stars,.stars2{position:absolute;inset:-100%;background-image:radial-gradient(2px 2px at 40px 60px,#fff,transparent),radial-gradient(1px 1px at 100px 150px,#b8c8ff,transparent),radial-gradient(2px 2px at 200px 80px,#fff,transparent),radial-gradient(1px 1px at 300px 250px,#fff,transparent),radial-gradient(2px 2px at 400px 180px,#c4b5fd,transparent);background-size:500px 330px;animation:starMove 100s linear infinite}
 .stars2{opacity:.4;transform:scale(1.5);animation-duration:150s}
 @keyframes starMove{to{transform:translateY(330px)}}
 .planet{position:absolute;top:22%;left:-180px;width:310px;height:310px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#8b5cf6,#312e81 45%,#10122f 72%);box-shadow:0 0 90px #7c3aed35;opacity:.4}
 .nebula{position:absolute;width:400px;height:400px;right:-200px;top:50%;border-radius:50%;filter:blur(100px);background:#7c3aed;opacity:.15}
-
 header{position:sticky;top:0;z-index:20;background:#08091bdb;backdrop-filter:blur(18px);border-bottom:1px solid var(--border)}
 .nav{min-height:75px;display:flex;align-items:center;justify-content:space-between;gap:15px;flex-wrap:wrap}
 .logo{font-weight:900;font-size:22px;white-space:nowrap}
@@ -43,7 +39,6 @@ header{position:sticky;top:0;z-index:20;background:#08091bdb;backdrop-filter:blu
 .btn-primary{border:0;background:linear-gradient(110deg,#7c3aed,#4f46e5)}
 .btn-admin{color:#a5f3fc;border-color:#67e8f955}
 .menu-toggle{display:none;background:transparent;color:white;border:1px solid var(--border);padding:5px 11px;border-radius:8px;font-size:22px}
-
 .hero{min-height:590px;display:flex;align-items:center;padding:75px 0}
 .hero-grid{display:grid;grid-template-columns:1.1fr .9fr;align-items:center;gap:35px}
 .pill{display:inline-block;border:1px solid var(--border);background:#a78bfa12;border-radius:30px;padding:5px 13px;font-size:12px;color:#d8b4fe;margin-bottom:15px}
@@ -63,7 +58,6 @@ header{position:sticky;top:0;z-index:20;background:#08091bdb;backdrop-filter:blu
 .float-tag{position:absolute;background:#151633eF;border:1px solid var(--border);padding:9px 12px;border-radius:11px;font-size:11px}
 .tag-one{top:38px;right:-5px}.tag-two{bottom:42px;left:-5px}
 @keyframes float{50%{transform:translateY(-12px)}}
-
 .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:17px}
 .card{background:linear-gradient(145deg,#ffffff0a,#ffffff03);border:1px solid var(--border);border-radius:18px;padding:24px;transition:.25s}
 .card:hover{transform:translateY(-4px);border-color:#a78bfa88}
@@ -98,8 +92,6 @@ footer{border-top:1px solid var(--border);padding:25px 0;color:var(--muted);font
 .footer-inner{display:flex;justify-content:space-between;gap:15px;flex-wrap:wrap}
 .toast{position:fixed;bottom:20px;left:50%;transform:translate(-50%,20px);opacity:0;pointer-events:none;background:#171936;border:1px solid var(--border);border-radius:12px;padding:12px 17px;font-size:12px;z-index:120;transition:.3s;max-width:92%;text-align:center}
 .toast.show{opacity:1;transform:translate(-50%,0)}
-
-/* Order form */
 .modal{display:none;position:fixed;inset:0;z-index:100;background:#050617ed;align-items:center;justify-content:center;padding:18px;overflow:auto}
 .modal.open{display:flex}
 .modal-card{width:min(440px,100%);max-height:95vh;overflow:auto;background:#141733;border:1px solid #a78bfa66;border-radius:20px;padding:23px}
@@ -111,7 +103,6 @@ footer{border-top:1px solid var(--border);padding:25px 0;color:var(--muted);font
 .form-message{font-size:12px;margin-top:10px;color:#fda4af}
 .form-message.ok{color:#86efac}
 .small-note{font-size:11px!important;color:#fcd34d!important}
-
 @media(max-width:900px){.nav-links{gap:11px;font-size:11px}.nav-actions .btn{padding:8px 9px;font-size:10px}.ranks{grid-template-columns:repeat(2,1fr)}.features-grid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:700px){
  .nav{padding:9px 0;min-height:65px}
@@ -221,7 +212,6 @@ footer{border-top:1px solid var(--border);padding:25px 0;color:var(--muted);font
 
 <footer><div class="container footer-inner"><div>© StarCraft RP — تمامی حقوق محفوظ است.</div><div>ساخته‌شده برای جامعه StarCraft ✦</div></div></footer>
 
-<!-- Order modal -->
 <div class="modal" id="orderModal">
  <form class="modal-card" id="orderForm">
   <h2>ثبت سفارش StarCraft</h2>
@@ -298,35 +288,66 @@ const prices={VIP:50000,MVP:100000,SPONSER:200000,STAR:350000};
 
 form.addEventListener('submit',async e=>{
  e.preventDefault();
+
  const player=playerName.value.trim();
  const rank=rankName.value;
+
  if(!/^[A-Za-z0-9_]{3,16}$/.test(player)){
   message.textContent='نام بازیکن باید ۳ تا ۱۶ کاراکتر انگلیسی، عدد یا _ باشد.';
   return;
  }
+
  if(!prices[rank]){
   message.textContent='رنک معتبر نیست.';
   return;
  }
+
  submitButton.disabled=true;
  submitButton.textContent='در حال ثبت...';
  message.textContent='';
+
  try{
+  // بررسی ورود کاربر
+  const {data:authData,error:authError}=await db.auth.getUser();
+
+  if(authError || !authData.user){
+   message.textContent='ابتدا وارد حساب کاربری خودت شو. در حال انتقال به پنل کاربری...';
+
+   setTimeout(()=>{
+    window.location.href='account/';
+   },1000);
+
+   return;
+  }
+
   const orderNumber='SC-'+Date.now().toString(36).toUpperCase();
+
+  // اتصال سفارش به حساب کاربر
   const {error}=await db.from('sc_orders').insert([{
    order_number:orderNumber,
    player_name:player,
    rank_name:rank,
    price:prices[rank],
-   status:'pending'
+   status:'pending',
+   user_id:authData.user.id
   }]);
+
   if(error)throw error;
+
   form.reset();
   modal.classList.remove('open');
   showToast('سفارش ثبت شد! شماره سفارش: '+orderNumber);
+
  }catch(error){
   console.error('Order error:',error);
-  message.textContent='ثبت سفارش ناموفق بود. تنظیمات Supabase و سیاست‌های دیتابیس را بررسی کن.';
+
+  if(error.code==='42501'){
+   message.textContent='اجازه ثبت سفارش داده نشد. سیاست INSERT جدول sc_orders در Supabase را بررسی کن.';
+  }else if(error.code==='42703'){
+   message.textContent='ستون user_id در جدول sc_orders پیدا نشد.';
+  }else{
+   message.textContent='ثبت سفارش ناموفق بود. جزئیات خطا را در Console بررسی کن.';
+  }
  }finally{
   submitButton.disabled=false;
   submitButton.textContent='ثبت سفارش رایگان';
