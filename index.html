@@ -1,207 +1,335 @@
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-const SUPABASE_URL = 'https://euvslrpmvevtiwhfdhio.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_YvXvyId7Fmd30vyxyoCAMg_fZn-8gE9';
-
-const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-const toast = document.getElementById('toast');
-const modal = document.getElementById('orderModal');
-const form = document.getElementById('orderForm');
-const message = document.getElementById('orderMessage');
-const submitButton = document.getElementById('submitOrder');
-const rankName = document.getElementById('rankName');
-const playerName = document.getElementById('playerName');
-
-let toastTimer;
-let checkingLogin = false;
-
-const prices = {
-  VIP: 50000,
-  MVP: 100000,
-  SPONSER: 200000,
-  STAR: 350000
-};
-
-function showToast(text) {
-  toast.textContent = text;
-  toast.classList.add('show');
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => {
-    toast.classList.remove('show');
-  }, 3500);
-}
-
-function showMessage(text, isSuccess = false) {
-  message.textContent = text;
-  message.className = isSuccess ? 'form-message ok' : 'form-message';
-}
-
-function closeOrderModal() {
-  modal.classList.remove('open');
-}
-
-// بررسی حساب کاربر از Supabase
-async function getLoggedInUser() {
-  const { data, error } = await db.auth.getUser();
-
-  if (error) {
-    console.error('Authentication error:', error);
-    throw error;
-  }
-
-  return data.user || null;
-}
-
-// اگر کاربر وارد نشده باشد، انتقال به پنل کاربری
-function redirectToAccount() {
-  showMessage('برای ثبت سفارش ابتدا وارد حساب کاربری شو.');
-
-  setTimeout(() => {
-    window.location.href = 'account/';
-  }, 1200);
-}
-
-// منوی موبایل
-const menuToggle = document.getElementById('menuToggle');
-const navLinks = document.getElementById('navLinks');
-
-menuToggle.addEventListener('click', () => {
-  navLinks.classList.toggle('open');
-  menuToggle.textContent =
-    navLinks.classList.contains('open') ? '✕' : '☰';
-});
-
-navLinks.querySelectorAll('a').forEach(a => {
-  a.addEventListener('click', () => {
-    navLinks.classList.remove('open');
-    menuToggle.textContent = '☰';
-  });
-});
-
-// کپی آدرس سرور
-document.getElementById('copyAddress').addEventListener('click', async () => {
-  const address = document.getElementById('serverAddress').textContent.trim();
-
-  try {
-    await navigator.clipboard.writeText(address);
-    showToast('آدرس کپی شد: ' + address);
-  } catch {
-    showToast('آدرس سرور: ' + address);
-  }
-});
-
-// باز کردن فرم سفارش فقط برای کاربر واردشده
-document.querySelectorAll('[data-rank]').forEach(button => {
-  button.addEventListener('click', async () => {
-    if (checkingLogin) return;
-
-    checkingLogin = true;
-    button.disabled = true;
-
-    try {
-      const user = await getLoggedInUser();
-
-      if (!user) {
-        window.location.href = 'account/';
-        return;
-      }
-
-      rankName.value = button.dataset.rank;
-      showMessage('');
-      modal.classList.add('open');
-      playerName.focus();
-
-    } catch (error) {
-      console.error(error);
-      showToast('بررسی ورود ناموفق بود. اینترنت را بررسی و دوباره تلاش کن.');
-    } finally {
-      checkingLogin = false;
-      button.disabled = false;
-    }
-  });
-});
-
-// بستن فرم
-document.getElementById('closeOrder').addEventListener('click', closeOrderModal);
-
-modal.addEventListener('click', event => {
-  if (event.target === modal) closeOrderModal();
-});
-
-document.addEventListener('keydown', event => {
-  if (event.key === 'Escape') closeOrderModal();
-});
-
-// ثبت سفارش با بررسی مجدد حساب
-form.addEventListener('submit', async event => {
-  event.preventDefault();
-
-  if (submitButton.disabled) return;
-
-  const player = playerName.value.trim();
-  const rank = rankName.value;
-
-  if (!/^[A-Za-z0-9_]{3,16}$/.test(player)) {
-    showMessage('نام بازیکن باید ۳ تا ۱۶ کاراکتر انگلیسی، عدد یا _ باشد.');
-    return;
-  }
-
-  if (!Object.prototype.hasOwnProperty.call(prices, rank)) {
-    showMessage('رنک انتخاب‌شده معتبر نیست.');
-    return;
-  }
-
-  submitButton.disabled = true;
-  submitButton.textContent = 'در حال بررسی...';
-  showMessage('');
-
-  try {
-    // بررسی مجدد ورود هنگام ثبت سفارش
-    const user = await getLoggedInUser();
-
-    if (!user) {
-      redirectToAccount();
-      return;
-    }
-
-    const orderNumber = 'SC-' + crypto.randomUUID()
-      .replace(/-/g, '')
-      .slice(0, 12)
-      .toUpperCase();
-
-    // سفارش فقط به حساب کاربر واردشده متصل می‌شود
-    const { error } = await db
-      .from('sc_orders')
-      .insert([{
-        order_number: orderNumber,
-        player_name: player,
-        rank_name: rank,
-        price: prices[rank],
-        status: 'pending',
-        user_id: user.id
-      }]);
-
-    if (error) throw error;
-
-    form.reset();
-    closeOrderModal();
-    showToast('سفارش ثبت شد! شماره سفارش: ' + orderNumber);
-
-  } catch (error) {
-    console.error('Order error:', error);
-
-    if (error.code === '42501') {
-      showMessage('دسترسی ثبت سفارش رد شد. سیاست‌های امنیتی جدول sc_orders را در Supabase بررسی کن.');
-    } else if (error.code === '42703') {
-      showMessage('ستون موردنیاز در جدول sc_orders پیدا نشد. نام ستون‌ها را بررسی کن.');
-    } else {
-      showMessage('ثبت سفارش ناموفق بود. اتصال اینترنت و خطای Console را بررسی کن.');
-    }
-
-  } finally {
-    submitButton.disabled = false;
-    submitButton.textContent = 'ثبت سفارش رایگان';
-  }
-});
-</script>
+<!DOCTYPE html>  <html lang="fa" dir="rtl">  
+<head>  
+<meta charset="UTF-8">  
+<meta name="viewport" content="width=device-width, initial-scale=1">  
+<meta name="theme-color" content="#08091b">  
+<title>StarCraft | دنیایی فراتر از Minecraft</title>  
+<style>  
+@import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap');  
+:root{--bg:#08091b;--panel:#141733;--purple:#a78bfa;--blue:#67e8f9;--white:#f4f3ff;--muted:#b6bad5;--border:#a78bfa38}  
+*{box-sizing:border-box;margin:0;padding:0}  
+html{scroll-behavior:smooth;scroll-padding-top:90px}  
+body{font-family:'Vazirmatn',Tahoma,sans-serif;background:var(--bg);color:var(--white);line-height:1.9;overflow-x:hidden}  
+a{color:inherit;text-decoration:none}  
+button,input,select{font:inherit}  
+button{cursor:pointer}  
+.container{width:min(1120px,92%);margin:auto}  
+section{padding:85px 0}  
+.gradient{background:linear-gradient(100deg,#67e8f9,#a78bfa,#f0abfc);-webkit-background-clip:text;background-clip:text;color:transparent}  
+.section-head{text-align:center;margin-bottom:38px}  
+.section-head h2{font-size:clamp(27px,5vw,40px);margin:8px 0}  
+.section-head p{color:var(--muted);font-size:14px;max-width:680px;margin:auto}  
+.eyebrow{color:var(--blue);font-size:12px;letter-spacing:1px}  
+.space-bg{position:fixed;inset:0;z-index:-3;overflow:hidden;pointer-events:none;background:radial-gradient(ellipse at 15% 20%,#251452,transparent 40%),radial-gradient(ellipse at 85% 70%,#102c58,transparent 38%),#08091b}  
+.stars,.stars2{position:absolute;inset:-100%;background-image:radial-gradient(2px 2px at 40px 60px,#fff,transparent),radial-gradient(1px 1px at 100px 150px,#b8c8ff,transparent),radial-gradient(2px 2px at 200px 80px,#fff,transparent),radial-gradient(1px 1px at 300px 250px,#fff,transparent),radial-gradient(2px 2px at 400px 180px,#c4b5fd,transparent);background-size:500px 330px;animation:starMove 100s linear infinite}  
+.stars2{opacity:.4;transform:scale(1.5);animation-duration:150s}  
+@keyframes starMove{to{transform:translateY(330px)}}  
+.planet{position:absolute;top:22%;left:-180px;width:310px;height:310px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#8b5cf6,#312e81 45%,#10122f 72%);box-shadow:0 0 90px #7c3aed35;opacity:.4}  
+.nebula{position:absolute;width:400px;height:400px;right:-200px;top:50%;border-radius:50%;filter:blur(100px);background:#7c3aed;opacity:.15}  
+header{position:sticky;top:0;z-index:20;background:#08091bdb;backdrop-filter:blur(18px);border-bottom:1px solid var(--border)}  
+.nav{min-height:75px;display:flex;align-items:center;justify-content:space-between;gap:15px;flex-wrap:wrap}  
+.logo{font-weight:900;font-size:22px;white-space:nowrap}  
+.logo span{color:var(--blue)}  
+.nav-links{display:flex;align-items:center;gap:20px;font-size:13px;color:#d8d9ed}  
+.nav-links a:hover{color:var(--blue)}  
+.nav-actions{display:flex;gap:8px;align-items:center}  
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:10px 16px;border:1px solid var(--border);border-radius:11px;background:#ffffff08;color:var(--white);font-size:12px;font-weight:700;transition:.2s}  
+.btn:hover{transform:translateY(-2px);border-color:var(--blue)}  
+.btn-primary{border:0;background:linear-gradient(110deg,#7c3aed,#4f46e5)}  
+.btn-admin{color:#a5f3fc;border-color:#67e8f955}  
+.menu-toggle{display:none;background:transparent;color:white;border:1px solid var(--border);padding:5px 11px;border-radius:8px;font-size:22px}  
+.hero{min-height:590px;display:flex;align-items:center;padding:75px 0}  
+.hero-grid{display:grid;grid-template-columns:1.1fr .9fr;align-items:center;gap:35px}  
+.pill{display:inline-block;border:1px solid var(--border);background:#a78bfa12;border-radius:30px;padding:5px 13px;font-size:12px;color:#d8b4fe;margin-bottom:15px}  
+.hero h1{font-size:clamp(33px,5vw,55px);line-height:1.5;font-weight:900}  
+.hero h2{font-size:clamp(21px,3vw,29px);margin:5px 0 15px}  
+.hero p{color:var(--muted);font-size:14px}  
+.hero-buttons{display:flex;flex-wrap:wrap;gap:10px;margin-top:24px}  
+.server-box{margin-top:26px;padding:12px 15px;border:1px solid var(--border);border-radius:14px;background:#ffffff08;display:flex;align-items:center;justify-content:space-between;gap:10px;max-width:430px}  
+.server-label{font-size:11px;color:var(--muted)}  
+.server-address{direction:ltr;font-weight:800;font-size:13px;color:var(--blue)}  
+.copy-btn{border:0;border-radius:8px;background:#a78bfa20;color:#e9d5ff;padding:8px 11px;font-size:12px}  
+.hero-art{min-height:350px;display:grid;place-items:center;position:relative}  
+.orbit{width:min(310px,72vw);aspect-ratio:1;border-radius:50%;border:1px solid #a78bfa55;display:grid;place-items:center;position:relative;box-shadow:0 0 80px #7c3aed17;animation:float 6s ease-in-out infinite}  
+.orbit:before,.orbit:after{content:"";position:absolute;inset:20px;border:1px solid #67e8f955;border-radius:50%;transform:rotateX(65deg) rotate(-25deg)}  
+.orbit:after{inset:-18px;transform:rotateX(68deg) rotate(35deg);border-color:#c4b5fd66}  
+.core{width:140px;height:140px;border-radius:50%;display:grid;place-items:center;font-size:72px;background:radial-gradient(circle at 35% 30%,#c4b5fd,#6d28d9 45%,#11102d 78%);box-shadow:0 0 60px #8b5cf6aa}  
+.float-tag{position:absolute;background:#151633eF;border:1px solid var(--border);padding:9px 12px;border-radius:11px;font-size:11px}  
+.tag-one{top:38px;right:-5px}.tag-two{bottom:42px;left:-5px}  
+@keyframes float{50%{transform:translateY(-12px)}}  
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:17px}  
+.card{background:linear-gradient(145deg,#ffffff0a,#ffffff03);border:1px solid var(--border);border-radius:18px;padding:24px;transition:.25s}  
+.card:hover{transform:translateY(-4px);border-color:#a78bfa88}  
+.card-icon{font-size:30px}  
+.card h3{font-size:17px;margin:9px 0}  
+.card p{font-size:13px;color:var(--muted)}  
+.cta{padding:45px 22px;text-align:center;border:1px solid var(--border);border-radius:23px;background:radial-gradient(ellipse at top,#7c3aed35,transparent 70%),#ffffff05}  
+.cta h2{font-size:clamp(25px,4vw,35px)}  
+.cta p{color:var(--muted);margin:7px 0 20px}  
+.about-grid{display:grid;grid-template-columns:1fr 1fr;gap:25px}  
+.about-panel{padding:25px;border:1px solid var(--border);border-radius:20px;background:#ffffff06}  
+.about-panel p{color:var(--muted);font-size:13px;margin:10px 0}  
+.about-panel h3{margin-top:17px}  
+.features-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}  
+.feature-card{padding:21px;border:1px solid var(--border);border-radius:17px;background:#ffffff05}  
+.feature-card h3{font-size:15px;margin:8px 0}  
+.feature-card p{font-size:12px;color:var(--muted)}  
+.ranks{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;align-items:stretch}  
+.rank{position:relative;display:flex;flex-direction:column;padding:22px 17px;border:1px solid var(--border);border-radius:19px;background:linear-gradient(160deg,#ffffff0b,#ffffff03)}  
+.rank.popular{border-color:#a78bfa;background:linear-gradient(160deg,#7c3aed24,#ffffff04)}  
+.popular-label{position:absolute;top:-12px;right:50%;transform:translateX(50%);background:#8b5cf6;border-radius:20px;padding:2px 13px;font-size:11px;white-space:nowrap}  
+.rank-symbol{font-size:30px;color:#c4b5fd}  
+.rank h3{font-size:20px}  
+.rank .desc{font-size:12px;color:var(--muted);min-height:45px}  
+.price{font-size:22px;font-weight:900;margin:15px 0}  
+.rank ul{list-style:none;color:#d8d9ed;font-size:12px;flex:1}  
+.rank li{margin:7px 0}  
+.rank li:before{content:"✓ ";color:var(--blue)}  
+.rank .btn{margin-top:18px;width:100%}  
+.notice{text-align:center;color:#fcd34d;font-size:12px;margin-top:22px}  
+footer{border-top:1px solid var(--border);padding:25px 0;color:var(--muted);font-size:12px}  
+.footer-inner{display:flex;justify-content:space-between;gap:15px;flex-wrap:wrap}  
+.toast{position:fixed;bottom:20px;left:50%;transform:translate(-50%,20px);opacity:0;pointer-events:none;background:#171936;border:1px solid var(--border);border-radius:12px;padding:12px 17px;font-size:12px;z-index:120;transition:.3s;max-width:92%;text-align:center}  
+.toast.show{opacity:1;transform:translate(-50%,0)}  
+.modal{display:none;position:fixed;inset:0;z-index:100;background:#050617ed;align-items:center;justify-content:center;padding:18px;overflow:auto}  
+.modal.open{display:flex}  
+.modal-card{width:min(440px,100%);max-height:95vh;overflow:auto;background:#141733;border:1px solid #a78bfa66;border-radius:20px;padding:23px}  
+.modal-card h2{font-size:23px}  
+.modal-card p{font-size:12px;color:var(--muted);margin:7px 0 15px}  
+.modal-card label{display:block;font-size:13px;margin-top:10px}  
+.modal-card input,.modal-card select{display:block;width:100%;padding:12px;margin-top:6px;background:#08091b;color:white;border:1px solid #484b70;border-radius:9px}  
+.modal-card .btn{width:100%;margin-top:12px;padding:12px}  
+.form-message{font-size:12px;margin-top:10px;color:#fda4af}  
+.form-message.ok{color:#86efac}  
+.small-note{font-size:11px!important;color:#fcd34d!important}  
+@media(max-width:900px){.nav-links{gap:11px;font-size:11px}.nav-actions .btn{padding:8px 9px;font-size:10px}.ranks{grid-template-columns:repeat(2,1fr)}.features-grid{grid-template-columns:repeat(2,1fr)}}  
+@media(max-width:700px){  
+ .nav{padding:9px 0;min-height:65px}  
+ .menu-toggle{display:block;order:2}  
+ .logo{font-size:19px}  
+ .nav-actions{margin-right:auto;order:3}  
+ .nav-links{display:none;order:4;width:100%;flex-direction:column;align-items:stretch;gap:0}  
+ .nav-links.open{display:flex}  
+ .nav-links a{padding:10px;border-bottom:1px solid #ffffff0c}  
+ .hero{padding:50px 0 65px}  
+ .hero-grid{grid-template-columns:1fr}  
+ .hero-art{grid-row:1;min-height:275px}  
+ .orbit{width:230px}  
+ .core{width:110px;height:110px;font-size:55px}  
+ .hero h1{font-size:33px}  
+ .hero p{font-size:13px}  
+ .cards,.about-grid,.features-grid{grid-template-columns:1fr}  
+ section{padding:65px 0}  
+ .server-box{flex-wrap:wrap}  
+ .footer-inner{justify-content:center;text-align:center}  
+}  
+@media(max-width:390px){.nav-actions .btn{font-size:9px;padding:7px}.logo{font-size:16px}.ranks{grid-template-columns:1fr}.hero-buttons .btn{width:100%}}  
+</style>  
+</head>  
+<body>  
+<div class="space-bg"><div class="stars"></div><div class="stars2"></div><div class="planet"></div><div class="nebula"></div></div>  <header>  
+ <div class="container nav">  
+  <a class="logo" href="#home">✦STAR<span>CRAFT</span></a>  
+  <button class="menu-toggle" id="menuToggle" aria-label="باز کردن منو">☰</button>  
+  <nav class="nav-links" id="navLinks">  
+   <a href="#home">صفحه اصلی</a><a href="#about">درباره ما</a><a href="#features">ویژگی‌ها</a><a href="#store">✦ فروشگاه</a>  
+  </nav>  
+  <div class="nav-actions">  
+   <a class="btn" href="account/">👤 پنل کاربری</a>  
+   <a class="btn btn-admin" href="admin/">⚙️ پنل مدیریت</a>  
+  </div>  
+ </div>  
+</header>  <main>  
+<section class="hero" id="home">  
+ <div class="container hero-grid">  
+  <div>  
+   <div class="pill">✦ دنیایی برای ساختن داستانت</div>  
+   <h1>ماجراجویی تازه در دنیای <span class="gradient">Minecraft</span></h1>  
+   <h2># به دنیای <span class="gradient">StarCraft</span> خوش اومدی</h2>  
+   <p>جایی که داستانت رو خودت می‌سازی؛ وارد دنیای رول‌پلی شو، با دوستات تجربه‌های تازه بساز و جایگاهت رو در کهکشان پیدا کن.</p>  
+   <div class="hero-buttons"><a class="btn btn-primary" href="#store">مشاهده فروشگاه ←</a><a class="btn" href="#features">کشف ویژگی‌ها</a></div>  
+   <div class="server-box"><div><div class="server-label">آدرس سرور Minecraft Java</div><div class="server-address" id="serverAddress">PLAY.STARCRAFT.RP</div></div><button class="copy-btn" id="copyAddress">▣ کپی آدرس</button></div>  
+  </div>  
+  <div class="hero-art"><div class="orbit"><div class="core">✦</div><div class="float-tag tag-one">🌌 دنیای بی‌پایان</div><div class="float-tag tag-two">🚀 ماجراجویی شروع می‌شه</div></div></div>  
+ </div>  
+</section>  <section>  
+ <div class="container">  
+  <div class="section-head"><div class="eyebrow">WHY STARCRAFT?</div><h2>چرا <span class="gradient">StarCraft؟</span></h2><p>هر ورود، شروع یک داستان جدیده. مسیر خودت رو انتخاب کن و در دنیای StarCraft پیشرفت کن.</p><h3 style="margin-top:12px">فراتر از یک سرور معمولی</h3></div>  
+  <div class="cards">  
+   <article class="card"><div class="card-icon">🌌</div><h3>دنیای رول‌پلی</h3><p>شخصیت خودت رو بساز، تصمیم بگیر و داستان مخصوص خودت رو در دنیای بازی شکل بده.</p></article>  
+   <article class="card"><div class="card-icon">🏙️</div><h3>شهر زنده</h3><p>با بازیکن‌های دیگه تعامل داشته باش و در یک دنیای اجتماعی تجربه‌های تازه بساز.</p></article>  
+   <article class="card"><div class="card-icon">🚀</div><h3>پیشرفت و ماجراجویی</h3><p>هدف‌های جدید پیدا کن، مهارت‌هات رو گسترش بده و مسیر خودت رو انتخاب کن.</p></article>  
+  </div>  
+ </div>  
+</section>  <section><div class="container"><div class="cta"><div class="eyebrow">YOUR STORY STARTS HERE</div><h2>آماده‌ای وارد <span class="gradient">کهکشان</span> بشی؟</h2><p>رنک مناسب خودت رو در فروشگاه پیدا کن.</p><a class="btn btn-primary" href="#store">رفتن به فروشگاه ←</a></div></div></section>  <section id="about">  
+ <div class="container">  
+  <div class="section-head"><div class="eyebrow">ABOUT US</div><h2>درباره <span class="gradient">StarCraft</span></h2><p>داستان تو، دنیای تو</p></div>  
+  <div class="about-grid">  
+   <div class="about-panel"><div class="card-icon">🌠</div><h2># داستان تو، دنیای تو</h2><p>StarCraft یک پروژه سرور ماینکرفت با تمرکز بر تجربه رول‌پلی، تعامل بازیکن‌ها و ساختن یک جامعه دوستانه است.</p><h3>ما چه چیزی می‌سازیم؟</h3><p>هدف ما ساختن فضاییه که بازیکن‌ها فقط وارد بازی نشن؛ بلکه شخصیت بسازن، داستان خلق کنن و در کنار بقیه دنیایی پویا شکل بدن.</p><p>این بخش رو می‌تونی با تاریخچه واقعی سرور، قوانین، تیم مدیریت و برنامه‌های آینده جایگزین کنی.</p></div>  
+   <div class="about-panel"><div class="card-icon">🤝</div><h3>به جمع ما بپیوند</h3><p>برای شروع، اخبار و راهنمای ورود سرور رو از کانال‌های رسمی دنبال کن. لینک‌های شبکه‌های اجتماعی رو در تنظیمات پایین فایل اضافه کن.</p><div class="hero-buttons"><a class="btn" href="#features">دیدن ویژگی‌ها</a><a class="btn btn-primary" href="#store">فروشگاه</a></div></div>  
+  </div>  
+ </div>  
+</section>  <section id="features">  
+ <div class="container">  
+  <div class="section-head"><div class="eyebrow">SERVER FEATURES</div><h2>امکانات <span class="gradient">سرور</span></h2><p>ویژگی‌هایی برای تجربه بهتر</p><p style="margin-top:10px">این کارت‌ها نمونه هستند؛ عنوان، آیکون و توضیحات رو از داخل فایل index.html به‌راحتی تغییر بده.</p></div>  
+  <div class="features-grid">  
+   <article class="feature-card"><div class="card-icon">🎭</div><h3>رول‌پلی داستان‌محور</h3><p>شخصیت بساز، نقش خودت رو بازی کن و در داستان‌های مشترک شرکت کن.</p></article>  
+   <article class="feature-card"><div class="card-icon">🧭</div><h3>شهر و مکان‌های متنوع</h3><p>در نقاط مختلف شهر بگرد و محیط رو کشف کن.</p></article>  
+   <article class="feature-card"><div class="card-icon">💼</div><h3>اقتصاد و کسب‌وکار</h3><p>فعالیت کن، درآمد به دست بیار و مسیر شغلی خودت رو بساز.</p></article>  
+   <article class="feature-card"><div class="card-icon">🚘</div><h3>وسایل نقلیه</h3><p>در شهر حرکت کن و از سیستم حمل‌ونقل سرور لذت ببر.</p></article>  
+   <article class="feature-card"><div class="card-icon">🛡️</div><h3>مدیریت و پشتیبانی</h3><p>برای تجربه‌ای منظم‌تر، قوانین و راهنماهای سرور رو دنبال کن.</p></article>  
+   <article class="feature-card"><div class="card-icon">✨</div><h3>به‌روزرسانی‌های آینده</h3><p>این قسمت رو با قابلیت‌های قطعی و فعال سرور خودت به‌روزرسانی کن.</p></article>  
+  </div>  
+ </div>  
+</section>  <section id="store">  
+ <div class="container">  
+  <div class="section-head"><div class="eyebrow">STARCRAFT STORE</div><h2>فروشگاه <span class="gradient">StarCraft</span></h2><p>رنک خودت رو انتخاب کن</p><p style="margin-top:10px">با انتخاب رنک، از امکانات ویژه آن استفاده کن. ثبت سفارش رایگان است و برای بررسی به پنل مدیریت ارسال می‌شود.</p></div>  
+  <div class="ranks">  
+   <article class="rank"><div class="rank-symbol">✦</div><h3>VIP</h3><p class="desc">شروعی ویژه برای ماجراجویی تو</p><div class="price">۵۰٬۰۰۰ <small style="font-size:12px">تومان</small></div><ul><li>نشان VIP</li><li>امکانات پایه رنک</li><li>قابل ویرایش</li></ul><button class="btn" data-rank="VIP">ثبت سفارش VIP</button></article>  
+   <article class="rank popular"><div class="popular-label">محبوب</div><div class="rank-symbol">✧</div><h3>MVP</h3><p class="desc">یک قدم جلوتر در کهکشان</p><div class="price">۱۰۰٬۰۰۰ <small style="font-size:12px">تومان</small></div><ul><li>نشان MVP</li><li>امکانات بیشتر</li><li>قابل ویرایش</li></ul><button class="btn btn-primary" data-rank="MVP">ثبت سفارش MVP</button></article>  
+   <article class="rank"><div class="rank-symbol">◈</div><h3>SPONSER</h3><p class="desc">حمایت از رشد StarCraft</p><div class="price">۲۰۰٬۰۰۰ <small style="font-size:12px">تومان</small></div><ul><li>نشان SPONSER</li><li>امکانات حامی</li><li>قابل ویرایش</li></ul><button class="btn" data-rank="SPONSER">ثبت سفارش SPONSER</button></article>  
+   <article class="rank"><div class="rank-symbol">✹</div><h3>STAR</h3><p class="desc">جایگاه خاص در دنیای ما</p><div class="price">۳۵۰٬۰۰۰ <small style="font-size:12px">تومان</small></div><ul><li>نشان STAR</li><li>امکانات ویژه</li><li>قابل ویرایش</li></ul><button class="btn" data-rank="STAR">ثبت سفارش STAR</button></article>  
+  </div>  
+  <p class="notice">ثبت سفارش رایگان است؛ سفارش پس از بررسی مدیر تأیید یا رد می‌شود. ثبت سفارش به معنی فعال شدن رنک نیست.</p>  
+ </div>  
+</section>  
+</main>  <footer><div class="container footer-inner"><div>© StarCraft RP — تمامی حقوق محفوظ است.</div><div>ساخته‌شده برای جامعه StarCraft ✦</div></div></footer>  <div class="modal" id="orderModal">  
+ <form class="modal-card" id="orderForm">  
+  <h2>ثبت سفارش StarCraft</h2>  
+  <p>ثبت سفارش رایگان است؛ در این مرحله هیچ پولی دریافت نمی‌شود.</p>  
+  <label for="playerName">نام بازیکن Minecraft (Java)</label>  
+  <input id="playerName" required maxlength="16" minlength="3" pattern="[A-Za-z0-9_]{3,16}" autocomplete="off" placeholder="مثلاً Steve123">  
+  <label for="rankName">رنک انتخابی</label>  
+  <select id="rankName">  
+   <option value="VIP">VIP — ۵۰٬۰۰۰ تومان</option>  
+   <option value="MVP">MVP — ۱۰۰٬۰۰۰ تومان</option>  
+   <option value="SPONSER">SPONSER — ۲۰۰٬۰۰۰ تومان</option>  
+   <option value="STAR">STAR — ۳۵۰٬۰۰۰ تومان</option>  
+  </select>  
+  <div id="orderMessage" class="form-message" role="status"></div>  
+  <button class="btn btn-primary" id="submitOrder" type="submit">ثبت سفارش رایگان</button>  
+  <button class="btn" id="closeOrder" type="button">بستن</button>  
+  <p class="small-note">تأیید سفارش توسط مدیر انجام می‌شود؛ تحویل رنک خودکار نیست.</p>  
+ </form>  
+</div>  
+<div class="toast" id="toast" role="status"></div>  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>  <script>  
+const SUPABASE_URL='https://euvslrpmvevtiwhfdhio.supabase.co';  
+const SUPABASE_KEY='sb_publishable_YvXvyId7Fmd30vyxyoCAMg_fZn-8gE9';  
+const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);  
+  
+const toast=document.getElementById('toast');  
+let toastTimer;  
+function showToast(text){  
+ toast.textContent=text;  
+ toast.classList.add('show');  
+ clearTimeout(toastTimer);  
+ toastTimer=setTimeout(()=>toast.classList.remove('show'),3500);  
+}  
+  
+const menuToggle=document.getElementById('menuToggle');  
+const navLinks=document.getElementById('navLinks');  
+menuToggle.addEventListener('click',()=>{  
+ navLinks.classList.toggle('open');  
+ menuToggle.textContent=navLinks.classList.contains('open')?'✕':'☰';  
+});  
+navLinks.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{  
+ navLinks.classList.remove('open');menuToggle.textContent='☰';  
+}));  
+  
+document.getElementById('copyAddress').addEventListener('click',async()=>{  
+ const address=document.getElementById('serverAddress').textContent.trim();  
+ try{await navigator.clipboard.writeText(address);showToast('آدرس کپی شد: '+address)}  
+ catch{showToast('آدرس سرور: '+address)}  
+});  
+  
+const modal=document.getElementById('orderModal');  
+const form=document.getElementById('orderForm');  
+const message=document.getElementById('orderMessage');  
+const submitButton=document.getElementById('submitOrder');  
+const rankName=document.getElementById('rankName');  
+const playerName=document.getElementById('playerName');  
+  
+document.querySelectorAll('[data-rank]').forEach(button=>{  
+ button.addEventListener('click',()=>{  
+  rankName.value=button.dataset.rank;  
+  message.textContent='';  
+  message.className='form-message';  
+  modal.classList.add('open');  
+  playerName.focus();  
+ });  
+});  
+document.getElementById('closeOrder').addEventListener('click',()=>modal.classList.remove('open'));  
+modal.addEventListener('click',e=>{if(e.target===modal)modal.classList.remove('open')});  
+document.addEventListener('keydown',e=>{if(e.key==='Escape')modal.classList.remove('open')});  
+  
+const prices={VIP:50000,MVP:100000,SPONSER:200000,STAR:350000};  
+  
+form.addEventListener('submit',async e=>{  
+ e.preventDefault();  
+  
+ const player=playerName.value.trim();  
+ const rank=rankName.value;  
+  
+ if(!/^[A-Za-z0-9_]{3,16}$/.test(player)){  
+  message.textContent='نام بازیکن باید ۳ تا ۱۶ کاراکتر انگلیسی، عدد یا _ باشد.';  
+  return;  
+ }  
+  
+ if(!prices[rank]){  
+  message.textContent='رنک معتبر نیست.';  
+  return;  
+ }  
+  
+ submitButton.disabled=true;  
+ submitButton.textContent='در حال ثبت...';  
+ message.textContent='';  
+  
+ try{  
+  // بررسی ورود کاربر  
+  const {data:authData,error:authError}=await db.auth.getUser();  
+  
+  if(authError || !authData.user){  
+   message.textContent='ابتدا وارد حساب کاربری خودت شو. در حال انتقال به پنل کاربری...';  
+  
+   setTimeout(()=>{  
+    window.location.href='account/';  
+   },1000);  
+  
+   return;  
+  }  
+  
+  const orderNumber='SC-'+Date.now().toString(36).toUpperCase();  
+  
+  // اتصال سفارش به حساب کاربر  
+  const {error}=await db.from('sc_orders').insert([{  
+   order_number:orderNumber,  
+   player_name:player,  
+   rank_name:rank,  
+   price:prices[rank],  
+   status:'pending',  
+   user_id:authData.user.id  
+  }]);  
+  
+  if(error)throw error;  
+  
+  form.reset();  
+  modal.classList.remove('open');  
+  showToast('سفارش ثبت شد! شماره سفارش: '+orderNumber);  
+  
+ }catch(error){  
+  console.error('Order error:',error);  
+  
+  if(error.code==='42501'){  
+   message.textContent='اجازه ثبت سفارش داده نشد. سیاست INSERT جدول sc_orders در Supabase را بررسی کن.';  
+  }else if(error.code==='42703'){  
+   message.textContent='ستون user_id در جدول sc_orders پیدا نشد.';  
+  }else{  
+   message.textContent='ثبت سفارش ناموفق بود. جزئیات خطا را در Console بررسی کن.';  
+  }  
+ }finally{  
+  submitButton.disabled=false;  
+  submitButton.textContent='ثبت سفارش رایگان';  
+ }  
+});  
+</script>  </body>  
+</html>  
