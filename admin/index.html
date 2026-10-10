@@ -4,73 +4,227 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>پنل مدیریت StarCraft</title>
+<title>مدیریت StarCraft</title>
 <style>
 *{box-sizing:border-box}
-body{margin:0;background:#0b1020;color:#eef2ff;font-family:Tahoma,Arial,sans-serif}
-header{padding:22px 16px;background:#111a30;border-bottom:1px solid #263452}
-header h1{margin:0 0 8px;color:#8b9cff}
-header p{margin:0;color:#aab6d3;font-size:13px}
-main{max-width:1100px;margin:auto;padding:20px 14px}
-.card{background:#111a30;border:1px solid #263452;border-radius:14px;padding:18px;margin-bottom:16px}
-h2{font-size:18px;margin-top:0}
-input,button{width:100%;padding:12px;border-radius:9px;font:inherit;margin-top:10px}
-input{color:white;background:#0b1020;border:1px solid #344363}
-button{cursor:pointer;color:white;background:#5865f2;border:0;font-weight:bold}
-button.secondary{background:#263452}
-button:disabled{opacity:.6}
-.muted{color:#aab6d3;font-size:13px}
-.message{margin-top:12px;white-space:pre-wrap;font-size:13px;overflow-wrap:anywhere}
-.success{color:#69e6a6}.error{color:#ff8585}
-.toolbar{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
-.toolbar input,.toolbar button{margin:0;min-width:0}
-.table-wrap{overflow-x:auto}
-table{border-collapse:collapse;width:100%;min-width:760px}
-th,td{padding:13px 10px;text-align:right;border-bottom:1px solid #263452;font-size:13px}
-th{color:#aab6d3}
+:root{color-scheme:dark}
+body{
+ margin:0;background:#080d1b;color:#edf0ff;
+ font-family:Tahoma,Arial,sans-serif
+}
+button,input{font:inherit}
+button{cursor:pointer}
+header{
+ padding:20px 16px;background:#10182d;
+ border-bottom:1px solid #293452;
+ display:flex;justify-content:space-between;
+ align-items:center;gap:12px;flex-wrap:wrap
+}
+header h1{margin:0 0 7px;color:#a5b4fc;font-size:24px}
+header p{margin:0;color:#9ba9ca;font-size:12px}
+main{max-width:1250px;margin:auto;padding:20px 14px}
+.card{
+ background:#10182d;border:1px solid #293452;
+ border-radius:15px;padding:18px;margin-bottom:16px
+}
+h2{font-size:18px;margin:0 0 12px}
+.muted{color:#9ba9ca;font-size:13px;line-height:1.9}
+input{
+ width:100%;min-width:0;padding:12px;
+ border-radius:9px;background:#080d1b;
+ color:white;border:1px solid #344363;margin-top:8px
+}
+button{
+ padding:11px 14px;border:0;border-radius:9px;
+ background:#6366f1;color:white;font-weight:bold
+}
+button:disabled{opacity:.5;cursor:not-allowed}
+button.secondary{background:#293452}
+button.danger{background:#9f354d}
+button.success{background:#147d60}
+button.small{padding:8px 10px;font-size:12px;margin:2px}
 .hidden{display:none!important}
-@media(max-width:480px){.toolbar{grid-template-columns:1fr}}
+.message{font-size:13px;line-height:1.9;overflow-wrap:anywhere;margin-top:12px}
+.error{color:#ff8d9d}.ok{color:#73e7ad}
+.login-card{max-width:440px;margin:35px auto}
+.top-actions{display:flex;gap:8px;align-items:center}
+.stats{
+ display:grid;grid-template-columns:repeat(4,minmax(0,1fr));
+ gap:12px;margin-bottom:16px
+}
+.stat{
+ background:#10182d;border:1px solid #293452;
+ border-radius:13px;padding:17px
+}
+.stat-label{font-size:12px;color:#9ba9ca}
+.stat-number{font-size:27px;font-weight:bold;color:#b5baff;margin-top:12px}
+.nav{
+ display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px
+}
+.nav button{background:#18223c}
+.nav button.active{background:#6366f1}
+.toolbar{
+ display:grid;grid-template-columns:minmax(0,1fr) auto;
+ gap:10px;margin:14px 0
+}
+.toolbar input,.toolbar button{margin:0}
+.table-wrap{width:100%;overflow-x:auto}
+table{border-collapse:collapse;width:100%;min-width:760px}
+th,td{
+ padding:12px 10px;text-align:right;
+ border-bottom:1px solid #293452;
+ font-size:12px;line-height:1.9;vertical-align:middle
+}
+th{color:#aeb9db;background:#141e35}
+.badge{
+ display:inline-block;padding:4px 8px;border-radius:20px;
+ background:#293452;font-size:11px;white-space:nowrap
+}
+.badge.pending{background:#59471d;color:#ffe3a0}
+.badge.approved{background:#155a46;color:#a6ffda}
+.badge.rejected{background:#632c3c;color:#ffc0ca}
+.badge.other{background:#293452}
+.empty{padding:24px;text-align:center;color:#9ba9ca}
+footer{text-align:center;color:#7f8bac;font-size:11px;padding:20px}
+@media(max-width:700px){
+ .stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .stat-number{font-size:23px}
+ header h1{font-size:20px}
+ .card{padding:13px}
+}
+@media(max-width:420px){
+ .toolbar{grid-template-columns:1fr}
+ .top-actions{width:100%}
+ .top-actions button{flex:1}
+ .stats{gap:8px}
+ .stat{padding:12px}
+}
 </style>
 </head>
 <body>
-<header>
-<h1>⭐ StarCraft</h1>
-<p>پنل مدیریت فروشگاه رنک ماینکرفت</p>
-</header>
-<main>
-<section class="card" id="loginPanel">
-<h2>ورود مدیر</h2>
-<p class="muted">با حساب مدیر Supabase وارد شو.</p>
-<form id="loginForm">
-<input id="email" type="email" placeholder="ایمیل مدیر" autocomplete="username" required>
-<input id="password" type="password" placeholder="رمز عبور" autocomplete="current-password" required>
-<button id="loginButton" type="submit">ورود به پنل</button>
-</form>
-<div id="loginMessage" class="message" role="status"></div>
-</section>
 
-<section id="ordersPanel" class="hidden">
-<div class="card">
-<h2>سفارش‌های رنک</h2>
-<p class="muted">فهرست سفارش‌های ثبت‌شده در Supabase</p>
-<div class="toolbar">
-<input id="search" type="search" placeholder="جست‌وجوی شماره سفارش یا بازیکن">
-<button id="refreshButton" type="button">تازه‌سازی</button>
-</div>
-<div id="ordersMessage" class="message" role="status"></div>
-<div class="table-wrap">
-<table>
-<thead><tr>
-<th>شماره سفارش</th><th>بازیکن</th><th>رنک</th>
-<th>قیمت</th><th>وضعیت</th><th>تاریخ</th>
-</tr></thead>
-<tbody id="ordersBody"></tbody>
-</table>
-</div>
-</div>
-<button id="logoutButton" class="secondary" type="button">خروج از حساب</button>
-</section>
+<header>
+ <div>
+  <h1>✦ STARCRAFT</h1>
+  <p>مرکز مدیریت فروشگاه و کاربران</p>
+ </div>
+ <div class="top-actions hidden" id="headerActions">
+  <button class="secondary" id="reloadAll">↻ تازه‌سازی</button>
+  <button class="danger" id="logoutButton">خروج</button>
+ </div>
+</header>
+
+<main>
+ <section class="card login-card" id="loginPanel">
+  <h2>🔐 ورود مدیر</h2>
+  <p class="muted">با حساب مدیر ثبت‌شده در Supabase وارد شو.</p>
+  <form id="loginForm">
+   <input id="email" type="email" placeholder="ایمیل مدیر"
+    autocomplete="username" required>
+   <input id="password" type="password" placeholder="رمز عبور"
+    autocomplete="current-password" required>
+   <button id="loginButton" type="submit" style="width:100%;margin-top:14px">
+    ورود به پنل مدیریت
+   </button>
+  </form>
+  <div id="loginMessage" class="message" role="status"></div>
+ </section>
+
+ <section id="dashboard" class="hidden">
+  <div class="stats">
+   <div class="stat">
+    <div class="stat-label">👥 حساب‌های ثبت‌شده</div>
+    <div class="stat-number" id="userCount">—</div>
+   </div>
+   <div class="stat">
+    <div class="stat-label">📦 کل سفارش‌ها</div>
+    <div class="stat-number" id="orderCount">—</div>
+   </div>
+   <div class="stat">
+    <div class="stat-label">⏳ سفارش‌های در انتظار</div>
+    <div class="stat-number" id="pendingCount">—</div>
+   </div>
+   <div class="stat">
+    <div class="stat-label">✅ سفارش‌های تأییدشده</div>
+    <div class="stat-number" id="approvedCount">—</div>
+   </div>
+  </div>
+
+  <nav class="nav" aria-label="بخش‌های مدیریت">
+   <button class="active" data-tab="overview">📊 داشبورد</button>
+   <button data-tab="users">👥 کاربران</button>
+   <button data-tab="orders">📦 سفارش‌ها</button>
+  </nav>
+
+  <section class="card" id="overviewTab">
+   <h2>خوش آمدی، مدیر StarCraft!</h2>
+   <p class="muted">
+    از این صفحه می‌تونی کاربران ثبت‌نام‌شده، آخرین ورود آن‌ها
+    و سفارش‌های فروشگاه رو مدیریت کنی.
+   </p>
+   <button data-goto="users">مشاهده کاربران</button>
+   <button data-goto="orders" class="secondary">مدیریت سفارش‌ها</button>
+   <div id="overviewMessage" class="message"></div>
+  </section>
+
+  <section class="card hidden" id="usersTab">
+   <h2>👥 حساب‌های ثبت‌نام‌شده</h2>
+   <p class="muted">
+    فهرست حساب‌های ثبت‌شده در جدول sc_users.
+    زمان آخرین ورود از اطلاعات احراز هویت Supabase گرفته می‌شود.
+   </p>
+   <div class="toolbar">
+    <input id="userSearch" type="search" placeholder="جست‌وجوی ایمیل یا شناسه حساب">
+    <button id="refreshUsers">تازه‌سازی کاربران</button>
+   </div>
+   <div id="usersMessage" class="message" role="status"></div>
+   <div class="table-wrap">
+    <table>
+     <thead>
+      <tr>
+       <th>ایمیل</th>
+       <th>شناسه حساب</th>
+       <th>تاریخ ثبت‌نام</th>
+       <th>آخرین ورود</th>
+      </tr>
+     </thead>
+     <tbody id="usersBody"></tbody>
+    </table>
+   </div>
+  </section>
+
+  <section class="card hidden" id="ordersTab">
+   <h2>📦 مدیریت سفارش‌های رنک</h2>
+   <p class="muted">
+    سفارش‌ها را بررسی کن و در صورت نیاز تأیید یا رد کن.
+    تأیید سفارش به‌تنهایی رنک Minecraft را تحویل نمی‌دهد.
+   </p>
+   <div class="toolbar">
+    <input id="orderSearch" type="search" placeholder="جست‌وجوی شماره سفارش یا نام بازیکن">
+    <button id="refreshOrders">تازه‌سازی سفارش‌ها</button>
+   </div>
+   <div id="ordersMessage" class="message" role="status"></div>
+   <div class="table-wrap">
+    <table>
+     <thead>
+      <tr>
+       <th>شماره سفارش</th>
+       <th>بازیکن</th>
+       <th>رنک</th>
+       <th>قیمت</th>
+       <th>وضعیت</th>
+       <th>تاریخ</th>
+       <th>عملیات</th>
+      </tr>
+     </thead>
+     <tbody id="ordersBody"></tbody>
+    </table>
+   </div>
+  </section>
+ </section>
 </main>
+
+<footer>© StarCraft RP — پنل مدیریت</footer>
 
 <script type="module">
 import { createClient } from
@@ -79,156 +233,400 @@ import { createClient } from
 const SUPABASE_URL = 'https://euvslrpmvevtiwhfdhio.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_YvXvyId7Fmd30vyxyoCAMg_fZn-8gE9';
 
-const loginPanel = document.getElementById('loginPanel');
-const ordersPanel = document.getElementById('ordersPanel');
-const loginForm = document.getElementById('loginForm');
-const loginButton = document.getElementById('loginButton');
-const loginMessage = document.getElementById('loginMessage');
-const ordersMessage = document.getElementById('ordersMessage');
-const ordersBody = document.getElementById('ordersBody');
-const searchInput = document.getElementById('search');
+const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-function showMessage(el,text,type=''){
-  el.textContent=text;
-  el.className='message '+type;
+const $ = id => document.getElementById(id);
+
+let allUsers = [];
+let allOrders = [];
+let loadingOrders = false;
+let loadingUsers = false;
+let currentUserId = null;
+
+function message(el, text, type='') {
+ el.textContent = text;
+ el.className = 'message ' + type;
 }
 
-const sb=createClient(SUPABASE_URL,SUPABASE_KEY);
-
-function showLogin(){
-  ordersPanel.classList.add('hidden');
-  loginPanel.classList.remove('hidden');
+function formatDate(value) {
+ if (!value) return 'ثبت نشده';
+ const date = new Date(value);
+ if (Number.isNaN(date.getTime())) return 'نامشخص';
+ return date.toLocaleString('fa-IR');
 }
 
-async function checkAdmin(){
-  const {data:{user},error:authError}=await sb.auth.getUser();
-
-  if(authError||!user){
-    showLogin();
-    return;
-  }
-
-  const {data:admin,error}=await sb
-    .from('sc_admins')
-    .select('user_id')
-    .eq('user_id',user.id)
-    .maybeSingle();
-
-  if(error||!admin){
-    await sb.auth.signOut();
-    showLogin();
-    showMessage(loginMessage,
-      'این حساب مدیر نیست یا بررسی دسترسی ناموفق بود.','error');
-    return;
-  }
-
-  loginPanel.classList.add('hidden');
-  ordersPanel.classList.remove('hidden');
-  await loadOrders();
+function formatNumber(value) {
+ return Number(value || 0).toLocaleString('fa-IR');
 }
 
-loginForm.addEventListener('submit',async event=>{
-  event.preventDefault();
-  loginButton.disabled=true;
-  showMessage(loginMessage,'در حال ورود...');
+function showLogin() {
+ $('loginPanel').classList.remove('hidden');
+ $('dashboard').classList.add('hidden');
+ $('headerActions').classList.add('hidden');
+ currentUserId = null;
+}
 
-  try{
-    const {error}=await sb.auth.signInWithPassword({
-      email:document.getElementById('email').value.trim(),
-      password:document.getElementById('password').value
-    });
+function showDashboard() {
+ $('loginPanel').classList.add('hidden');
+ $('dashboard').classList.remove('hidden');
+ $('headerActions').classList.remove('hidden');
+}
 
-    if(error){
-      showMessage(loginMessage,
-        'ورود ناموفق بود؛ ایمیل، رمز و تنظیمات Supabase را بررسی کن.','error');
-      return;
-    }
+function setTab(tab) {
+ for (const name of ['overview','users','orders']) {
+  $(name + 'Tab').classList.toggle('hidden', name !== tab);
+ }
+ document.querySelectorAll('[data-tab]').forEach(button => {
+  button.classList.toggle('active', button.dataset.tab === tab);
+ });
+ if (tab === 'users') renderUsers();
+ if (tab === 'orders') renderOrders();
+}
 
-    await checkAdmin();
-  }catch(error){
-    showMessage(loginMessage,'خطای اتصال: '+error.message,'error');
-  }finally{
-    loginButton.disabled=false;
-  }
+document.querySelectorAll('[data-tab]').forEach(button => {
+ button.addEventListener('click', () => setTab(button.dataset.tab));
 });
 
-async function loadOrders(){
-  showMessage(ordersMessage,'در حال دریافت سفارش‌ها...');
-  ordersBody.replaceChildren();
+document.querySelectorAll('[data-goto]').forEach(button => {
+ button.addEventListener('click', () => setTab(button.dataset.goto));
+});
 
-  try{
-    const {data,error}=await sb
-      .from('sc_orders')
-      .select('order_number,player_name,rank_name,price,status,created_at')
-      .order('created_at',{ascending:false})
-      .limit(200);
+async function checkAdmin() {
+ const {data: {user}, error: authError} = await sb.auth.getUser();
 
-    if(error){
-      showMessage(ordersMessage,'خطا در دریافت سفارش‌ها: '+error.message,'error');
-      return;
-    }
+ if (authError || !user) {
+  showLogin();
+  return false;
+ }
 
-    const query=searchInput.value.trim().toLowerCase();
-    const orders=(data||[]).filter(order=>
-      String(order.order_number).toLowerCase().includes(query)||
-      String(order.player_name).toLowerCase().includes(query)
-    );
+ const {data: admin, error} = await sb
+  .from('sc_admins')
+  .select('user_id')
+  .eq('user_id', user.id)
+  .maybeSingle();
 
-    if(!orders.length){
-      showMessage(ordersMessage,
-        data?.length?'سفارشی مطابق جست‌وجو پیدا نشد.':'هنوز سفارشی ثبت نشده است.');
-      return;
-    }
+ if (error || !admin) {
+  await sb.auth.signOut();
+  showLogin();
+  message($('loginMessage'),
+   'این حساب مدیر نیست یا بررسی دسترسی ناموفق بود.','error');
+  return false;
+ }
 
-    showMessage(ordersMessage,'تعداد سفارش‌ها: '+orders.length,'success');
-
-    const labels={
-      pending:'در انتظار پرداخت',
-      paid:'پرداخت شده',
-      delivered:'تحویل شده',
-      cancelled:'لغو شده'
-    };
-
-    for(const order of orders){
-      const tr=document.createElement('tr');
-      const values=[
-        order.order_number,
-        order.player_name,
-        order.rank_name,
-        Number(order.price).toLocaleString('fa-IR'),
-        labels[order.status]||order.status||'نامشخص',
-        order.created_at?new Date(order.created_at).toLocaleString('fa-IR'):'—'
-      ];
-
-      for(const value of values){
-        const td=document.createElement('td');
-        td.textContent=value??'—';
-        tr.appendChild(td);
-      }
-      ordersBody.appendChild(tr);
-    }
-  }catch(error){
-    showMessage(ordersMessage,'خطای اتصال: '+error.message,'error');
-  }
+ currentUserId = user.id;
+ showDashboard();
+ await loadAll();
+ return true;
 }
 
-document.getElementById('refreshButton')
-  .addEventListener('click',loadOrders);
-searchInput.addEventListener('input',loadOrders);
+$('loginForm').addEventListener('submit', async event => {
+ event.preventDefault();
+ $('loginButton').disabled = true;
+ message($('loginMessage'), 'در حال ورود...');
 
-document.getElementById('logoutButton')
-  .addEventListener('click',async()=>{
-    await sb.auth.signOut();
-    showLogin();
-    showMessage(loginMessage,'از حساب خارج شدی.');
+ try {
+  const {error} = await sb.auth.signInWithPassword({
+   email: $('email').value.trim(),
+   password: $('password').value
   });
 
-sb.auth.onAuthStateChange((event,session)=>{
-  if(event==='SIGNED_OUT'||!session)showLogin();
+  if (error) {
+   message($('loginMessage'),
+    'ورود ناموفق بود. ایمیل، رمز و تنظیمات Supabase را بررسی کن.','error');
+   return;
+  }
+
+  await checkAdmin();
+ } catch (error) {
+  message($('loginMessage'), 'خطای اتصال: ' + error.message, 'error');
+ } finally {
+  $('loginButton').disabled = false;
+ }
 });
 
-checkAdmin().catch(error=>{
-  showMessage(loginMessage,'خطای اتصال: '+error.message,'error');
+async function loadAll() {
+ await Promise.all([loadUsers(), loadOrders()]);
+}
+
+async function loadUsers() {
+ if (loadingUsers) return;
+ loadingUsers = true;
+ message($('usersMessage'), 'در حال دریافت حساب‌ها...');
+ $('userCount').textContent = '…';
+
+ try {
+  const {data, error} = await sb
+   .from('sc_users')
+   .select('user_id,email,created_at,last_sign_in_at')
+   .order('created_at', {ascending:false})
+   .limit(1000);
+
+  if (error) {
+   allUsers = [];
+   $('userCount').textContent = '—';
+   message($('usersMessage'),
+    'دریافت کاربران ناموفق بود: ' + error.message +
+    '\nجدول sc_users و مجوزهای RLS را بررسی کن.','error');
+   renderUsers();
+   return;
+  }
+
+  allUsers = data || [];
+  $('userCount').textContent = formatNumber(allUsers.length);
+  renderUsers();
+
+  message($('usersMessage'),
+   'تعداد حساب‌های قابل نمایش: ' + formatNumber(allUsers.length),'ok');
+ } catch (error) {
+  message($('usersMessage'), 'خطای اتصال: ' + error.message, 'error');
+ } finally {
+  loadingUsers = false;
+ }
+}
+
+function renderUsers() {
+ const body = $('usersBody');
+ body.replaceChildren();
+
+ const query = $('userSearch').value.trim().toLowerCase();
+ const users = allUsers.filter(user =>
+  String(user.email || '').toLowerCase().includes(query) ||
+  String(user.user_id || '').toLowerCase().includes(query)
+ );
+
+ if (!users.length) {
+  const tr = document.createElement('tr');
+  const td = document.createElement('td');
+  td.colSpan = 4;
+  td.className = 'empty';
+  td.textContent = allUsers.length
+   ? 'حسابی مطابق جست‌وجو پیدا نشد.'
+   : 'حسابی برای نمایش وجود ندارد.';
+  tr.appendChild(td);
+  body.appendChild(tr);
+  return;
+ }
+
+ for (const user of users) {
+  const tr = document.createElement('tr');
+  const values = [
+   user.email || 'بدون ایمیل',
+   user.user_id || '—',
+   formatDate(user.created_at),
+   formatDate(user.last_sign_in_at)
+  ];
+
+  for (const value of values) {
+   const td = document.createElement('td');
+   td.textContent = value;
+   tr.appendChild(td);
+  }
+
+  body.appendChild(tr);
+ }
+}
+
+async function loadOrders() {
+ if (loadingOrders) return;
+ loadingOrders = true;
+ message($('ordersMessage'), 'در حال دریافت سفارش‌ها...');
+ $('orderCount').textContent = '…';
+
+ try {
+  const {data, error} = await sb
+   .from('sc_orders')
+   .select('id,order_number,player_name,rank_name,price,status,created_at')
+   .order('created_at', {ascending:false})
+   .limit(1000);
+
+  if (error) {
+   allOrders = [];
+   $('orderCount').textContent = '—';
+   $('pendingCount').textContent = '—';
+   $('approvedCount').textContent = '—';
+   message($('ordersMessage'),
+    'دریافت سفارش‌ها ناموفق بود: ' + error.message,'error');
+   renderOrders();
+   return;
+  }
+
+  allOrders = data || [];
+  $('orderCount').textContent = formatNumber(allOrders.length);
+  $('pendingCount').textContent = formatNumber(
+   allOrders.filter(o => o.status === 'pending').length
+  );
+  $('approvedCount').textContent = formatNumber(
+   allOrders.filter(o => o.status === 'approved').length
+  );
+
+  renderOrders();
+  message($('ordersMessage'),
+   'تعداد سفارش‌های قابل نمایش: ' + formatNumber(allOrders.length),'ok');
+ } catch (error) {
+  message($('ordersMessage'), 'خطای اتصال: ' + error.message, 'error');
+ } finally {
+  loadingOrders = false;
+ }
+}
+
+function statusInfo(status) {
+ const labels = {
+  pending: ['در انتظار بررسی','pending'],
+  approved: ['تأیید شده','approved'],
+  rejected: ['رد شده','rejected'],
+  paid: ['پرداخت شده','approved'],
+  delivered: ['تحویل شده','approved'],
+  cancelled: ['لغو شده','rejected']
+ };
+ return labels[status] || [status || 'نامشخص','other'];
+}
+
+function renderOrders() {
+ const body = $('ordersBody');
+ body.replaceChildren();
+
+ const query = $('orderSearch').value.trim().toLowerCase();
+ const orders = allOrders.filter(order =>
+  String(order.order_number || '').toLowerCase().includes(query) ||
+  String(order.player_name || '').toLowerCase().includes(query)
+ );
+
+ if (!orders.length) {
+  const tr = document.createElement('tr');
+  const td = document.createElement('td');
+  td.colSpan = 7;
+  td.className = 'empty';
+  td.textContent = allOrders.length
+   ? 'سفارشی مطابق جست‌وجو پیدا نشد.'
+   : 'هنوز سفارشی ثبت نشده است.';
+  tr.appendChild(td);
+  body.appendChild(tr);
+  return;
+ }
+
+ for (const order of orders) {
+  const tr = document.createElement('tr');
+  const values = [
+   order.order_number,
+   order.player_name,
+   order.rank_name,
+   formatNumber(order.price),
+   null,
+   formatDate(order.created_at),
+   null
+  ];
+
+  values.forEach((value, index) => {
+   const td = document.createElement('td');
+
+   if (index === 4) {
+    const [label, cls] = statusInfo(order.status);
+    const badge = document.createElement('span');
+    badge.className = 'badge ' + cls;
+    badge.textContent = label;
+    td.appendChild(badge);
+   } else if (index === 6) {
+    if (order.status === 'pending') {
+     const approve = document.createElement('button');
+     approve.className = 'small success';
+     approve.textContent = 'تأیید';
+     approve.addEventListener('click', () =>
+      updateOrder(order, 'approved', approve, reject)
+     );
+
+     const reject = document.createElement('button');
+     reject.className = 'small danger';
+     reject.textContent = 'رد';
+     reject.addEventListener('click', () =>
+      updateOrder(order, 'rejected', reject, approve)
+     );
+
+     td.append(approve, reject);
+    } else {
+     td.textContent = 'بدون عملیات';
+    }
+   } else {
+    td.textContent = value == null ? '—' : String(value);
+   }
+
+   tr.appendChild(td);
+  });
+
+  body.appendChild(tr);
+ }
+}
+
+async function updateOrder(order, newStatus, clickedButton, otherButton) {
+ if (!currentUserId) return;
+
+ const action = newStatus === 'approved' ? 'تأیید' : 'رد';
+ if (!confirm(`از ${action} سفارش ${order.order_number} مطمئنی؟`)) return;
+
+ clickedButton.disabled = true;
+ otherButton.disabled = true;
+ message($('ordersMessage'), 'در حال به‌روزرسانی سفارش...');
+
+ try {
+  const {data: {user}, error: authError} = await sb.auth.getUser();
+  if (authError || !user || user.id !== currentUserId) {
+   throw new Error('نشست مدیر معتبر نیست. دوباره وارد شو.');
+  }
+
+  const {data: admin, error: adminError} = await sb
+   .from('sc_admins')
+   .select('user_id')
+   .eq('user_id', user.id)
+   .maybeSingle();
+
+  if (adminError || !admin) {
+   throw new Error('دسترسی مدیر تأیید نشد.');
+  }
+
+  const {data, error} = await sb
+   .from('sc_orders')
+   .update({status:newStatus})
+   .eq('id', order.id)
+   .eq('status', 'pending')
+   .select('id');
+
+  if (error) throw error;
+
+  if (!data || data.length === 0) {
+   throw new Error('سفارش تغییر نکرد؛ ممکن است قبلاً تغییر وضعیت داده شده باشد یا مجوز دیتابیس کافی نباشد.');
+  }
+
+  message($('ordersMessage'), `سفارش ${order.order_number} ${action} شد.`, 'ok');
+  await loadOrders();
+ } catch (error) {
+  message($('ordersMessage'), 'خطا: ' + error.message, 'error');
+  clickedButton.disabled = false;
+  otherButton.disabled = false;
+ }
+}
+
+$('userSearch').addEventListener('input', renderUsers);
+$('orderSearch').addEventListener('input', renderOrders);
+$('refreshUsers').addEventListener('click', loadUsers);
+$('refreshOrders').addEventListener('click', loadOrders);
+$('reloadAll').addEventListener('click', loadAll);
+
+$('logoutButton').addEventListener('click', async () => {
+ await sb.auth.signOut();
+ allUsers = [];
+ allOrders = [];
+ showLogin();
+ message($('loginMessage'), 'از حساب خارج شدی.','ok');
+});
+
+sb.auth.onAuthStateChange((event) => {
+ if (event === 'SIGNED_OUT') {
+  showLogin();
+ }
+});
+
+checkAdmin().catch(error => {
+ showLogin();
+ message($('loginMessage'), 'خطای اتصال: ' + error.message, 'error');
 });
 </script>
 </body>
