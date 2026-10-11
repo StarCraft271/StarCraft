@@ -8,82 +8,46 @@
 <style>
 *{box-sizing:border-box}
 :root{color-scheme:dark}
-body{
- margin:0;background:#080d1b;color:#edf0ff;
- font-family:Tahoma,Arial,sans-serif
-}
+body{margin:0;background:#080d1b;color:#edf0ff;font-family:Tahoma,Arial,sans-serif}
 button,input{font:inherit}
 button{cursor:pointer}
-header{
- padding:20px 16px;background:#10182d;
- border-bottom:1px solid #293452;
- display:flex;justify-content:space-between;
- align-items:center;gap:12px;flex-wrap:wrap
-}
+header{padding:20px 16px;background:#10182d;border-bottom:1px solid #293452;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
 header h1{margin:0 0 7px;color:#a5b4fc;font-size:24px}
 header p{margin:0;color:#9ba9ca;font-size:12px}
 main{max-width:1250px;margin:auto;padding:20px 14px}
-.card{
- background:#10182d;border:1px solid #293452;
- border-radius:15px;padding:18px;margin-bottom:16px
-}
+.card,.stat{background:#10182d;border:1px solid #293452;border-radius:15px;padding:18px;margin-bottom:16px}
 h2{font-size:18px;margin:0 0 12px}
 .muted{color:#9ba9ca;font-size:13px;line-height:1.9}
-input{
- width:100%;min-width:0;padding:12px;
- border-radius:9px;background:#080d1b;
- color:white;border:1px solid #344363;margin-top:8px
-}
-button{
- padding:11px 14px;border:0;border-radius:9px;
- background:#6366f1;color:white;font-weight:bold
-}
+input{width:100%;min-width:0;padding:12px;border-radius:9px;background:#080d1b;color:white;border:1px solid #344363;margin-top:8px}
+button{padding:11px 14px;border:0;border-radius:9px;background:#6366f1;color:white;font-weight:bold}
 button:disabled{opacity:.5;cursor:not-allowed}
 button.secondary{background:#293452}
 button.danger{background:#9f354d}
 button.success{background:#147d60}
 button.small{padding:8px 10px;font-size:12px;margin:2px}
 .hidden{display:none!important}
-.message{font-size:13px;line-height:1.9;overflow-wrap:anywhere;margin-top:12px}
+.message{font-size:13px;line-height:1.9;overflow-wrap:anywhere;white-space:pre-wrap;margin-top:12px}
 .error{color:#ff8d9d}.ok{color:#73e7ad}
 .login-card{max-width:440px;margin:35px auto}
 .top-actions{display:flex;gap:8px;align-items:center}
-.stats{
- display:grid;grid-template-columns:repeat(4,minmax(0,1fr));
- gap:12px;margin-bottom:16px
-}
-.stat{
- background:#10182d;border:1px solid #293452;
- border-radius:13px;padding:17px
-}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:16px}
+.stat{margin:0}
 .stat-label{font-size:12px;color:#9ba9ca}
 .stat-number{font-size:27px;font-weight:bold;color:#b5baff;margin-top:12px}
-.nav{
- display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px
-}
+.nav{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
 .nav button{background:#18223c}
 .nav button.active{background:#6366f1}
-.toolbar{
- display:grid;grid-template-columns:minmax(0,1fr) auto;
- gap:10px;margin:14px 0
-}
+.toolbar{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;margin:14px 0}
 .toolbar input,.toolbar button{margin:0}
 .table-wrap{width:100%;overflow-x:auto}
-table{border-collapse:collapse;width:100%;min-width:760px}
-th,td{
- padding:12px 10px;text-align:right;
- border-bottom:1px solid #293452;
- font-size:12px;line-height:1.9;vertical-align:middle
-}
+table{border-collapse:collapse;width:100%;min-width:700px}
+th,td{padding:12px 10px;text-align:right;border-bottom:1px solid #293452;font-size:12px;line-height:1.9;vertical-align:middle}
 th{color:#aeb9db;background:#141e35}
-.badge{
- display:inline-block;padding:4px 8px;border-radius:20px;
- background:#293452;font-size:11px;white-space:nowrap
-}
+.badge{display:inline-block;padding:4px 8px;border-radius:20px;background:#293452;font-size:11px;white-space:nowrap}
 .badge.pending{background:#59471d;color:#ffe3a0}
 .badge.approved{background:#155a46;color:#a6ffda}
 .badge.rejected{background:#632c3c;color:#ffc0ca}
-.badge.other{background:#293452}
+.badge.owner{background:#44336f;color:#d7c5ff}
 .empty{padding:24px;text-align:center;color:#9ba9ca}
 footer{text-align:center;color:#7f8bac;font-size:11px;padding:20px}
 @media(max-width:700px){
@@ -119,49 +83,36 @@ footer{text-align:center;color:#7f8bac;font-size:11px;padding:20px}
   <h2>🔐 ورود مدیر</h2>
   <p class="muted">با حساب مدیر ثبت‌شده در Supabase وارد شو.</p>
   <form id="loginForm">
-   <input id="email" type="email" placeholder="ایمیل مدیر"
-    autocomplete="username" required>
-   <input id="password" type="password" placeholder="رمز عبور"
-    autocomplete="current-password" required>
-   <button id="loginButton" type="submit" style="width:100%;margin-top:14px">
-    ورود به پنل مدیریت
-   </button>
+   <input id="email" type="email" placeholder="ایمیل مدیر" autocomplete="username" required>
+   <input id="password" type="password" placeholder="رمز عبور" autocomplete="current-password" required>
+   <button id="loginButton" type="submit" style="width:100%;margin-top:14px">ورود به پنل مدیریت</button>
   </form>
   <div id="loginMessage" class="message" role="status"></div>
  </section>
 
  <section id="dashboard" class="hidden">
+  <div class="card">
+   <div id="welcomeText">خوش آمدی!</div>
+   <div class="muted" id="roleText"></div>
+  </div>
+
   <div class="stats">
-   <div class="stat">
-    <div class="stat-label">👥 حساب‌های ثبت‌شده</div>
-    <div class="stat-number" id="userCount">—</div>
-   </div>
-   <div class="stat">
-    <div class="stat-label">📦 کل سفارش‌ها</div>
-    <div class="stat-number" id="orderCount">—</div>
-   </div>
-   <div class="stat">
-    <div class="stat-label">⏳ سفارش‌های در انتظار</div>
-    <div class="stat-number" id="pendingCount">—</div>
-   </div>
-   <div class="stat">
-    <div class="stat-label">✅ سفارش‌های تأییدشده</div>
-    <div class="stat-number" id="approvedCount">—</div>
-   </div>
+   <div class="stat"><div class="stat-label">👥 حساب‌های ثبت‌شده</div><div class="stat-number" id="userCount">—</div></div>
+   <div class="stat"><div class="stat-label">📦 کل سفارش‌ها</div><div class="stat-number" id="orderCount">—</div></div>
+   <div class="stat"><div class="stat-label">⏳ در انتظار بررسی</div><div class="stat-number" id="pendingCount">—</div></div>
+   <div class="stat"><div class="stat-label">✅ سفارش‌های تأییدشده</div><div class="stat-number" id="approvedCount">—</div></div>
   </div>
 
   <nav class="nav" aria-label="بخش‌های مدیریت">
    <button class="active" data-tab="overview">📊 داشبورد</button>
    <button data-tab="users">👥 کاربران</button>
    <button data-tab="orders">📦 سفارش‌ها</button>
+   <button id="ownerNav" class="hidden" data-tab="owner">👑 مالکیت</button>
   </nav>
 
   <section class="card" id="overviewTab">
-   <h2>خوش آمدی، مدیر StarCraft!</h2>
-   <p class="muted">
-    از این صفحه می‌تونی کاربران ثبت‌نام‌شده، آخرین ورود آن‌ها
-    و سفارش‌های فروشگاه رو مدیریت کنی.
-   </p>
+   <h2>📊 داشبورد StarCraft</h2>
+   <p class="muted">از این بخش کاربران، سفارش‌ها و وضعیت فروشگاه را مدیریت کن.</p>
    <button data-goto="users">مشاهده کاربران</button>
    <button data-goto="orders" class="secondary">مدیریت سفارش‌ها</button>
    <div id="overviewMessage" class="message"></div>
@@ -169,25 +120,15 @@ footer{text-align:center;color:#7f8bac;font-size:11px;padding:20px}
 
   <section class="card hidden" id="usersTab">
    <h2>👥 حساب‌های ثبت‌نام‌شده</h2>
-   <p class="muted">
-    فهرست حساب‌های ثبت‌شده در جدول sc_users.
-    زمان آخرین ورود از اطلاعات احراز هویت Supabase گرفته می‌شود.
-   </p>
+   <p class="muted">شناسه حساب کاربر را می‌توانی برای افزودن مدیر کپی کنی.</p>
    <div class="toolbar">
-    <input id="userSearch" type="search" placeholder="جست‌وجوی ایمیل یا شناسه حساب">
+    <input id="userSearch" type="search" placeholder="جست‌وجوی ایمیل یا شناسه">
     <button id="refreshUsers">تازه‌سازی کاربران</button>
    </div>
    <div id="usersMessage" class="message" role="status"></div>
    <div class="table-wrap">
     <table>
-     <thead>
-      <tr>
-       <th>ایمیل</th>
-       <th>شناسه حساب</th>
-       <th>تاریخ ثبت‌نام</th>
-       <th>آخرین ورود</th>
-      </tr>
-     </thead>
+     <thead><tr><th>ایمیل</th><th>شناسه حساب</th><th>تاریخ ثبت‌نام</th><th>آخرین ورود</th></tr></thead>
      <tbody id="usersBody"></tbody>
     </table>
    </div>
@@ -195,10 +136,7 @@ footer{text-align:center;color:#7f8bac;font-size:11px;padding:20px}
 
   <section class="card hidden" id="ordersTab">
    <h2>📦 مدیریت سفارش‌های رنک</h2>
-   <p class="muted">
-    سفارش‌ها را بررسی کن و در صورت نیاز تأیید یا رد کن.
-    تأیید سفارش به‌تنهایی رنک Minecraft را تحویل نمی‌دهد.
-   </p>
+   <p class="muted">تأیید سفارش در این نسخه فقط وضعیت آن را تغییر می‌دهد و به‌تنهایی رنک Minecraft را تحویل نمی‌دهد.</p>
    <div class="toolbar">
     <input id="orderSearch" type="search" placeholder="جست‌وجوی شماره سفارش یا نام بازیکن">
     <button id="refreshOrders">تازه‌سازی سفارش‌ها</button>
@@ -206,18 +144,34 @@ footer{text-align:center;color:#7f8bac;font-size:11px;padding:20px}
    <div id="ordersMessage" class="message" role="status"></div>
    <div class="table-wrap">
     <table>
-     <thead>
-      <tr>
-       <th>شماره سفارش</th>
-       <th>بازیکن</th>
-       <th>رنک</th>
-       <th>قیمت</th>
-       <th>وضعیت</th>
-       <th>تاریخ</th>
-       <th>عملیات</th>
-      </tr>
-     </thead>
+     <thead><tr><th>شماره سفارش</th><th>بازیکن</th><th>رنک</th><th>قیمت</th><th>وضعیت</th><th>تاریخ</th><th>عملیات</th></tr></thead>
      <tbody id="ordersBody"></tbody>
+    </table>
+   </div>
+  </section>
+
+  <section class="card hidden" id="ownerTab">
+   <h2>👑 مالکیت StarCraft</h2>
+   <p class="muted">
+    این بخش فقط برای حسابی نمایش داده می‌شود که نقش آن در جدول sc_admins برابر owner باشد.
+    برای افزودن مدیر، شناسه UUID حساب موجود در Supabase را وارد کن.
+    این کار حساب جدیدی ایجاد نمی‌کند.
+   </p>
+
+   <form id="addAdminForm">
+    <label for="newAdminId">شناسه حساب مدیر جدید (UUID)</label>
+    <input id="newAdminId" placeholder="مثال: 12345678-1234-1234-1234-123456789abc" required>
+    <button id="addAdminButton" type="submit" style="margin-top:12px">➕ افزودن مدیر</button>
+   </form>
+
+   <div id="ownerMessage" class="message" role="status"></div>
+
+   <h2 style="margin-top:24px">🛡️ فهرست مدیرها</h2>
+   <button id="refreshAdmins">تازه‌سازی فهرست</button>
+   <div class="table-wrap" style="margin-top:12px">
+    <table>
+     <thead><tr><th>شناسه حساب</th><th>نقش</th><th>تاریخ افزودن</th><th>عملیات</th></tr></thead>
+     <tbody id="adminsBody"></tbody>
     </table>
    </div>
   </section>
@@ -234,14 +188,16 @@ const SUPABASE_URL = 'https://euvslrpmvevtiwhfdhio.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_YvXvyId7Fmd30vyxyoCAMg_fZn-8gE9';
 
 const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
-
 const $ = id => document.getElementById(id);
 
 let allUsers = [];
 let allOrders = [];
-let loadingOrders = false;
-let loadingUsers = false;
+let allAdmins = [];
 let currentUserId = null;
+let currentRole = null;
+let loadingUsers = false;
+let loadingOrders = false;
+let loadingAdmins = false;
 
 function message(el, text, type='') {
  el.textContent = text;
@@ -251,8 +207,7 @@ function message(el, text, type='') {
 function formatDate(value) {
  if (!value) return 'ثبت نشده';
  const date = new Date(value);
- if (Number.isNaN(date.getTime())) return 'نامشخص';
- return date.toLocaleString('fa-IR');
+ return Number.isNaN(date.getTime()) ? 'نامشخص' : date.toLocaleString('fa-IR');
 }
 
 function formatNumber(value) {
@@ -263,17 +218,28 @@ function showLogin() {
  $('loginPanel').classList.remove('hidden');
  $('dashboard').classList.add('hidden');
  $('headerActions').classList.add('hidden');
+ $('ownerNav').classList.add('hidden');
  currentUserId = null;
+ currentRole = null;
 }
 
 function showDashboard() {
  $('loginPanel').classList.add('hidden');
  $('dashboard').classList.remove('hidden');
  $('headerActions').classList.remove('hidden');
+ $('ownerNav').classList.toggle('hidden', currentRole !== 'owner');
+ $('welcomeText').textContent =
+  currentRole === 'owner' ? '👑 خوش آمدی، مالک StarCraft!' : '🛡️ خوش آمدی، مدیر StarCraft!';
+ $('roleText').textContent =
+  currentRole === 'owner' ? 'نقش حساب: مالک' : 'نقش حساب: مدیر';
 }
 
 function setTab(tab) {
- for (const name of ['overview','users','orders']) {
+ if (tab === 'owner' && currentRole !== 'owner') {
+  message($('overviewMessage'), 'دسترسی به بخش مالکیت مجاز نیست.', 'error');
+  tab = 'overview';
+ }
+ for (const name of ['overview','users','orders','owner']) {
   $(name + 'Tab').classList.toggle('hidden', name !== tab);
  }
  document.querySelectorAll('[data-tab]').forEach(button => {
@@ -281,39 +247,40 @@ function setTab(tab) {
  });
  if (tab === 'users') renderUsers();
  if (tab === 'orders') renderOrders();
+ if (tab === 'owner' && currentRole === 'owner') loadAdmins();
 }
 
 document.querySelectorAll('[data-tab]').forEach(button => {
  button.addEventListener('click', () => setTab(button.dataset.tab));
 });
-
 document.querySelectorAll('[data-goto]').forEach(button => {
  button.addEventListener('click', () => setTab(button.dataset.goto));
 });
 
 async function checkAdmin() {
- const {data: {user}, error: authError} = await sb.auth.getUser();
+ const {data:{user}, error:authError} = await sb.auth.getUser();
 
  if (authError || !user) {
   showLogin();
   return false;
  }
 
- const {data: admin, error} = await sb
+ const {data:admin, error} = await sb
   .from('sc_admins')
-  .select('user_id')
+  .select('user_id,role')
   .eq('user_id', user.id)
   .maybeSingle();
 
- if (error || !admin) {
+ if (error || !admin || !['owner','admin'].includes(admin.role)) {
   await sb.auth.signOut();
   showLogin();
   message($('loginMessage'),
-   'این حساب مدیر نیست یا بررسی دسترسی ناموفق بود.','error');
+   'این حساب مدیر معتبر نیست یا دسترسی آن تأیید نشد.', 'error');
   return false;
  }
 
  currentUserId = user.id;
+ currentRole = admin.role;
  showDashboard();
  await loadAll();
  return true;
@@ -326,16 +293,13 @@ $('loginForm').addEventListener('submit', async event => {
 
  try {
   const {error} = await sb.auth.signInWithPassword({
-   email: $('email').value.trim(),
-   password: $('password').value
+   email:$('email').value.trim(),
+   password:$('password').value
   });
-
   if (error) {
-   message($('loginMessage'),
-    'ورود ناموفق بود. ایمیل، رمز و تنظیمات Supabase را بررسی کن.','error');
+   message($('loginMessage'), 'ورود ناموفق بود. ایمیل و رمز را بررسی کن.', 'error');
    return;
   }
-
   await checkAdmin();
  } catch (error) {
   message($('loginMessage'), 'خطای اتصال: ' + error.message, 'error');
@@ -345,40 +309,28 @@ $('loginForm').addEventListener('submit', async event => {
 });
 
 async function loadAll() {
- await Promise.all([loadUsers(), loadOrders()]);
+ await Promise.all([loadUsers(),loadOrders()]);
 }
 
 async function loadUsers() {
  if (loadingUsers) return;
  loadingUsers = true;
- message($('usersMessage'), 'در حال دریافت حساب‌ها...');
- $('userCount').textContent = '…';
-
+ message($('usersMessage'), 'در حال دریافت کاربران...');
  try {
-  const {data, error} = await sb
-   .from('sc_users')
+  const {data,error} = await sb.from('sc_users')
    .select('user_id,email,created_at,last_sign_in_at')
-   .order('created_at', {ascending:false})
-   .limit(1000);
+   .order('created_at',{ascending:false}).limit(1000);
 
-  if (error) {
-   allUsers = [];
-   $('userCount').textContent = '—';
-   message($('usersMessage'),
-    'دریافت کاربران ناموفق بود: ' + error.message +
-    '\nجدول sc_users و مجوزهای RLS را بررسی کن.','error');
-   renderUsers();
-   return;
-  }
-
+  if (error) throw error;
   allUsers = data || [];
   $('userCount').textContent = formatNumber(allUsers.length);
   renderUsers();
-
-  message($('usersMessage'),
-   'تعداد حساب‌های قابل نمایش: ' + formatNumber(allUsers.length),'ok');
+  message($('usersMessage'), 'تعداد حساب‌های قابل نمایش: ' + formatNumber(allUsers.length), 'ok');
  } catch (error) {
-  message($('usersMessage'), 'خطای اتصال: ' + error.message, 'error');
+  allUsers = [];
+  $('userCount').textContent = '—';
+  renderUsers();
+  message($('usersMessage'), 'دریافت کاربران ناموفق بود: ' + error.message, 'error');
  } finally {
   loadingUsers = false;
  }
@@ -387,7 +339,6 @@ async function loadUsers() {
 function renderUsers() {
  const body = $('usersBody');
  body.replaceChildren();
-
  const query = $('userSearch').value.trim().toLowerCase();
  const users = allUsers.filter(user =>
   String(user.email || '').toLowerCase().includes(query) ||
@@ -399,29 +350,20 @@ function renderUsers() {
   const td = document.createElement('td');
   td.colSpan = 4;
   td.className = 'empty';
-  td.textContent = allUsers.length
-   ? 'حسابی مطابق جست‌وجو پیدا نشد.'
-   : 'حسابی برای نمایش وجود ندارد.';
-  tr.appendChild(td);
-  body.appendChild(tr);
-  return;
+  td.textContent = 'کاربری برای نمایش پیدا نشد.';
+  tr.appendChild(td); body.appendChild(tr); return;
  }
 
  for (const user of users) {
   const tr = document.createElement('tr');
-  const values = [
-   user.email || 'بدون ایمیل',
-   user.user_id || '—',
-   formatDate(user.created_at),
-   formatDate(user.last_sign_in_at)
-  ];
-
-  for (const value of values) {
+  for (const value of [
+   user.email || 'بدون ایمیل', user.user_id || '—',
+   formatDate(user.created_at), formatDate(user.last_sign_in_at)
+  ]) {
    const td = document.createElement('td');
    td.textContent = value;
    tr.appendChild(td);
   }
-
   body.appendChild(tr);
  }
 }
@@ -430,40 +372,25 @@ async function loadOrders() {
  if (loadingOrders) return;
  loadingOrders = true;
  message($('ordersMessage'), 'در حال دریافت سفارش‌ها...');
- $('orderCount').textContent = '…';
-
  try {
-  const {data, error} = await sb
-   .from('sc_orders')
+  const {data,error} = await sb.from('sc_orders')
    .select('id,order_number,player_name,rank_name,price,status,created_at')
-   .order('created_at', {ascending:false})
-   .limit(1000);
+   .order('created_at',{ascending:false}).limit(1000);
 
-  if (error) {
-   allOrders = [];
-   $('orderCount').textContent = '—';
-   $('pendingCount').textContent = '—';
-   $('approvedCount').textContent = '—';
-   message($('ordersMessage'),
-    'دریافت سفارش‌ها ناموفق بود: ' + error.message,'error');
-   renderOrders();
-   return;
-  }
-
+  if (error) throw error;
   allOrders = data || [];
   $('orderCount').textContent = formatNumber(allOrders.length);
-  $('pendingCount').textContent = formatNumber(
-   allOrders.filter(o => o.status === 'pending').length
-  );
-  $('approvedCount').textContent = formatNumber(
-   allOrders.filter(o => o.status === 'approved').length
-  );
-
+  $('pendingCount').textContent = formatNumber(allOrders.filter(o => o.status === 'pending').length);
+  $('approvedCount').textContent = formatNumber(allOrders.filter(o => o.status === 'approved').length);
   renderOrders();
-  message($('ordersMessage'),
-   'تعداد سفارش‌های قابل نمایش: ' + formatNumber(allOrders.length),'ok');
+  message($('ordersMessage'), 'سفارش‌ها به‌روزرسانی شدند.', 'ok');
  } catch (error) {
-  message($('ordersMessage'), 'خطای اتصال: ' + error.message, 'error');
+  allOrders = [];
+  $('orderCount').textContent = '—';
+  $('pendingCount').textContent = '—';
+  $('approvedCount').textContent = '—';
+  renderOrders();
+  message($('ordersMessage'), 'دریافت سفارش‌ها ناموفق بود: ' + error.message, 'error');
  } finally {
   loadingOrders = false;
  }
@@ -471,12 +398,12 @@ async function loadOrders() {
 
 function statusInfo(status) {
  const labels = {
-  pending: ['در انتظار بررسی','pending'],
-  approved: ['تأیید شده','approved'],
-  rejected: ['رد شده','rejected'],
-  paid: ['پرداخت شده','approved'],
-  delivered: ['تحویل شده','approved'],
-  cancelled: ['لغو شده','rejected']
+  pending:['در انتظار بررسی','pending'],
+  approved:['تأیید شده','approved'],
+  rejected:['رد شده','rejected'],
+  paid:['پرداخت شده','approved'],
+  delivered:['تحویل شده','approved'],
+  cancelled:['لغو شده','rejected']
  };
  return labels[status] || [status || 'نامشخص','other'];
 }
@@ -484,7 +411,6 @@ function statusInfo(status) {
 function renderOrders() {
  const body = $('ordersBody');
  body.replaceChildren();
-
  const query = $('orderSearch').value.trim().toLowerCase();
  const orders = allOrders.filter(order =>
   String(order.order_number || '').toLowerCase().includes(query) ||
@@ -494,139 +420,259 @@ function renderOrders() {
  if (!orders.length) {
   const tr = document.createElement('tr');
   const td = document.createElement('td');
-  td.colSpan = 7;
-  td.className = 'empty';
-  td.textContent = allOrders.length
-   ? 'سفارشی مطابق جست‌وجو پیدا نشد.'
-   : 'هنوز سفارشی ثبت نشده است.';
-  tr.appendChild(td);
-  body.appendChild(tr);
-  return;
+  td.colSpan = 7; td.className = 'empty'; td.textContent = 'سفارشی برای نمایش پیدا نشد.';
+  tr.appendChild(td); body.appendChild(tr); return;
  }
 
  for (const order of orders) {
   const tr = document.createElement('tr');
   const values = [
-   order.order_number,
-   order.player_name,
-   order.rank_name,
-   formatNumber(order.price),
-   null,
-   formatDate(order.created_at),
-   null
+   order.order_number, order.player_name, order.rank_name,
+   formatNumber(order.price), null, formatDate(order.created_at), null
   ];
 
-  values.forEach((value, index) => {
+  values.forEach((value,index) => {
    const td = document.createElement('td');
 
    if (index === 4) {
-    const [label, cls] = statusInfo(order.status);
+    const [label,cls] = statusInfo(order.status);
     const badge = document.createElement('span');
     badge.className = 'badge ' + cls;
     badge.textContent = label;
     td.appendChild(badge);
+   } else if (index === 6 && order.status === 'pending') {
+    const approve = document.createElement('button');
+    approve.className = 'small success';
+    approve.textContent = 'تأیید';
+    const reject = document.createElement('button');
+    reject.className = 'small danger';
+    reject.textContent = 'رد';
+    approve.addEventListener('click', () => updateOrder(order,'approved',approve,reject));
+    reject.addEventListener('click', () => updateOrder(order,'rejected',reject,approve));
+    td.append(approve,reject);
    } else if (index === 6) {
-    if (order.status === 'pending') {
-     const approve = document.createElement('button');
-     approve.className = 'small success';
-     approve.textContent = 'تأیید';
-     approve.addEventListener('click', () =>
-      updateOrder(order, 'approved', approve, reject)
-     );
-
-     const reject = document.createElement('button');
-     reject.className = 'small danger';
-     reject.textContent = 'رد';
-     reject.addEventListener('click', () =>
-      updateOrder(order, 'rejected', reject, approve)
-     );
-
-     td.append(approve, reject);
-    } else {
-     td.textContent = 'بدون عملیات';
-    }
+    td.textContent = 'بدون عملیات';
    } else {
     td.textContent = value == null ? '—' : String(value);
    }
-
    tr.appendChild(td);
   });
-
   body.appendChild(tr);
  }
 }
 
-async function updateOrder(order, newStatus, clickedButton, otherButton) {
+async function updateOrder(order,newStatus,clickedButton,otherButton) {
  if (!currentUserId) return;
-
  const action = newStatus === 'approved' ? 'تأیید' : 'رد';
  if (!confirm(`از ${action} سفارش ${order.order_number} مطمئنی؟`)) return;
 
  clickedButton.disabled = true;
  otherButton.disabled = true;
- message($('ordersMessage'), 'در حال به‌روزرسانی سفارش...');
+ message($('ordersMessage'),'در حال به‌روزرسانی سفارش...');
 
  try {
-  const {data: {user}, error: authError} = await sb.auth.getUser();
+  const {data:{user},error:authError} = await sb.auth.getUser();
   if (authError || !user || user.id !== currentUserId) {
    throw new Error('نشست مدیر معتبر نیست. دوباره وارد شو.');
   }
 
-  const {data: admin, error: adminError} = await sb
-   .from('sc_admins')
-   .select('user_id')
-   .eq('user_id', user.id)
-   .maybeSingle();
-
-  if (adminError || !admin) {
+  const {data:admin,error:adminError} = await sb.from('sc_admins')
+   .select('user_id,role').eq('user_id',user.id).maybeSingle();
+  if (adminError || !admin || !['owner','admin'].includes(admin.role)) {
    throw new Error('دسترسی مدیر تأیید نشد.');
   }
 
-  const {data, error} = await sb
-   .from('sc_orders')
+  const {data,error} = await sb.from('sc_orders')
    .update({status:newStatus})
-   .eq('id', order.id)
-   .eq('status', 'pending')
-   .select('id');
+   .eq('id',order.id).eq('status','pending').select('id');
 
   if (error) throw error;
+  if (!data || !data.length) throw new Error('سفارش تغییر نکرد؛ وضعیت یا مجوز دیتابیس را بررسی کن.');
 
-  if (!data || data.length === 0) {
-   throw new Error('سفارش تغییر نکرد؛ ممکن است قبلاً تغییر وضعیت داده شده باشد یا مجوز دیتابیس کافی نباشد.');
-  }
-
-  message($('ordersMessage'), `سفارش ${order.order_number} ${action} شد.`, 'ok');
+  message($('ordersMessage'),`سفارش ${order.order_number} ${action} شد.`,'ok');
   await loadOrders();
  } catch (error) {
-  message($('ordersMessage'), 'خطا: ' + error.message, 'error');
+  message($('ordersMessage'),'خطا: ' + error.message,'error');
   clickedButton.disabled = false;
   otherButton.disabled = false;
  }
 }
 
-$('userSearch').addEventListener('input', renderUsers);
-$('orderSearch').addEventListener('input', renderOrders);
-$('refreshUsers').addEventListener('click', loadUsers);
-$('refreshOrders').addEventListener('click', loadOrders);
-$('reloadAll').addEventListener('click', loadAll);
+/* بخش مالکیت */
+async function verifyOwner() {
+ const {data:{user},error:authError} = await sb.auth.getUser();
+ if (authError || !user || user.id !== currentUserId) {
+  throw new Error('نشست معتبر نیست. دوباره وارد شو.');
+ }
+ const {data:admin,error} = await sb.from('sc_admins')
+  .select('user_id,role').eq('user_id',user.id).maybeSingle();
+ if (error || !admin || admin.role !== 'owner') {
+  throw new Error('فقط مالک می‌تواند این عملیات را انجام دهد.');
+ }
+ return user;
+}
 
-$('logoutButton').addEventListener('click', async () => {
+async function loadAdmins() {
+ if (currentRole !== 'owner' || loadingAdmins) return;
+ loadingAdmins = true;
+ message($('ownerMessage'),'در حال دریافت فهرست مدیرها...');
+ try {
+  await verifyOwner();
+  const {data,error} = await sb.from('sc_admins')
+   .select('user_id,role,created_at').order('created_at',{ascending:true});
+  if (error) throw error;
+  allAdmins = data || [];
+  renderAdmins();
+  message($('ownerMessage'),'فهرست مدیرها به‌روزرسانی شد.','ok');
+ } catch (error) {
+  message($('ownerMessage'),'خطا در دریافت مدیرها: ' + error.message,'error');
+ } finally {
+  loadingAdmins = false;
+ }
+}
+
+function renderAdmins() {
+ const body = $('adminsBody');
+ body.replaceChildren();
+
+ if (!allAdmins.length) {
+  const tr = document.createElement('tr');
+  const td = document.createElement('td');
+  td.colSpan = 4; td.className = 'empty'; td.textContent = 'مدیری برای نمایش وجود ندارد.';
+  tr.appendChild(td); body.appendChild(tr); return;
+ }
+
+ for (const admin of allAdmins) {
+  const tr = document.createElement('tr');
+
+  const idCell = document.createElement('td');
+  idCell.textContent = admin.user_id;
+  tr.appendChild(idCell);
+
+  const roleCell = document.createElement('td');
+  const badge = document.createElement('span');
+  badge.className = 'badge ' + (admin.role === 'owner' ? 'owner' : 'other');
+  badge.textContent = admin.role === 'owner' ? '👑 مالک' : '🛡️ مدیر';
+  roleCell.appendChild(badge);
+  tr.appendChild(roleCell);
+
+  const dateCell = document.createElement('td');
+  dateCell.textContent = formatDate(admin.created_at);
+  tr.appendChild(dateCell);
+
+  const actionCell = document.createElement('td');
+  if (admin.role === 'owner') {
+   actionCell.textContent = admin.user_id === currentUserId ? 'حساب مالک' : 'مالک';
+  } else {
+   const removeButton = document.createElement('button');
+   removeButton.className = 'small danger';
+   removeButton.textContent = 'حذف مدیر';
+   removeButton.addEventListener('click', () => removeAdmin(admin,removeButton));
+   actionCell.appendChild(removeButton);
+  }
+  tr.appendChild(actionCell);
+  body.appendChild(tr);
+ }
+}
+
+$('addAdminForm').addEventListener('submit', async event => {
+ event.preventDefault();
+ if (currentRole !== 'owner') {
+  message($('ownerMessage'),'فقط مالک مجاز است.','error');
+  return;
+ }
+
+ const newId = $('newAdminId').value.trim();
+ const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+ if (!uuidPattern.test(newId)) {
+  message($('ownerMessage'),'شناسه باید یک UUID معتبر باشد.','error');
+  return;
+ }
+ if (newId === currentUserId) {
+  message($('ownerMessage'),'این حساب، حساب مالک است.','error');
+  return;
+ }
+
+ $('addAdminButton').disabled = true;
+ try {
+  await verifyOwner();
+
+  const {data:existing,error:checkError} = await sb.from('sc_admins')
+   .select('user_id').eq('user_id',newId).maybeSingle();
+  if (checkError) throw checkError;
+  if (existing) throw new Error('این حساب از قبل مدیر است.');
+
+  const {error} = await sb.from('sc_admins').insert({
+   user_id:newId,
+   role:'admin'
+  });
+  if (error) throw error;
+
+  $('newAdminId').value = '';
+  message($('ownerMessage'),'مدیر جدید با موفقیت اضافه شد.','ok');
+  await loadAdmins();
+ } catch (error) {
+  message($('ownerMessage'),
+   'افزودن مدیر انجام نشد: ' + error.message +
+   '\nاگر خطای مجوز دیدی، سیاست‌های RLS جدول sc_admins باید تنظیم شوند.','error');
+ } finally {
+  $('addAdminButton').disabled = false;
+ }
+});
+
+async function removeAdmin(admin,button) {
+ if (currentRole !== 'owner' || admin.role === 'owner') {
+  message($('ownerMessage'),'حذف مالک مجاز نیست.','error');
+  return;
+ }
+ if (!confirm('مدیر با شناسه زیر از فهرست مدیرها حذف شود؟\n' + admin.user_id)) return;
+
+ button.disabled = true;
+ try {
+  await verifyOwner();
+
+  const {data,error} = await sb.from('sc_admins')
+   .delete().eq('user_id',admin.user_id).eq('role','admin')
+   .select('user_id');
+  if (error) throw error;
+  if (!data || !data.length) throw new Error('مدیر حذف نشد؛ مجوزهای دیتابیس را بررسی کن.');
+
+  message($('ownerMessage'),'مدیر حذف شد. حساب کاربری او در Supabase حذف نمی‌شود.','ok');
+  await loadAdmins();
+ } catch (error) {
+  message($('ownerMessage'),'حذف انجام نشد: ' + error.message,'error');
+  button.disabled = false;
+ }
+}
+
+$('userSearch').addEventListener('input',renderUsers);
+$('orderSearch').addEventListener('input',renderOrders);
+$('refreshUsers').addEventListener('click',loadUsers);
+$('refreshOrders').addEventListener('click',loadOrders);
+$('refreshAdmins').addEventListener('click',loadAdmins);
+$('reloadAll').addEventListener('click',async () => {
+ await loadAll();
+ if (currentRole === 'owner' && !$('ownerTab').classList.contains('hidden')) {
+  await loadAdmins();
+ }
+});
+
+$('logoutButton').addEventListener('click',async () => {
  await sb.auth.signOut();
  allUsers = [];
  allOrders = [];
+ allAdmins = [];
  showLogin();
- message($('loginMessage'), 'از حساب خارج شدی.','ok');
+ message($('loginMessage'),'از حساب خارج شدی.','ok');
 });
 
-sb.auth.onAuthStateChange((event) => {
- if (event === 'SIGNED_OUT') {
-  showLogin();
- }
+sb.auth.onAuthStateChange(event => {
+ if (event === 'SIGNED_OUT') showLogin();
 });
 
 checkAdmin().catch(error => {
  showLogin();
- message($('loginMessage'), 'خطای اتصال: ' + error.message, 'error');
+ message($('loginMessage'),'خطای اتصال: ' + error.message,'error');
 });
 </script>
 </body>
