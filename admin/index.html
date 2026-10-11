@@ -10,7 +10,12 @@
 :root{color-scheme:dark}
 body{margin:0;background:#080d1b;color:#edf0ff;font-family:Tahoma,Arial,sans-serif}
 button,input{font:inherit}
-button{cursor:pointer}
+button{cursor:pointer;padding:11px 14px;border:0;border-radius:9px;background:#6366f1;color:white;font-weight:bold}
+button:disabled{opacity:.5;cursor:not-allowed}
+button.secondary{background:#293452}
+button.danger{background:#9f354d}
+button.success{background:#147d60}
+button.small{padding:8px 10px;font-size:12px;margin:2px}
 header{padding:20px 16px;background:#10182d;border-bottom:1px solid #293452;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
 header h1{margin:0 0 7px;color:#a5b4fc;font-size:24px}
 header p{margin:0;color:#9ba9ca;font-size:12px}
@@ -19,12 +24,6 @@ main{max-width:1250px;margin:auto;padding:20px 14px}
 h2{font-size:18px;margin:0 0 12px}
 .muted{color:#9ba9ca;font-size:13px;line-height:1.9}
 input{width:100%;min-width:0;padding:12px;border-radius:9px;background:#080d1b;color:white;border:1px solid #344363;margin-top:8px}
-button{padding:11px 14px;border:0;border-radius:9px;background:#6366f1;color:white;font-weight:bold}
-button:disabled{opacity:.5;cursor:not-allowed}
-button.secondary{background:#293452}
-button.danger{background:#9f354d}
-button.success{background:#147d60}
-button.small{padding:8px 10px;font-size:12px;margin:2px}
 .hidden{display:none!important}
 .message{font-size:13px;line-height:1.9;overflow-wrap:anywhere;white-space:pre-wrap;margin-top:12px}
 .error{color:#ff8d9d}.ok{color:#73e7ad}
@@ -51,22 +50,21 @@ th{color:#aeb9db;background:#141e35}
 .empty{padding:24px;text-align:center;color:#9ba9ca}
 footer{text-align:center;color:#7f8bac;font-size:11px;padding:20px}
 @media(max-width:700px){
- .stats{grid-template-columns:repeat(2,minmax(0,1fr))}
- .stat-number{font-size:23px}
- header h1{font-size:20px}
- .card{padding:13px}
+.stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+.stat-number{font-size:23px}
+header h1{font-size:20px}
+.card{padding:13px}
 }
 @media(max-width:420px){
- .toolbar{grid-template-columns:1fr}
- .top-actions{width:100%}
- .top-actions button{flex:1}
- .stats{gap:8px}
- .stat{padding:12px}
+.toolbar{grid-template-columns:1fr}
+.top-actions{width:100%}
+.top-actions button{flex:1}
+.stats{gap:8px}
+.stat{padding:12px}
 }
 </style>
 </head>
 <body>
-
 <header>
  <div>
   <h1>✦ STARCRAFT</h1>
@@ -107,12 +105,13 @@ footer{text-align:center;color:#7f8bac;font-size:11px;padding:20px}
    <button class="active" data-tab="overview">📊 داشبورد</button>
    <button data-tab="users">👥 کاربران</button>
    <button data-tab="orders">📦 سفارش‌ها</button>
+   <!-- دکمه مالکیت فقط بعد از تأیید نقش مالک نمایش داده می‌شود -->
    <button id="ownerNav" class="hidden" data-tab="owner">👑 مالکیت</button>
   </nav>
 
   <section class="card" id="overviewTab">
    <h2>📊 داشبورد StarCraft</h2>
-   <p class="muted">از این بخش کاربران، سفارش‌ها و وضعیت فروشگاه را مدیریت کن.</p>
+   <p class="muted">از این بخش کاربران و سفارش‌ها را مدیریت کن.</p>
    <button data-goto="users">مشاهده کاربران</button>
    <button data-goto="orders" class="secondary">مدیریت سفارش‌ها</button>
    <div id="overviewMessage" class="message"></div>
@@ -150,12 +149,12 @@ footer{text-align:center;color:#7f8bac;font-size:11px;padding:20px}
    </div>
   </section>
 
+  <!-- محتوای مالکیت برای مدیر معمولی مخفی می‌ماند -->
   <section class="card hidden" id="ownerTab">
    <h2>👑 مالکیت StarCraft</h2>
    <p class="muted">
     این بخش فقط برای حسابی نمایش داده می‌شود که نقش آن در جدول sc_admins برابر owner باشد.
     برای افزودن مدیر، شناسه UUID حساب موجود در Supabase را وارد کن.
-    این کار حساب جدیدی ایجاد نمی‌کند.
    </p>
 
    <form id="addAdminForm">
@@ -186,7 +185,6 @@ import { createClient } from
 
 const SUPABASE_URL = 'https://euvslrpmvevtiwhfdhio.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_YvXvyId7Fmd30vyxyoCAMg_fZn-8gE9';
-
 const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
 const $ = id => document.getElementById(id);
 
@@ -199,205 +197,223 @@ let loadingUsers = false;
 let loadingOrders = false;
 let loadingAdmins = false;
 
-function message(el, text, type='') {
- el.textContent = text;
- el.className = 'message ' + type;
+function message(el,text,type=''){
+ el.textContent=text;
+ el.className='message '+type;
 }
 
-function formatDate(value) {
- if (!value) return 'ثبت نشده';
- const date = new Date(value);
- return Number.isNaN(date.getTime()) ? 'نامشخص' : date.toLocaleString('fa-IR');
+function formatDate(value){
+ if(!value)return 'ثبت نشده';
+ const date=new Date(value);
+ return Number.isNaN(date.getTime())?'نامشخص':date.toLocaleString('fa-IR');
 }
 
-function formatNumber(value) {
- return Number(value || 0).toLocaleString('fa-IR');
+function formatNumber(value){
+ return Number(value||0).toLocaleString('fa-IR');
 }
 
-function showLogin() {
+function showLogin(){
  $('loginPanel').classList.remove('hidden');
  $('dashboard').classList.add('hidden');
  $('headerActions').classList.add('hidden');
  $('ownerNav').classList.add('hidden');
- currentUserId = null;
- currentRole = null;
+ $('ownerTab').classList.add('hidden');
+ currentUserId=null;
+ currentRole=null;
 }
 
-function showDashboard() {
+function showDashboard(){
  $('loginPanel').classList.add('hidden');
  $('dashboard').classList.remove('hidden');
  $('headerActions').classList.remove('hidden');
- $('ownerNav').classList.toggle('hidden', currentRole !== 'owner');
- $('welcomeText').textContent =
-  currentRole === 'owner' ? '👑 خوش آمدی، مالک StarCraft!' : '🛡️ خوش آمدی، مدیر StarCraft!';
- $('roleText').textContent =
-  currentRole === 'owner' ? 'نقش حساب: مالک' : 'نقش حساب: مدیر';
+
+ const isOwner=currentRole==='owner';
+ $('ownerNav').classList.toggle('hidden',!isOwner);
+ $('ownerTab').classList.toggle('hidden',!isOwner);
+
+ $('welcomeText').textContent=isOwner
+  ?'👑 خوش آمدی، مالک StarCraft!'
+  :'🛡️ خوش آمدی، مدیر StarCraft!';
+ $('roleText').textContent=isOwner
+  ?'نقش حساب: مالک'
+  :'نقش حساب: مدیر';
+
+ // هر ورود جدید با داشبورد شروع می‌شود.
+ setTab('overview');
 }
 
-function setTab(tab) {
- if (tab === 'owner' && currentRole !== 'owner') {
-  message($('overviewMessage'), 'دسترسی به بخش مالکیت مجاز نیست.', 'error');
-  tab = 'overview';
+function setTab(tab){
+ if(tab==='owner' && currentRole!=='owner'){
+  $('ownerNav').classList.add('hidden');
+  $('ownerTab').classList.add('hidden');
+  message($('overviewMessage'),'دسترسی به بخش مالکیت مجاز نیست.','error');
+  tab='overview';
  }
- for (const name of ['overview','users','orders','owner']) {
-  $(name + 'Tab').classList.toggle('hidden', name !== tab);
+
+ for(const name of ['overview','users','orders','owner']){
+  const section=$(name+'Tab');
+  section.classList.toggle('hidden',name!==tab);
  }
- document.querySelectorAll('[data-tab]').forEach(button => {
-  button.classList.toggle('active', button.dataset.tab === tab);
+ // اطمینان از اینکه بخش مالکیت برای مدیر معمولی هرگز نمایش داده نشود.
+ if(currentRole!=='owner'){
+  $('ownerTab').classList.add('hidden');
+  $('ownerNav').classList.add('hidden');
+ }
+
+ document.querySelectorAll('[data-tab]').forEach(button=>{
+  button.classList.toggle('active',button.dataset.tab===tab);
  });
- if (tab === 'users') renderUsers();
- if (tab === 'orders') renderOrders();
- if (tab === 'owner' && currentRole === 'owner') loadAdmins();
+ if(tab==='users')renderUsers();
+ if(tab==='orders')renderOrders();
+ if(tab==='owner' && currentRole==='owner')loadAdmins();
 }
 
-document.querySelectorAll('[data-tab]').forEach(button => {
- button.addEventListener('click', () => setTab(button.dataset.tab));
+document.querySelectorAll('[data-tab]').forEach(button=>{
+ button.addEventListener('click',()=>setTab(button.dataset.tab));
 });
-document.querySelectorAll('[data-goto]').forEach(button => {
- button.addEventListener('click', () => setTab(button.dataset.goto));
+document.querySelectorAll('[data-goto]').forEach(button=>{
+ button.addEventListener('click',()=>setTab(button.dataset.goto));
 });
 
-async function checkAdmin() {
- const {data:{user}, error:authError} = await sb.auth.getUser();
+async function checkAdmin(){
+ const {data:{user},error:authError}=await sb.auth.getUser();
 
- if (authError || !user) {
+ if(authError||!user){
   showLogin();
   return false;
  }
 
- const {data:admin, error} = await sb
-  .from('sc_admins')
-  .select('user_id,role')
-  .eq('user_id', user.id)
-  .maybeSingle();
+ const {data:admin,error}=await sb.from('sc_admins')
+  .select('user_id,role').eq('user_id',user.id).maybeSingle();
 
- if (error || !admin || !['owner','admin'].includes(admin.role)) {
+ if(error||!admin||!['owner','admin'].includes(admin.role)){
   await sb.auth.signOut();
   showLogin();
-  message($('loginMessage'),
-   'این حساب مدیر معتبر نیست یا دسترسی آن تأیید نشد.', 'error');
+  message($('loginMessage'),'این حساب مدیر معتبر نیست یا دسترسی آن تأیید نشد.','error');
   return false;
  }
 
- currentUserId = user.id;
- currentRole = admin.role;
+ currentUserId=user.id;
+ currentRole=admin.role;
  showDashboard();
  await loadAll();
  return true;
 }
 
-$('loginForm').addEventListener('submit', async event => {
+$('loginForm').addEventListener('submit',async event=>{
  event.preventDefault();
- $('loginButton').disabled = true;
- message($('loginMessage'), 'در حال ورود...');
+ $('loginButton').disabled=true;
+ message($('loginMessage'),'در حال ورود...');
 
- try {
-  const {error} = await sb.auth.signInWithPassword({
+ try{
+  const {error}=await sb.auth.signInWithPassword({
    email:$('email').value.trim(),
    password:$('password').value
   });
-  if (error) {
-   message($('loginMessage'), 'ورود ناموفق بود. ایمیل و رمز را بررسی کن.', 'error');
+  if(error){
+   message($('loginMessage'),'ورود ناموفق بود. ایمیل و رمز را بررسی کن.','error');
    return;
   }
   await checkAdmin();
- } catch (error) {
-  message($('loginMessage'), 'خطای اتصال: ' + error.message, 'error');
- } finally {
-  $('loginButton').disabled = false;
+ }catch(error){
+  message($('loginMessage'),'خطای اتصال: '+error.message,'error');
+ }finally{
+  $('loginButton').disabled=false;
  }
 });
 
-async function loadAll() {
+async function loadAll(){
  await Promise.all([loadUsers(),loadOrders()]);
 }
 
-async function loadUsers() {
- if (loadingUsers) return;
- loadingUsers = true;
- message($('usersMessage'), 'در حال دریافت کاربران...');
- try {
-  const {data,error} = await sb.from('sc_users')
+async function loadUsers(){
+ if(loadingUsers)return;
+ loadingUsers=true;
+ message($('usersMessage'),'در حال دریافت کاربران...');
+ try{
+  const {data,error}=await sb.from('sc_users')
    .select('user_id,email,created_at,last_sign_in_at')
    .order('created_at',{ascending:false}).limit(1000);
+  if(error)throw error;
 
-  if (error) throw error;
-  allUsers = data || [];
-  $('userCount').textContent = formatNumber(allUsers.length);
+  allUsers=data||[];
+  $('userCount').textContent=formatNumber(allUsers.length);
   renderUsers();
-  message($('usersMessage'), 'تعداد حساب‌های قابل نمایش: ' + formatNumber(allUsers.length), 'ok');
- } catch (error) {
-  allUsers = [];
-  $('userCount').textContent = '—';
+  message($('usersMessage'),'تعداد حساب‌های قابل نمایش: '+formatNumber(allUsers.length),'ok');
+ }catch(error){
+  allUsers=[];
+  $('userCount').textContent='—';
   renderUsers();
-  message($('usersMessage'), 'دریافت کاربران ناموفق بود: ' + error.message, 'error');
- } finally {
-  loadingUsers = false;
+  message($('usersMessage'),'دریافت کاربران ناموفق بود: '+error.message,'error');
+ }finally{
+  loadingUsers=false;
  }
 }
 
-function renderUsers() {
- const body = $('usersBody');
+function renderUsers(){
+ const body=$('usersBody');
  body.replaceChildren();
- const query = $('userSearch').value.trim().toLowerCase();
- const users = allUsers.filter(user =>
-  String(user.email || '').toLowerCase().includes(query) ||
-  String(user.user_id || '').toLowerCase().includes(query)
+ const query=$('userSearch').value.trim().toLowerCase();
+ const users=allUsers.filter(user=>
+  String(user.email||'').toLowerCase().includes(query)||
+  String(user.user_id||'').toLowerCase().includes(query)
  );
 
- if (!users.length) {
-  const tr = document.createElement('tr');
-  const td = document.createElement('td');
-  td.colSpan = 4;
-  td.className = 'empty';
-  td.textContent = 'کاربری برای نمایش پیدا نشد.';
-  tr.appendChild(td); body.appendChild(tr); return;
+ if(!users.length){
+  const tr=document.createElement('tr');
+  const td=document.createElement('td');
+  td.colSpan=4;
+  td.className='empty';
+  td.textContent='کاربری برای نمایش پیدا نشد.';
+  tr.appendChild(td);
+  body.appendChild(tr);
+  return;
  }
 
- for (const user of users) {
-  const tr = document.createElement('tr');
-  for (const value of [
-   user.email || 'بدون ایمیل', user.user_id || '—',
-   formatDate(user.created_at), formatDate(user.last_sign_in_at)
-  ]) {
-   const td = document.createElement('td');
-   td.textContent = value;
+ for(const user of users){
+  const tr=document.createElement('tr');
+  for(const value of [
+   user.email||'بدون ایمیل',user.user_id||'—',
+   formatDate(user.created_at),formatDate(user.last_sign_in_at)
+  ]){
+   const td=document.createElement('td');
+   td.textContent=value;
    tr.appendChild(td);
   }
   body.appendChild(tr);
  }
 }
 
-async function loadOrders() {
- if (loadingOrders) return;
- loadingOrders = true;
- message($('ordersMessage'), 'در حال دریافت سفارش‌ها...');
- try {
-  const {data,error} = await sb.from('sc_orders')
+async function loadOrders(){
+ if(loadingOrders)return;
+ loadingOrders=true;
+ message($('ordersMessage'),'در حال دریافت سفارش‌ها...');
+ try{
+  const {data,error}=await sb.from('sc_orders')
    .select('id,order_number,player_name,rank_name,price,status,created_at')
    .order('created_at',{ascending:false}).limit(1000);
+  if(error)throw error;
 
-  if (error) throw error;
-  allOrders = data || [];
-  $('orderCount').textContent = formatNumber(allOrders.length);
-  $('pendingCount').textContent = formatNumber(allOrders.filter(o => o.status === 'pending').length);
-  $('approvedCount').textContent = formatNumber(allOrders.filter(o => o.status === 'approved').length);
+  allOrders=data||[];
+  $('orderCount').textContent=formatNumber(allOrders.length);
+  $('pendingCount').textContent=formatNumber(allOrders.filter(o=>o.status==='pending').length);
+  $('approvedCount').textContent=formatNumber(allOrders.filter(o=>o.status==='approved').length);
   renderOrders();
-  message($('ordersMessage'), 'سفارش‌ها به‌روزرسانی شدند.', 'ok');
- } catch (error) {
-  allOrders = [];
-  $('orderCount').textContent = '—';
-  $('pendingCount').textContent = '—';
-  $('approvedCount').textContent = '—';
+  message($('ordersMessage'),'سفارش‌ها به‌روزرسانی شدند.','ok');
+ }catch(error){
+  allOrders=[];
+  $('orderCount').textContent='—';
+  $('pendingCount').textContent='—';
+  $('approvedCount').textContent='—';
   renderOrders();
-  message($('ordersMessage'), 'دریافت سفارش‌ها ناموفق بود: ' + error.message, 'error');
- } finally {
-  loadingOrders = false;
+  message($('ordersMessage'),'دریافت سفارش‌ها ناموفق بود: '+error.message,'error');
+ }finally{
+  loadingOrders=false;
  }
 }
 
-function statusInfo(status) {
- const labels = {
+function statusInfo(status){
+ const labels={
   pending:['در انتظار بررسی','pending'],
   approved:['تأیید شده','approved'],
   rejected:['رد شده','rejected'],
@@ -405,55 +421,59 @@ function statusInfo(status) {
   delivered:['تحویل شده','approved'],
   cancelled:['لغو شده','rejected']
  };
- return labels[status] || [status || 'نامشخص','other'];
+ return labels[status]||[status||'نامشخص','other'];
 }
 
-function renderOrders() {
- const body = $('ordersBody');
+function renderOrders(){
+ const body=$('ordersBody');
  body.replaceChildren();
- const query = $('orderSearch').value.trim().toLowerCase();
- const orders = allOrders.filter(order =>
-  String(order.order_number || '').toLowerCase().includes(query) ||
-  String(order.player_name || '').toLowerCase().includes(query)
+ const query=$('orderSearch').value.trim().toLowerCase();
+ const orders=allOrders.filter(order=>
+  String(order.order_number||'').toLowerCase().includes(query)||
+  String(order.player_name||'').toLowerCase().includes(query)
  );
 
- if (!orders.length) {
-  const tr = document.createElement('tr');
-  const td = document.createElement('td');
-  td.colSpan = 7; td.className = 'empty'; td.textContent = 'سفارشی برای نمایش پیدا نشد.';
-  tr.appendChild(td); body.appendChild(tr); return;
+ if(!orders.length){
+  const tr=document.createElement('tr');
+  const td=document.createElement('td');
+  td.colSpan=7;
+  td.className='empty';
+  td.textContent='سفارشی برای نمایش پیدا نشد.';
+  tr.appendChild(td);
+  body.appendChild(tr);
+  return;
  }
 
- for (const order of orders) {
-  const tr = document.createElement('tr');
-  const values = [
-   order.order_number, order.player_name, order.rank_name,
-   formatNumber(order.price), null, formatDate(order.created_at), null
+ for(const order of orders){
+  const tr=document.createElement('tr');
+  const values=[
+   order.order_number,order.player_name,order.rank_name,
+   formatNumber(order.price),null,formatDate(order.created_at),null
   ];
 
-  values.forEach((value,index) => {
-   const td = document.createElement('td');
+  values.forEach((value,index)=>{
+   const td=document.createElement('td');
 
-   if (index === 4) {
-    const [label,cls] = statusInfo(order.status);
-    const badge = document.createElement('span');
-    badge.className = 'badge ' + cls;
-    badge.textContent = label;
+   if(index===4){
+    const [label,cls]=statusInfo(order.status);
+    const badge=document.createElement('span');
+    badge.className='badge '+cls;
+    badge.textContent=label;
     td.appendChild(badge);
-   } else if (index === 6 && order.status === 'pending') {
-    const approve = document.createElement('button');
-    approve.className = 'small success';
-    approve.textContent = 'تأیید';
-    const reject = document.createElement('button');
-    reject.className = 'small danger';
-    reject.textContent = 'رد';
-    approve.addEventListener('click', () => updateOrder(order,'approved',approve,reject));
-    reject.addEventListener('click', () => updateOrder(order,'rejected',reject,approve));
+   }else if(index===6&&order.status==='pending'){
+    const approve=document.createElement('button');
+    approve.className='small success';
+    approve.textContent='تأیید';
+    const reject=document.createElement('button');
+    reject.className='small danger';
+    reject.textContent='رد';
+    approve.addEventListener('click',()=>updateOrder(order,'approved',approve,reject));
+    reject.addEventListener('click',()=>updateOrder(order,'rejected',reject,approve));
     td.append(approve,reject);
-   } else if (index === 6) {
-    td.textContent = 'بدون عملیات';
-   } else {
-    td.textContent = value == null ? '—' : String(value);
+   }else if(index===6){
+    td.textContent='بدون عملیات';
+   }else{
+    td.textContent=value==null?'—':String(value);
    }
    tr.appendChild(td);
   });
@@ -461,113 +481,118 @@ function renderOrders() {
  }
 }
 
-async function updateOrder(order,newStatus,clickedButton,otherButton) {
- if (!currentUserId) return;
- const action = newStatus === 'approved' ? 'تأیید' : 'رد';
- if (!confirm(`از ${action} سفارش ${order.order_number} مطمئنی؟`)) return;
+async function updateOrder(order,newStatus,clickedButton,otherButton){
+ if(!currentUserId)return;
+ const action=newStatus==='approved'?'تأیید':'رد';
+ if(!confirm(`از ${action} سفارش ${order.order_number} مطمئنی؟`))return;
 
- clickedButton.disabled = true;
- otherButton.disabled = true;
+ clickedButton.disabled=true;
+ otherButton.disabled=true;
  message($('ordersMessage'),'در حال به‌روزرسانی سفارش...');
 
- try {
-  const {data:{user},error:authError} = await sb.auth.getUser();
-  if (authError || !user || user.id !== currentUserId) {
+ try{
+  const {data:{user},error:authError}=await sb.auth.getUser();
+  if(authError||!user||user.id!==currentUserId){
    throw new Error('نشست مدیر معتبر نیست. دوباره وارد شو.');
   }
 
-  const {data:admin,error:adminError} = await sb.from('sc_admins')
+  const {data:admin,error:adminError}=await sb.from('sc_admins')
    .select('user_id,role').eq('user_id',user.id).maybeSingle();
-  if (adminError || !admin || !['owner','admin'].includes(admin.role)) {
+  if(adminError||!admin||!['owner','admin'].includes(admin.role)){
    throw new Error('دسترسی مدیر تأیید نشد.');
   }
 
-  const {data,error} = await sb.from('sc_orders')
-   .update({status:newStatus})
-   .eq('id',order.id).eq('status','pending').select('id');
-
-  if (error) throw error;
-  if (!data || !data.length) throw new Error('سفارش تغییر نکرد؛ وضعیت یا مجوز دیتابیس را بررسی کن.');
+  const {data,error}=await sb.from('sc_orders')
+   .update({status:newStatus}).eq('id',order.id)
+   .eq('status','pending').select('id');
+  if(error)throw error;
+  if(!data||!data.length){
+   throw new Error('سفارش تغییر نکرد؛ وضعیت یا مجوز دیتابیس را بررسی کن.');
+  }
 
   message($('ordersMessage'),`سفارش ${order.order_number} ${action} شد.`,'ok');
   await loadOrders();
- } catch (error) {
-  message($('ordersMessage'),'خطا: ' + error.message,'error');
-  clickedButton.disabled = false;
-  otherButton.disabled = false;
+ }catch(error){
+  message($('ordersMessage'),'خطا: '+error.message,'error');
+  clickedButton.disabled=false;
+  otherButton.disabled=false;
  }
 }
 
-/* بخش مالکیت */
-async function verifyOwner() {
- const {data:{user},error:authError} = await sb.auth.getUser();
- if (authError || !user || user.id !== currentUserId) {
+/* عملیات مالکیت */
+async function verifyOwner(){
+ const {data:{user},error:authError}=await sb.auth.getUser();
+ if(authError||!user||user.id!==currentUserId){
   throw new Error('نشست معتبر نیست. دوباره وارد شو.');
  }
- const {data:admin,error} = await sb.from('sc_admins')
+ const {data:admin,error}=await sb.from('sc_admins')
   .select('user_id,role').eq('user_id',user.id).maybeSingle();
- if (error || !admin || admin.role !== 'owner') {
+ if(error||!admin||admin.role!=='owner'){
   throw new Error('فقط مالک می‌تواند این عملیات را انجام دهد.');
  }
  return user;
 }
 
-async function loadAdmins() {
- if (currentRole !== 'owner' || loadingAdmins) return;
- loadingAdmins = true;
+async function loadAdmins(){
+ if(currentRole!=='owner'||loadingAdmins)return;
+ loadingAdmins=true;
  message($('ownerMessage'),'در حال دریافت فهرست مدیرها...');
- try {
+ try{
   await verifyOwner();
-  const {data,error} = await sb.from('sc_admins')
+  const {data,error}=await sb.from('sc_admins')
    .select('user_id,role,created_at').order('created_at',{ascending:true});
-  if (error) throw error;
-  allAdmins = data || [];
+  if(error)throw error;
+  allAdmins=data||[];
   renderAdmins();
   message($('ownerMessage'),'فهرست مدیرها به‌روزرسانی شد.','ok');
- } catch (error) {
-  message($('ownerMessage'),'خطا در دریافت مدیرها: ' + error.message,'error');
- } finally {
-  loadingAdmins = false;
+ }catch(error){
+  message($('ownerMessage'),'خطا در دریافت مدیرها: '+error.message,'error');
+ }finally{
+  loadingAdmins=false;
  }
 }
 
-function renderAdmins() {
- const body = $('adminsBody');
+function renderAdmins(){
+ const body=$('adminsBody');
  body.replaceChildren();
 
- if (!allAdmins.length) {
-  const tr = document.createElement('tr');
-  const td = document.createElement('td');
-  td.colSpan = 4; td.className = 'empty'; td.textContent = 'مدیری برای نمایش وجود ندارد.';
-  tr.appendChild(td); body.appendChild(tr); return;
+ if(!allAdmins.length){
+  const tr=document.createElement('tr');
+  const td=document.createElement('td');
+  td.colSpan=4;
+  td.className='empty';
+  td.textContent='مدیری برای نمایش وجود ندارد.';
+  tr.appendChild(td);
+  body.appendChild(tr);
+  return;
  }
 
- for (const admin of allAdmins) {
-  const tr = document.createElement('tr');
+ for(const admin of allAdmins){
+  const tr=document.createElement('tr');
 
-  const idCell = document.createElement('td');
-  idCell.textContent = admin.user_id;
+  const idCell=document.createElement('td');
+  idCell.textContent=admin.user_id;
   tr.appendChild(idCell);
 
-  const roleCell = document.createElement('td');
-  const badge = document.createElement('span');
-  badge.className = 'badge ' + (admin.role === 'owner' ? 'owner' : 'other');
-  badge.textContent = admin.role === 'owner' ? '👑 مالک' : '🛡️ مدیر';
+  const roleCell=document.createElement('td');
+  const badge=document.createElement('span');
+  badge.className='badge '+(admin.role==='owner'?'owner':'other');
+  badge.textContent=admin.role==='owner'?'👑 مالک':'🛡️ مدیر';
   roleCell.appendChild(badge);
   tr.appendChild(roleCell);
 
-  const dateCell = document.createElement('td');
-  dateCell.textContent = formatDate(admin.created_at);
+  const dateCell=document.createElement('td');
+  dateCell.textContent=formatDate(admin.created_at);
   tr.appendChild(dateCell);
 
-  const actionCell = document.createElement('td');
-  if (admin.role === 'owner') {
-   actionCell.textContent = admin.user_id === currentUserId ? 'حساب مالک' : 'مالک';
-  } else {
-   const removeButton = document.createElement('button');
-   removeButton.className = 'small danger';
-   removeButton.textContent = 'حذف مدیر';
-   removeButton.addEventListener('click', () => removeAdmin(admin,removeButton));
+  const actionCell=document.createElement('td');
+  if(admin.role==='owner'){
+   actionCell.textContent=admin.user_id===currentUserId?'حساب مالک':'مالک';
+  }else{
+   const removeButton=document.createElement('button');
+   removeButton.className='small danger';
+   removeButton.textContent='حذف مدیر';
+   removeButton.addEventListener('click',()=>removeAdmin(admin,removeButton));
    actionCell.appendChild(removeButton);
   }
   tr.appendChild(actionCell);
@@ -575,73 +600,73 @@ function renderAdmins() {
  }
 }
 
-$('addAdminForm').addEventListener('submit', async event => {
+$('addAdminForm').addEventListener('submit',async event=>{
  event.preventDefault();
- if (currentRole !== 'owner') {
+ if(currentRole!=='owner'){
   message($('ownerMessage'),'فقط مالک مجاز است.','error');
   return;
  }
 
- const newId = $('newAdminId').value.trim();
- const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
- if (!uuidPattern.test(newId)) {
+ const newId=$('newAdminId').value.trim();
+ const uuidPattern=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+ if(!uuidPattern.test(newId)){
   message($('ownerMessage'),'شناسه باید یک UUID معتبر باشد.','error');
   return;
  }
- if (newId === currentUserId) {
+ if(newId===currentUserId){
   message($('ownerMessage'),'این حساب، حساب مالک است.','error');
   return;
  }
 
- $('addAdminButton').disabled = true;
- try {
+ $('addAdminButton').disabled=true;
+ try{
   await verifyOwner();
 
-  const {data:existing,error:checkError} = await sb.from('sc_admins')
+  const {data:existing,error:checkError}=await sb.from('sc_admins')
    .select('user_id').eq('user_id',newId).maybeSingle();
-  if (checkError) throw checkError;
-  if (existing) throw new Error('این حساب از قبل مدیر است.');
+  if(checkError)throw checkError;
+  if(existing)throw new Error('این حساب از قبل مدیر است.');
 
-  const {error} = await sb.from('sc_admins').insert({
+  const {error}=await sb.from('sc_admins').insert({
    user_id:newId,
    role:'admin'
   });
-  if (error) throw error;
+  if(error)throw error;
 
-  $('newAdminId').value = '';
+  $('newAdminId').value='';
   message($('ownerMessage'),'مدیر جدید با موفقیت اضافه شد.','ok');
   await loadAdmins();
- } catch (error) {
-  message($('ownerMessage'),
-   'افزودن مدیر انجام نشد: ' + error.message +
+ }catch(error){
+  message($('ownerMessage'),'افزودن مدیر انجام نشد: '+error.message+
    '\nاگر خطای مجوز دیدی، سیاست‌های RLS جدول sc_admins باید تنظیم شوند.','error');
- } finally {
-  $('addAdminButton').disabled = false;
+ }finally{
+  $('addAdminButton').disabled=false;
  }
 });
 
-async function removeAdmin(admin,button) {
- if (currentRole !== 'owner' || admin.role === 'owner') {
+async function removeAdmin(admin,button){
+ if(currentRole!=='owner'||admin.role==='owner'){
   message($('ownerMessage'),'حذف مالک مجاز نیست.','error');
   return;
  }
- if (!confirm('مدیر با شناسه زیر از فهرست مدیرها حذف شود؟\n' + admin.user_id)) return;
+ if(!confirm('مدیر با شناسه زیر از فهرست مدیرها حذف شود؟\n'+admin.user_id))return;
 
- button.disabled = true;
- try {
+ button.disabled=true;
+ try{
   await verifyOwner();
-
-  const {data,error} = await sb.from('sc_admins')
+  const {data,error}=await sb.from('sc_admins')
    .delete().eq('user_id',admin.user_id).eq('role','admin')
    .select('user_id');
-  if (error) throw error;
-  if (!data || !data.length) throw new Error('مدیر حذف نشد؛ مجوزهای دیتابیس را بررسی کن.');
+  if(error)throw error;
+  if(!data||!data.length){
+   throw new Error('مدیر حذف نشد؛ مجوزهای دیتابیس را بررسی کن.');
+  }
 
   message($('ownerMessage'),'مدیر حذف شد. حساب کاربری او در Supabase حذف نمی‌شود.','ok');
   await loadAdmins();
- } catch (error) {
-  message($('ownerMessage'),'حذف انجام نشد: ' + error.message,'error');
-  button.disabled = false;
+ }catch(error){
+  message($('ownerMessage'),'حذف انجام نشد: '+error.message,'error');
+  button.disabled=false;
  }
 }
 
@@ -650,29 +675,30 @@ $('orderSearch').addEventListener('input',renderOrders);
 $('refreshUsers').addEventListener('click',loadUsers);
 $('refreshOrders').addEventListener('click',loadOrders);
 $('refreshAdmins').addEventListener('click',loadAdmins);
-$('reloadAll').addEventListener('click',async () => {
+
+$('reloadAll').addEventListener('click',async()=>{
  await loadAll();
- if (currentRole === 'owner' && !$('ownerTab').classList.contains('hidden')) {
+ if(currentRole==='owner'&&!$('ownerTab').classList.contains('hidden')){
   await loadAdmins();
  }
 });
 
-$('logoutButton').addEventListener('click',async () => {
+$('logoutButton').addEventListener('click',async()=>{
  await sb.auth.signOut();
- allUsers = [];
- allOrders = [];
- allAdmins = [];
+ allUsers=[];
+ allOrders=[];
+ allAdmins=[];
  showLogin();
  message($('loginMessage'),'از حساب خارج شدی.','ok');
 });
 
-sb.auth.onAuthStateChange(event => {
- if (event === 'SIGNED_OUT') showLogin();
+sb.auth.onAuthStateChange(event=>{
+ if(event==='SIGNED_OUT')showLogin();
 });
 
-checkAdmin().catch(error => {
+checkAdmin().catch(error=>{
  showLogin();
- message($('loginMessage'),'خطای اتصال: ' + error.message,'error');
+ message($('loginMessage'),'خطای اتصال: '+error.message,'error');
 });
 </script>
 </body>
