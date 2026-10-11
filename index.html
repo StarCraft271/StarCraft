@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
@@ -104,17 +103,14 @@ footer{border-top:1px solid var(--border);padding:25px 0;color:var(--muted);font
 .form-message{font-size:12px;margin-top:10px;color:#fda4af}
 .form-message.ok{color:#86efac}
 .small-note{font-size:11px!important;color:#fcd34d!important}
-
-/* قابلیت اضافه‌شده: حالت تعمیرات سایت */
 #sc-maintenance-overlay{position:fixed;inset:0;z-index:99999;display:none;align-items:center;justify-content:center;padding:20px;background:radial-gradient(ellipse at top,#312064,#08091b 70%);text-align:center}
 #sc-maintenance-overlay.active{display:flex}
 .sc-maintenance-card{width:min(480px,100%);padding:35px 22px;border:1px solid #a78bfa66;border-radius:22px;background:#141733;box-shadow:0 0 60px #7c3aed25}
 .sc-maintenance-card .sc-icon{font-size:55px}
 .sc-maintenance-card h2{margin:12px 0;font-size:26px}
 .sc-maintenance-card p{color:#b6bad5;overflow-wrap:anywhere}
-.sc-maintenance-card a{display:inline-block;margin-top:20px;padding:10px 18px;border-radius:10px;background:linear-gradient(110deg,#7c3aed,#4f46e5);color:white}
+.sc-maintenance-card button{margin-top:20px}
 [data-rank]:disabled{opacity:.45;cursor:not-allowed;transform:none}
-
 @media(max-width:900px){.nav-links{gap:11px;font-size:11px}.nav-actions .btn{padding:8px 9px;font-size:10px}.ranks{grid-template-columns:repeat(2,1fr)}.features-grid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:700px){
 .nav{padding:9px 0;min-height:65px}
@@ -317,7 +313,9 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape')modal.classList.remo
 
 const prices={VIP:50000,MVP:100000,SPONSER:200000,STAR:350000};
 
-/* قابلیت اضافه‌شده: کنترل تعمیرات و سفارش‌ها از پنل مدیریت */
+/* کنترل تعمیرات سایت و دسترسی مخصوص مالک */
+const SC_OWNER_ID='65df7d23-201c-4c0d-a922-887144e5bb6a';
+
 const maintenanceOverlay=document.createElement('div');
 maintenanceOverlay.id='sc-maintenance-overlay';
 maintenanceOverlay.innerHTML=`
@@ -326,23 +324,56 @@ maintenanceOverlay.innerHTML=`
   <h2 class="gradient">StarCraft</h2>
   <h3>سایت موقتاً در دسترس نیست</h3>
   <p id="sc-maintenance-message">سایت در حال تعمیرات است. لطفاً بعداً مراجعه کنید.</p>
-  <a href="admin/">ورود به پنل مدیریت</a>
+  <button id="sc-owner-maintenance-off" class="btn btn-primary"
+   type="button" hidden>
+   👑 خروج از حالت تعمیرات
+  </button>
  </div>`;
 document.body.appendChild(maintenanceOverlay);
 
 let siteControlsReady=false;
 let maintenanceMode=false;
 let ordersEnabled=true;
+let scIsOwner=false;
+
+async function checkMaintenanceOwner(){
+ scIsOwner=false;
+ const button=document.getElementById('sc-owner-maintenance-off');
+ button.hidden=true;
+
+ try{
+  const {data,error}=await db.auth.getUser();
+  if(error||data.user?.id!==SC_OWNER_ID)return false;
+
+  const {data:admin,error:adminError}=await db
+   .from('sc_admins')
+   .select('role')
+   .eq('user_id',SC_OWNER_ID)
+   .maybeSingle();
+
+  if(adminError||admin?.role!=='owner')return false;
+
+  scIsOwner=true;
+  button.hidden=!maintenanceMode;
+  return true;
+ }catch(error){
+  console.error('Owner verification error:',error);
+  return false;
+ }
+}
 
 function applySiteSettings(settings){
  maintenanceMode=settings.maintenance_mode===true;
  ordersEnabled=settings.orders_enabled!==false;
 
  const maintenanceMessage=document.getElementById('sc-maintenance-message');
- maintenanceMessage.textContent=settings.maintenance_message ||
+ maintenanceMessage.textContent=settings.maintenance_message||
   'سایت در حال تعمیرات است. لطفاً بعداً مراجعه کنید.';
 
  maintenanceOverlay.classList.toggle('active',maintenanceMode);
+
+ const ownerButton=document.getElementById('sc-owner-maintenance-off');
+ ownerButton.hidden=!(scIsOwner&&maintenanceMode);
 
  document.querySelectorAll('[data-rank]').forEach(button=>{
   button.disabled=maintenanceMode||!ordersEnabled;
@@ -379,17 +410,49 @@ async function loadSiteControls(){
    .eq('id',1)
    .single();
 
-  if(error) throw error;
+  if(error)throw error;
 
   applySiteSettings(data);
+  await checkMaintenanceOwner();
  }catch(error){
   console.error('StarCraft site settings error:',error);
   siteControlsReady=false;
   maintenanceOverlay.classList.add('active');
   document.getElementById('sc-maintenance-message').textContent=
    'امکان بررسی وضعیت سایت وجود ندارد. لطفاً کمی بعد دوباره تلاش کنید.';
+  document.getElementById('sc-owner-maintenance-off').hidden=true;
  }
 }
+
+/* دکمه خروج از تعمیرات؛ فقط مالک مجاز است */
+document.getElementById('sc-owner-maintenance-off')
+ .addEventListener('click',async()=>{
+  const button=document.getElementById('sc-owner-maintenance-off');
+  button.disabled=true;
+
+  try{
+   const isOwner=await checkMaintenanceOwner();
+   if(!isOwner){
+    alert('دسترسی فقط برای مالک مجاز است.');
+    return;
+   }
+
+   const {error}=await db
+    .from('sc_site_settings')
+    .update({maintenance_mode:false})
+    .eq('id',1);
+
+   if(error)throw error;
+
+   showToast('حالت تعمیرات خاموش شد.');
+   location.reload();
+  }catch(error){
+   console.error('Disable maintenance error:',error);
+   alert('تغییر وضعیت انجام نشد. دسترسی UPDATE جدول sc_site_settings در Supabase را بررسی کن.');
+  }finally{
+   button.disabled=false;
+  }
+});
 
 /* جلوگیری از ارسال سفارش در حالت تعمیرات یا غیرفعال بودن سفارش‌ها */
 form.addEventListener('submit',async e=>{
@@ -433,14 +496,13 @@ form.addEventListener('submit',async e=>{
    return;
   }
 
-  /* بررسی مجدد وضعیت سفارش‌ها پیش از ارسال سفارش */
   const {data:latestSettings,error:settingsError}=await db
    .from('sc_site_settings')
    .select('maintenance_mode,orders_enabled,maintenance_message')
    .eq('id',1)
    .single();
 
-  if(settingsError) throw settingsError;
+  if(settingsError)throw settingsError;
 
   applySiteSettings(latestSettings);
 
@@ -462,7 +524,7 @@ form.addEventListener('submit',async e=>{
    user_id:authData.user.id
   }]);
 
-  if(error) throw error;
+  if(error)throw error;
 
   form.reset();
   modal.classList.remove('open');
