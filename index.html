@@ -1,9 +1,13 @@
+
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#08091b">
+<meta http-equiv="Cache-Control" content="public, max-age=3600">
+<meta http-equiv="Pragma" content="cache">
+<meta http-equiv="Expires" content="3600">
 <title>StarCraft | دنیایی فراتر از Minecraft</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap');
@@ -151,7 +155,7 @@ section{padding:65px 0}
   </nav>
   <div class="nav-actions">
    <a class="btn" href="account/">👤 پنل کاربری</a>
-   <a class="btn btn-admin" id="sc-owner-admin-link" href="admin/" hidden>⚙️ پنل مدیریت</a>
+   <a class="btn btn-admin" id="sc-owner-admin-link" href="admin/">⚙️ پنل مدیریت</a>
   </div>
  </div>
 </header>
@@ -264,35 +268,11 @@ function showToast(text){
  toastTimer=setTimeout(()=>toast.classList.remove('show'),3500);
 }
 
-/* نمایش پنل مدیریت در هدر فقط برای مالک تأییدشده */
+/* نمایش دکمه پنل مدیریت در هدر برای همه کاربران */
 async function updateOwnerAdminLink(){
  const link=document.getElementById('sc-owner-admin-link');
- link.hidden=true;
-
- try{
-  const {data,error}=await db.auth.getUser();
-
-  if(error||!data.user||data.user.id!==SC_OWNER_ID){
-   return false;
-  }
-
-  const {data:admin,error:adminError}=await db
-   .from('sc_admins')
-   .select('role')
-   .eq('user_id',SC_OWNER_ID)
-   .maybeSingle();
-
-  if(adminError||admin?.role!=='owner'){
-   return false;
-  }
-
-  link.hidden=false;
-  return true;
- }catch(error){
-  console.error('Owner admin link verification error:',error);
-  link.hidden=true;
-  return false;
- }
+ if(link) link.hidden=false;
+ return true;
 }
 
 const menuToggle=document.getElementById('menuToggle');
@@ -404,11 +384,7 @@ async function checkMaintenanceOwner(){
   }
 
   scIsOwner=true;
-
-  /* دکمه ورود به پنل برای مالک در حالت تعمیرات */
   adminButton.hidden=false;
-
-  /* دکمه خروج از تعمیرات فقط وقتی تعمیرات فعال است */
   maintenanceButton.hidden=!maintenanceMode;
 
   return true;
