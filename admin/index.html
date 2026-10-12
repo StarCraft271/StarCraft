@@ -179,14 +179,14 @@ hr{border:0;border-top:1px solid #292d49;margin:20px 0}
 <script>
 const SUPABASE_URL = 'https://euvslrpmvevtiwhfdhio.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_YvXvyId7Fmd30vyxyoCAMg_fZn-8gE9';
-
-// شناسه حساب مالک StarCraft
 const OWNER_USER_ID = '65df7d23-201c-4c0d-a922-887144e5bb6a';
 
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 let currentUser = null;
 let currentRole = null;
+let maintenanceCheckTimer = null;
+
 let siteSettings = {
   id: 1,
   maintenance_mode: false,
@@ -202,7 +202,11 @@ function isOwnerAccount() {
 
 function safe(value) {
   return String(value ?? '').replace(/[&<>"']/g, ch => ({
-    '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'
+    '&':'&amp;',
+    '<':'&lt;',
+    '>':'&gt;',
+    '"':'&quot;',
+    "'":'&#39;'
   })[ch]);
 }
 
@@ -234,11 +238,15 @@ async function ownerCheck() {
     .maybeSingle();
 
   if (error) throw error;
-
-  // مالک باید در جدول مدیران هم با نقش owner ثبت شده باشد.
   return Boolean(data && data.role === 'owner');
 }
 
+/*
+  کنترل ورود:
+  - مالک باید UUID مشخص و نقش owner داشته باشد.
+  - مدیر دیگر باید نقش admin داشته باشد.
+  - هنگام تعمیرات، ورود مدیران دیگر مسدود است.
+*/
 async function verifyAccess() {
   const {data:{user}, error} = await sb.auth.getUser();
 
@@ -250,7 +258,6 @@ async function verifyAccess() {
   }
 
   currentUser = user;
-
   const isOwner = isOwnerAccount();
 
   const {data, error: roleError} = await sb
@@ -260,12 +267,13 @@ async function verifyAccess() {
     .maybeSingle();
 
   if (roleError) {
+    currentUser = null;
+    currentRole = null;
     showLogin();
     showMessage('loginMessage', 'خطا در بررسی دسترسی: ' + roleError.message);
     return false;
   }
 
-  // مالک علاوه بر شناسه ثابت، باید نقش owner در جدول داشته باشد.
   if (isOwner && (!data || data.role !== 'owner')) {
     currentUser = null;
     currentRole = null;
@@ -284,6 +292,31 @@ async function verifyAccess() {
     return false;
   }
 
+  // بررسی وضعیت تعمیرات پیش از نمایش داشبورد
+  const {data: settings, error: settingsError} = await sb
+    .from('sc_site_settings')
+    .select('maintenance_mode')
+    .eq('id', 1)
+    .maybeSingle();
+
+  if (settingsError || !settings) {
+    currentUser = null;
+    currentRole = null;
+    await sb.auth.signOut();
+    showLogin();
+    showMessage('loginMessage', 'وضعیت تعمیرات بررسی نشد؛ ورود مدیریت امکان‌پذیر نیست.');
+    return false;
+  }
+
+  if (settings.maintenance_mode === true && !isOwner) {
+    currentUser = null;
+    currentRole = null;
+    await sb.auth.signOut();
+    showLogin();
+    showMessage('loginMessage', 'سایت در حال تعمیرات است؛ ورود مدیران دیگر موقتاً غیرفعال است.');
+    return false;
+  }
+
   currentRole = isOwner ? 'owner' : 'admin';
 
   $('loginPanel').classList.add('hidden');
@@ -293,20 +326,22 @@ async function verifyAccess() {
   $('accountInfo').textContent =
     (user.email || 'حساب مدیریت') + ' | نقش: ' + (isOwner ? 'مالک' : 'ادمین');
 
-  // بخش مالکیت برای ادمین‌های دیگر مخفی می‌ماند.
   $('ownerNav').classList.toggle('hidden', !isOwner);
   $('ownerTab').classList.add('hidden');
 
   document.querySelectorAll('.tab').forEach(el => el.classList.add('hidden'));
   $('overviewTab').classList.remove('hidden');
+
   document.querySelectorAll('.nav button').forEach(el => el.classList.remove('active'));
   document.querySelector('[data-tab="overview"]').classList.add('active');
 
   await refreshAll();
+  startMaintenanceCheck();
   return true;
 }
 
 function showLogin() {
+  stopMaintenanceCheck();
   $('dashboard').classList.add('hidden');
   $('loginPanel').classList.remove('hidden');
   $('logoutBtn').classList.add('hidden');
@@ -316,6 +351,7 @@ function showLogin() {
 
 $('loginForm').addEventListener('submit', async e => {
   e.preventDefault();
+
   $('loginBtn').disabled = true;
   $('loginBtn').textContent = 'در حال ورود...';
   hideMessage('loginMessage');
@@ -337,15 +373,52 @@ $('loginForm').addEventListener('submit', async e => {
 });
 
 async function logout() {
+  stopMaintenanceCheck();
   await sb.auth.signOut();
   currentUser = null;
   currentRole = null;
   showLogin();
 }
 
+/* اگر تعمیرات هنگام بازبودن پنل روشن شود، مدیر دیگر خارج می‌شود. */
+function startMaintenanceCheck() {
+  stopMaintenanceCheck();
+
+  if (isOwnerAccount()) return;
+
+  maintenanceCheckTimer = setInterval(async () => {
+    if (!currentUser || currentRole !== 'admin') {
+      stopMaintenanceCheck();
+      return;
+    }
+
+    const {data, error} = await sb
+      .from('sc_site_settings')
+      .select('maintenance_mode')
+      .eq('id', 1)
+      .maybeSingle();
+
+    if (error || !data) return;
+
+    if (data.maintenance_mode === true) {
+      currentUser = null;
+      currentRole = null;
+      await sb.auth.signOut();
+      showLogin();
+      showMessage('loginMessage', 'سایت وارد حالت تعمیرات شد؛ دسترسی مدیران دیگر مسدود شد.');
+    }
+  }, 15000);
+}
+
+function stopMaintenanceCheck() {
+  if (maintenanceCheckTimer) {
+    clearInterval(maintenanceCheckTimer);
+    maintenanceCheckTimer = null;
+  }
+}
+
 function setTab(name, btn) {
-  if (name === 'owner' && !isOwnerAccount()) return;
-  if (name === 'owner' && currentRole !== 'owner') return;
+  if (name === 'owner' && (!isOwnerAccount() || currentRole !== 'owner')) return;
 
   document.querySelectorAll('.tab').forEach(el => el.classList.add('hidden'));
   $(name + 'Tab').classList.remove('hidden');
@@ -375,6 +448,7 @@ async function loadStats() {
   ];
 
   const results = await Promise.all(tasks);
+
   $('userCount').textContent = results[0].error ? '—' : results[0].count;
   $('orderCount').textContent = results[1].error ? '—' : results[1].count;
   $('pendingCount').textContent = results[2].error ? '—' : results[2].count;
@@ -394,6 +468,7 @@ async function loadUsers() {
   }
 
   hideMessage('usersMessage');
+
   $('usersBody').innerHTML = (data || []).map(u => `
     <tr>
       <td>${safe(u.user_id)}</td>
@@ -417,6 +492,7 @@ async function loadOrders() {
   }
 
   hideMessage('ordersMessage');
+
   $('ordersBody').innerHTML = (data || []).map(o => {
     const actions = o.status === 'pending'
       ? `<button class="success" onclick="updateOrder('${safe(o.id)}','approved')">تأیید</button>
@@ -436,6 +512,7 @@ async function loadOrders() {
 
 async function updateOrder(id, status) {
   if (!['approved','rejected'].includes(status)) return;
+
   if (!confirm(status === 'approved' ? 'این سفارش تأیید شود؟' : 'این سفارش رد شود؟')) return;
 
   const {error} = await sb.from('sc_orders').update({status}).eq('id', id);
@@ -508,6 +585,7 @@ async function saveSettings(patch) {
   }
 
   const isOwner = await ownerCheck().catch(() => false);
+
   if (!isOwner) {
     showMessage('settingsMessage', 'دسترسی مالک تأیید نشد. نقش حساب را در sc_admins بررسی کن.');
     return false;
@@ -525,7 +603,11 @@ async function saveSettings(patch) {
   $('saveSettingsBtn').disabled = false;
 
   if (error || !data) {
-    showMessage('settingsMessage', 'ذخیره انجام نشد. دسترسی دیتابیس و جدول تنظیمات را بررسی کن. ' + (error?.message || 'ردیف تنظیمات به‌روزرسانی نشد.'));
+    showMessage(
+      'settingsMessage',
+      'ذخیره انجام نشد. دسترسی دیتابیس و جدول تنظیمات را بررسی کن. ' +
+      (error?.message || 'ردیف تنظیمات به‌روزرسانی نشد.')
+    );
     return false;
   }
 
@@ -538,19 +620,20 @@ async function saveSettings(patch) {
 }
 
 async function toggleMaintenance() {
-  if (!isOwnerAccount()) return;
+  if (!isOwnerAccount() || currentRole !== 'owner') return;
   await saveSettings({maintenance_mode:!siteSettings.maintenance_mode});
 }
 
 async function toggleOrders() {
-  if (!isOwnerAccount()) return;
+  if (!isOwnerAccount() || currentRole !== 'owner') return;
   await saveSettings({orders_enabled:!siteSettings.orders_enabled});
 }
 
 async function saveSiteSettings() {
-  if (!isOwnerAccount()) return;
+  if (!isOwnerAccount() || currentRole !== 'owner') return;
 
   const message = $('maintenanceMessage').value.trim();
+
   if (!message) {
     showMessage('settingsMessage', 'پیام تعمیرات را وارد کن.');
     return;
@@ -589,6 +672,7 @@ async function loadAdmins() {
   }
 
   hideMessage('adminsMessage');
+
   $('adminsBody').innerHTML = (data || []).map(a => `
     <tr>
       <td>${safe(a.user_id)}</td>
@@ -657,7 +741,7 @@ async function removeAdmin(id) {
   await loadAdmins();
 }
 
-sb.auth.onAuthStateChange((event, session) => {
+sb.auth.onAuthStateChange((event) => {
   if (event === 'SIGNED_OUT') {
     currentUser = null;
     currentRole = null;
