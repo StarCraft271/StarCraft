@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
@@ -112,6 +111,9 @@ footer{border-top:1px solid var(--border);padding:25px 0;color:var(--muted);font
 .sc-maintenance-card h2{margin:12px 0;font-size:26px}
 .sc-maintenance-card p{color:#b6bad5;overflow-wrap:anywhere}
 .sc-maintenance-card button{margin-top:20px}
+.sc-maintenance-card .sc-owner-buttons{display:flex;flex-direction:column;gap:10px;align-items:stretch}
+.sc-maintenance-card .sc-owner-buttons button{width:100%;margin-top:10px}
+.sc-maintenance-card button[hidden]{display:none!important}
 [data-rank]:disabled{opacity:.45;cursor:not-allowed;transform:none}
 @media(max-width:900px){.nav-links{gap:11px;font-size:11px}.nav-actions .btn{padding:8px 9px;font-size:10px}.ranks{grid-template-columns:repeat(2,1fr)}.features-grid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:700px){
@@ -262,7 +264,7 @@ function showToast(text){
  toastTimer=setTimeout(()=>toast.classList.remove('show'),3500);
 }
 
-/* نمایش پنل مدیریت فقط برای حساب مالک تأییدشده */
+/* نمایش پنل مدیریت در هدر فقط برای مالک تأییدشده */
 async function updateOwnerAdminLink(){
  const link=document.getElementById('sc-owner-admin-link');
  link.hidden=true;
@@ -349,7 +351,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape')modal.classList.remo
 
 const prices={VIP:50000,MVP:100000,SPONSER:200000,STAR:350000};
 
-/* کنترل تعمیرات سایت و دسترسی مخصوص مالک */
+/* کنترل تعمیرات سایت و دکمه‌های مخصوص مالک */
 const maintenanceOverlay=document.createElement('div');
 maintenanceOverlay.id='sc-maintenance-overlay';
 maintenanceOverlay.innerHTML=`
@@ -358,10 +360,14 @@ maintenanceOverlay.innerHTML=`
   <h2 class="gradient">StarCraft</h2>
   <h3>سایت موقتاً در دسترس نیست</h3>
   <p id="sc-maintenance-message">سایت در حال تعمیرات است. لطفاً بعداً مراجعه کنید.</p>
-  <button id="sc-owner-maintenance-off" class="btn btn-primary"
-   type="button" hidden>
-   👑 خروج از حالت تعمیرات
-  </button>
+  <div class="sc-owner-buttons">
+   <button id="sc-owner-admin-maintenance" class="btn" type="button" hidden>
+    ⚙️ پنل مدیریت
+   </button>
+   <button id="sc-owner-maintenance-off" class="btn btn-primary" type="button" hidden>
+    👑 خروج از حالت تعمیرات
+   </button>
+  </div>
  </div>`;
 document.body.appendChild(maintenanceOverlay);
 
@@ -370,14 +376,22 @@ let maintenanceMode=false;
 let ordersEnabled=true;
 let scIsOwner=false;
 
+/* بررسی حساب مالک و نمایش دکمه‌های اختصاصی */
 async function checkMaintenanceOwner(){
  scIsOwner=false;
- const button=document.getElementById('sc-owner-maintenance-off');
- button.hidden=true;
+
+ const maintenanceButton=document.getElementById('sc-owner-maintenance-off');
+ const adminButton=document.getElementById('sc-owner-admin-maintenance');
+
+ maintenanceButton.hidden=true;
+ adminButton.hidden=true;
 
  try{
   const {data,error}=await db.auth.getUser();
-  if(error||data.user?.id!==SC_OWNER_ID)return false;
+
+  if(error||data.user?.id!==SC_OWNER_ID){
+   return false;
+  }
 
   const {data:admin,error:adminError}=await db
    .from('sc_admins')
@@ -385,16 +399,49 @@ async function checkMaintenanceOwner(){
    .eq('user_id',SC_OWNER_ID)
    .maybeSingle();
 
-  if(adminError||admin?.role!=='owner')return false;
+  if(adminError||admin?.role!=='owner'){
+   return false;
+  }
 
   scIsOwner=true;
-  button.hidden=!maintenanceMode;
+
+  /* دکمه ورود به پنل برای مالک در حالت تعمیرات */
+  adminButton.hidden=false;
+
+  /* دکمه خروج از تعمیرات فقط وقتی تعمیرات فعال است */
+  maintenanceButton.hidden=!maintenanceMode;
+
   return true;
  }catch(error){
   console.error('Owner verification error:',error);
+  adminButton.hidden=true;
+  maintenanceButton.hidden=true;
   return false;
  }
 }
+
+/* ورود به پنل مدیریت از صفحه تعمیرات؛ فقط مالک مجاز است */
+document.getElementById('sc-owner-admin-maintenance')
+ .addEventListener('click',async()=>{
+  const button=document.getElementById('sc-owner-admin-maintenance');
+  button.disabled=true;
+
+  try{
+   const isOwner=await checkMaintenanceOwner();
+
+   if(!isOwner){
+    alert('دسترسی فقط برای مالک مجاز است.');
+    return;
+   }
+
+   window.location.href='admin/';
+  }catch(error){
+   console.error('Owner admin navigation error:',error);
+   alert('بررسی مالکیت انجام نشد.');
+  }finally{
+   button.disabled=false;
+  }
+});
 
 function applySiteSettings(settings){
  maintenanceMode=settings.maintenance_mode===true;
@@ -407,7 +454,10 @@ function applySiteSettings(settings){
  maintenanceOverlay.classList.toggle('active',maintenanceMode);
 
  const ownerButton=document.getElementById('sc-owner-maintenance-off');
+ const adminButton=document.getElementById('sc-owner-admin-maintenance');
+
  ownerButton.hidden=!(scIsOwner&&maintenanceMode);
+ adminButton.hidden=!scIsOwner;
 
  document.querySelectorAll('[data-rank]').forEach(button=>{
   button.disabled=maintenanceMode||!ordersEnabled;
@@ -452,9 +502,12 @@ async function loadSiteControls(){
   console.error('StarCraft site settings error:',error);
   siteControlsReady=false;
   maintenanceOverlay.classList.add('active');
+
   document.getElementById('sc-maintenance-message').textContent=
    'امکان بررسی وضعیت سایت وجود ندارد. لطفاً کمی بعد دوباره تلاش کنید.';
+
   document.getElementById('sc-owner-maintenance-off').hidden=true;
+  document.getElementById('sc-owner-admin-maintenance').hidden=true;
  }
 }
 
@@ -466,6 +519,7 @@ document.getElementById('sc-owner-maintenance-off')
 
   try{
    const isOwner=await checkMaintenanceOwner();
+
    if(!isOwner){
     alert('دسترسی فقط برای مالک مجاز است.');
     return;
