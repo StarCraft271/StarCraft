@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
@@ -38,6 +39,7 @@ header{position:sticky;top:0;z-index:20;background:#08091bdb;backdrop-filter:blu
 .btn:hover{transform:translateY(-2px);border-color:var(--blue)}
 .btn-primary{border:0;background:linear-gradient(110deg,#7c3aed,#4f46e5)}
 .btn-admin{color:#a5f3fc;border-color:#67e8f955}
+.nav-actions .btn-admin[hidden]{display:none!important}
 .menu-toggle{display:none;background:transparent;color:white;border:1px solid var(--border);padding:5px 11px;border-radius:8px;font-size:22px}
 .hero{min-height:590px;display:flex;align-items:center;padding:75px 0}
 .hero-grid{display:grid;grid-template-columns:1.1fr .9fr;align-items:center;gap:35px}
@@ -147,7 +149,7 @@ section{padding:65px 0}
   </nav>
   <div class="nav-actions">
    <a class="btn" href="account/">👤 پنل کاربری</a>
-   <a class="btn btn-admin" href="admin/">⚙️ پنل مدیریت</a>
+   <a class="btn btn-admin" id="sc-owner-admin-link" href="admin/" hidden>⚙️ پنل مدیریت</a>
   </div>
  </div>
 </header>
@@ -248,6 +250,9 @@ const SUPABASE_URL='https://euvslrpmvevtiwhfdhio.supabase.co';
 const SUPABASE_KEY='sb_publishable_YvXvyId7Fmd30vyxyoCAMg_fZn-8gE9';
 const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 
+/* شناسه مالک اصلی StarCraft */
+const SC_OWNER_ID='65df7d23-201c-4c0d-a922-887144e5bb6a';
+
 const toast=document.getElementById('toast');
 let toastTimer;
 function showToast(text){
@@ -255,6 +260,37 @@ function showToast(text){
  toast.classList.add('show');
  clearTimeout(toastTimer);
  toastTimer=setTimeout(()=>toast.classList.remove('show'),3500);
+}
+
+/* نمایش پنل مدیریت فقط برای حساب مالک تأییدشده */
+async function updateOwnerAdminLink(){
+ const link=document.getElementById('sc-owner-admin-link');
+ link.hidden=true;
+
+ try{
+  const {data,error}=await db.auth.getUser();
+
+  if(error||!data.user||data.user.id!==SC_OWNER_ID){
+   return false;
+  }
+
+  const {data:admin,error:adminError}=await db
+   .from('sc_admins')
+   .select('role')
+   .eq('user_id',SC_OWNER_ID)
+   .maybeSingle();
+
+  if(adminError||admin?.role!=='owner'){
+   return false;
+  }
+
+  link.hidden=false;
+  return true;
+ }catch(error){
+  console.error('Owner admin link verification error:',error);
+  link.hidden=true;
+  return false;
+ }
 }
 
 const menuToggle=document.getElementById('menuToggle');
@@ -314,8 +350,6 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape')modal.classList.remo
 const prices={VIP:50000,MVP:100000,SPONSER:200000,STAR:350000};
 
 /* کنترل تعمیرات سایت و دسترسی مخصوص مالک */
-const SC_OWNER_ID='65df7d23-201c-4c0d-a922-887144e5bb6a';
-
 const maintenanceOverlay=document.createElement('div');
 maintenanceOverlay.id='sc-maintenance-overlay';
 maintenanceOverlay.innerHTML=`
@@ -546,6 +580,14 @@ form.addEventListener('submit',async e=>{
  }
 });
 
+/* به‌روزرسانی نمایش پنل مالک هنگام ورود یا خروج از حساب */
+db.auth.onAuthStateChange(()=>{
+ updateOwnerAdminLink();
+ checkMaintenanceOwner();
+});
+
+/* بررسی اولیه */
+updateOwnerAdminLink();
 loadSiteControls();
 </script>
 </body>
